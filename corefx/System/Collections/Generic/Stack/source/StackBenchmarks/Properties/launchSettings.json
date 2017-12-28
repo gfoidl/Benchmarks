@@ -1,0 +1,8 @@
+{
+	"profiles": {
+		"StackBenchmarks": {
+			"commandName": "Project",
+			"commandLineArgs": "PushBenchmarks"
+		}
+	}
+}
