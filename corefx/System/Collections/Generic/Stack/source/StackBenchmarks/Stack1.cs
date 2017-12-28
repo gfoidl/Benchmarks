@@ -279,12 +279,24 @@ namespace System.Collections.Generic
 			int size = _size;
 			T[] array = _array;
 
-			if ((uint)size >= (uint)array.Length)
+			if ((uint)size < (uint)array.Length)
 			{
-				Array.Resize(ref array, (array.Length == 0) ? DefaultCapacity : 2 * array.Length);
-				_array = array;
+				array[size] = item;
+				_version++;
+				_size++;
 			}
-			array[size] = item;
+			else
+			{
+				PushWithResize(item);
+			}
+		}
+
+		// Non-inline from Stack.Push to improve its code quality as uncommon path
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private void PushWithResize(T item)
+		{
+			Array.Resize(ref _array, (_array.Length == 0) ? DefaultCapacity : 2 * _array.Length);
+			_array[_size] = item;
 			_version++;
 			_size++;
 		}
