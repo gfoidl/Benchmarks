@@ -1,0 +1,8 @@
+{
+	"profiles": {
+		"LargeArrayBuilderBenchmarks": {
+			"commandName": "Project",
+			"commandLineArgs": "AddRangeBenchmarks"
+		}
+	}
+}
