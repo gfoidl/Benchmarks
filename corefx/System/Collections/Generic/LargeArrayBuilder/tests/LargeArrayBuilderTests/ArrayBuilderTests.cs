@@ -163,8 +163,9 @@ namespace System.Collections.Generic.Tests
         public static TheoryData<IEnumerable<T>> EnumerableData()
         {
             var data = new TheoryData<IEnumerable<T>>();
-            
-            IEnumerable<int> counts = CountData().Select(array => array[0]).Cast<int>();
+
+            //IEnumerable<int> counts = CountData().Select(array => array[0]).Cast<int>();
+            IEnumerable<int> counts = Enumerable.Select(CountData(), array => array[0]).Cast<int>();
 
             foreach (int count in counts)
             {

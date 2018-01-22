@@ -2,7 +2,7 @@
 	"profiles": {
 		"LargeArrayBuilderBenchmarks": {
 			"commandName": "Project",
-			"commandLineArgs": "AddRangeBenchmarks"
+			"commandLineArgs": "LinqSelectBenchmarks"
 		}
 	}
 }

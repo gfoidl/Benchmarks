@@ -23,6 +23,12 @@ namespace LargeArrayBuilderBenchmarks
 				case nameof(AddRangeBenchmarks):
 					AddRangeBenchmarks.Run();
 					break;
+				case nameof(LinqWhereBenchmarks):
+					LinqWhereBenchmarks.Run();
+					break;
+				case nameof(LinqSelectBenchmarks):
+					LinqSelectBenchmarks.Run();
+					break;
 				default:
 					Console.WriteLine($"unknown benchmark '{arg}'");
 					break;
