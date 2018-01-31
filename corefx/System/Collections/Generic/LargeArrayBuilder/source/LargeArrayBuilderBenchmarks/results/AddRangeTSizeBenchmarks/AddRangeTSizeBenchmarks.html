@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title>AddRangeTSizeBenchmarks</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.12, OS=ubuntu 16.04
+Intel Xeon CPU 2.60GHz, 1 CPU, 2 logical cores and 1 physical core
+.NET Core SDK=2.1.4
+  [Host]     : .NET Core 2.0.5 (Framework 4.6.0.0), 64bit RyuJIT
+  DefaultJob : .NET Core 2.0.5 (Framework 4.6.0.0), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Size</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th>
+</tr>
+</thead><tbody><tr><td>Default</td><td>128</td><td>10.453 ms</td><td>0.2049 ms</td><td>0.2804 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>New1</td><td>128</td><td>10.124 ms</td><td>0.2018 ms</td><td>0.1789 ms</td><td>0.97</td><td>0.03</td>
+</tr><tr><td>New2</td><td>128</td><td>10.560 ms</td><td>0.2061 ms</td><td>0.3769 ms</td><td>1.01</td><td>0.04</td>
+</tr><tr><td>Default</td><td>16</td><td>3.082 ms</td><td>0.0492 ms</td><td>0.0436 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>New1</td><td>16</td><td>2.747 ms</td><td>0.0316 ms</td><td>0.0280 ms</td><td>0.89</td><td>0.01</td>
+</tr><tr><td>New2</td><td>16</td><td>3.141 ms</td><td>0.0567 ms</td><td>0.0530 ms</td><td>1.02</td><td>0.02</td>
+</tr><tr><td>Default</td><td>24</td><td>2.092 ms</td><td>0.0408 ms</td><td>0.0419 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>New1</td><td>24</td><td>2.042 ms</td><td>0.0518 ms</td><td>0.0459 ms</td><td>0.98</td><td>0.03</td>
+</tr><tr><td>New2</td><td>24</td><td>2.070 ms</td><td>0.0418 ms</td><td>0.0391 ms</td><td>0.99</td><td>0.03</td>
+</tr><tr><td>Default</td><td>32</td><td>3.363 ms</td><td>0.0663 ms</td><td>0.0930 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>New1</td><td>32</td><td>3.260 ms</td><td>0.0636 ms</td><td>0.0932 ms</td><td>0.97</td><td>0.04</td>
+</tr><tr><td>New2</td><td>32</td><td>3.342 ms</td><td>0.0637 ms</td><td>0.0759 ms</td><td>0.99</td><td>0.03</td>
+</tr><tr><td>Default</td><td>4</td><td>1.355 ms</td><td>0.0255 ms</td><td>0.0238 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>New1</td><td>4</td><td>1.288 ms</td><td>0.0284 ms</td><td>0.0265 ms</td><td>0.95</td><td>0.02</td>
+</tr><tr><td>New2</td><td>4</td><td>1.255 ms</td><td>0.0165 ms</td><td>0.0155 ms</td><td>0.93</td><td>0.02</td>
+</tr><tr><td>Default</td><td>64</td><td>7.438 ms</td><td>0.1359 ms</td><td>0.1271 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>New1</td><td>64</td><td>7.261 ms</td><td>0.1241 ms</td><td>0.1100 ms</td><td>0.98</td><td>0.02</td>
+</tr><tr><td>New2</td><td>64</td><td>7.298 ms</td><td>0.0895 ms</td><td>0.0793 ms</td><td>0.98</td><td>0.02</td>
+</tr><tr><td>Default</td><td>8</td><td>1.812 ms</td><td>0.0247 ms</td><td>0.0219 ms</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>New1</td><td>8</td><td>1.719 ms</td><td>0.0159 ms</td><td>0.0149 ms</td><td>0.95</td><td>0.01</td>
+</tr><tr><td>New2</td><td>8</td><td>1.721 ms</td><td>0.0219 ms</td><td>0.0205 ms</td><td>0.95</td><td>0.02</td>
+</tr></tbody></table>
+
+
+</body></html>
