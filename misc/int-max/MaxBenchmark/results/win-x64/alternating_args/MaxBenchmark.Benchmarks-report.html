@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Benchmarks</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.12, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.125)
+Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical cores and 4 physical cores
+Frequency=2742191 Hz, Resolution=364.6719 ns, Timer=TSC
+.NET Core SDK=2.1.4
+  [Host]     : .NET Core 2.0.5 (Framework 4.6.26020.03), 64bit RyuJIT
+  DefaultJob : .NET Core 2.0.5 (Framework 4.6.26020.03), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th>
+</tr>
+</thead><tbody><tr><td>Max1</td><td>0.8220 ns</td><td>0.0542 ns</td><td>0.0507 ns</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>Max2</td><td>0.7590 ns</td><td>0.0449 ns</td><td>0.0398 ns</td><td>0.93</td><td>0.07</td>
+</tr><tr><td>Max3</td><td>0.7834 ns</td><td>0.0539 ns</td><td>0.0577 ns</td><td>0.96</td><td>0.09</td>
+</tr><tr><td>Max4</td><td>0.5017 ns</td><td>0.0209 ns</td><td>0.0185 ns</td><td>0.61</td><td>0.04</td>
+</tr><tr><td>Max5</td><td>0.4912 ns</td><td>0.0311 ns</td><td>0.0291 ns</td><td>0.60</td><td>0.05</td>
+</tr><tr><td>Max6</td><td>0.7272 ns</td><td>0.0185 ns</td><td>0.0173 ns</td><td>0.89</td><td>0.05</td>
+</tr><tr><td>Max7</td><td>0.3053 ns</td><td>0.0213 ns</td><td>0.0200 ns</td><td>0.37</td><td>0.03</td>
+</tr><tr><td>Max8</td><td>2.1243 ns</td><td>0.0313 ns</td><td>0.0293 ns</td><td>2.59</td><td>0.15</td>
+</tr><tr><td>Max9</td><td>0.7665 ns</td><td>0.0528 ns</td><td>0.0821 ns</td><td>0.94</td><td>0.11</td>
+</tr></tbody></table>
+</body>
+</html>
