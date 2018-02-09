@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2024
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reduction_sum", "Reduction_sum\Reduction_sum.csproj", "{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {422DFFC7-B34A-4C16-947C-4D59A0C1EB4D}
+	EndGlobalSection
+EndGlobal
