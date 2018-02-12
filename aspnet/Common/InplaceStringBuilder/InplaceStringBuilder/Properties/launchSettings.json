@@ -1,0 +1,8 @@
+{
+	"profiles": {
+		"InplaceStringBuilder": {
+			"commandName": "Project",
+			"commandLineArgs": "AppendRealisticBenchmarks"
+		}
+	}
+}
