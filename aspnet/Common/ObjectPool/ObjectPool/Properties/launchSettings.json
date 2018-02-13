@@ -1,0 +1,8 @@
+{
+	"profiles": {
+		"ObjectPool": {
+			"commandName": "Project",
+			"commandLineArgs": "HalfFullPoolBenchmarks"
+		}
+	}
+}
