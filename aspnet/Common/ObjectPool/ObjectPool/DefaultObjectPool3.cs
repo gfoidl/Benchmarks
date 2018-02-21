@@ -3,27 +3,32 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Microsoft.Extensions.ObjectPool
 {
-	public class DefaultObjectPool1<T> : ObjectPool<T> where T : class
+	public class DefaultObjectPool3<T> : ObjectPool<T> where T : class
 	{
 		private readonly ObjectWrapper[] _items;
-		private readonly IPooledObjectPolicy<T> _policy;
 		private readonly bool _isDefaultPolicy;
 		private T _firstItem;
+		private Func<T> _create;
+		private Func<T, bool> _return;
 
-		public DefaultObjectPool1(IPooledObjectPolicy<T> policy)
+		public DefaultObjectPool3(IPooledObjectPolicy<T> policy)
 			: this(policy, Environment.ProcessorCount * 2)
 		{
 		}
 
-		public DefaultObjectPool1(IPooledObjectPolicy<T> policy, int maximumRetained)
+		public DefaultObjectPool3(IPooledObjectPolicy<T> policy, int maximumRetained)
 		{
-			_policy = policy ?? throw new ArgumentNullException(nameof(policy));
+			if (policy == null) throw new ArgumentNullException(nameof(policy));
+
 			_isDefaultPolicy = IsDefaultPolicy();
+			_create = CompileCreate();
+			_return = CompileReturn();
 
 			// -1 due to _firstItem
 			_items = new ObjectWrapper[maximumRetained - 1];
@@ -33,6 +38,18 @@ namespace Microsoft.Extensions.ObjectPool
 				var type = policy.GetType();
 
 				return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(DefaultPooledObjectPolicy<>);
+			}
+
+			Func<T> CompileCreate()
+			{
+				Expression<Func<T>> createExpression = () => policy.Create();
+				return createExpression.Compile();
+			}
+
+			Func<T, bool> CompileReturn()
+			{
+				Expression<Func<T, bool>> returnExpression = obj => policy.Return(obj);
+				return returnExpression.Compile();
 			}
 		}
 
@@ -62,12 +79,12 @@ namespace Microsoft.Extensions.ObjectPool
 					break;
 			}
 
-			return item ?? _policy.Create();
+			return item ?? _create();
 		}
 
 		public override void Return(T obj)
 		{
-			if (_isDefaultPolicy || _policy.Return(obj))
+			if (_isDefaultPolicy || _return(obj))
 			{
 				if (_firstItem != null || Interlocked.CompareExchange(ref _firstItem, obj, null) != null)
 				{

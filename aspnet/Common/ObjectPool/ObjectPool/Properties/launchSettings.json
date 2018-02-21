@@ -2,7 +2,7 @@
 	"profiles": {
 		"ObjectPool": {
 			"commandName": "Project",
-			"commandLineArgs": "HalfFullPoolBenchmarks"
+			"commandLineArgs": "StringBuilderFullPoolBenchmarks"
 		}
 	}
 }

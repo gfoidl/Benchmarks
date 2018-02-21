@@ -8,21 +8,23 @@ using System.Threading;
 
 namespace Microsoft.Extensions.ObjectPool
 {
-	public class DefaultObjectPool1<T> : ObjectPool<T> where T : class
+	public class DefaultObjectPool2<T> : ObjectPool<T> where T : class
 	{
 		private readonly ObjectWrapper[] _items;
 		private readonly IPooledObjectPolicy<T> _policy;
+		private readonly PooledObjectPolicy<T> _fastPolicy;
 		private readonly bool _isDefaultPolicy;
 		private T _firstItem;
 
-		public DefaultObjectPool1(IPooledObjectPolicy<T> policy)
+		public DefaultObjectPool2(IPooledObjectPolicy<T> policy)
 			: this(policy, Environment.ProcessorCount * 2)
 		{
 		}
 
-		public DefaultObjectPool1(IPooledObjectPolicy<T> policy, int maximumRetained)
+		public DefaultObjectPool2(IPooledObjectPolicy<T> policy, int maximumRetained)
 		{
 			_policy = policy ?? throw new ArgumentNullException(nameof(policy));
+			_fastPolicy = policy as PooledObjectPolicy<T>;
 			_isDefaultPolicy = IsDefaultPolicy();
 
 			// -1 due to _firstItem
@@ -62,12 +64,16 @@ namespace Microsoft.Extensions.ObjectPool
 					break;
 			}
 
-			return item ?? _policy.Create();
+			return item ?? this.Create();
 		}
+
+		// Non-inline to improve its code quality as uncommon path
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private T Create() => _fastPolicy?.Create() ?? _policy.Create();
 
 		public override void Return(T obj)
 		{
-			if (_isDefaultPolicy || _policy.Return(obj))
+			if (_isDefaultPolicy || (_fastPolicy?.Return(obj) ?? _policy.Return(obj)))
 			{
 				if (_firstItem != null || Interlocked.CompareExchange(ref _firstItem, obj, null) != null)
 				{

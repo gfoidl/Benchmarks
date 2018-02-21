@@ -3,27 +3,33 @@
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Microsoft.Extensions.ObjectPool
 {
-	public class DefaultObjectPool1<T> : ObjectPool<T> where T : class
+	public class DefaultObjectPool4<T> : ObjectPool<T> where T : class
 	{
 		private readonly ObjectWrapper[] _items;
 		private readonly IPooledObjectPolicy<T> _policy;
 		private readonly bool _isDefaultPolicy;
 		private T _firstItem;
+		private Func<T> _create;
+		private Func<T, bool> _return;
 
-		public DefaultObjectPool1(IPooledObjectPolicy<T> policy)
+		public DefaultObjectPool4(IPooledObjectPolicy<T> policy)
 			: this(policy, Environment.ProcessorCount * 2)
 		{
 		}
 
-		public DefaultObjectPool1(IPooledObjectPolicy<T> policy, int maximumRetained)
+		public DefaultObjectPool4(IPooledObjectPolicy<T> policy, int maximumRetained)
 		{
 			_policy = policy ?? throw new ArgumentNullException(nameof(policy));
 			_isDefaultPolicy = IsDefaultPolicy();
+			_create = CompileCreate(this);
+			_return = CompileReturn(this);
 
 			// -1 due to _firstItem
 			_items = new ObjectWrapper[maximumRetained - 1];
@@ -33,6 +39,41 @@ namespace Microsoft.Extensions.ObjectPool
 				var type = policy.GetType();
 
 				return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(DefaultPooledObjectPolicy<>);
+			}
+
+			Func<T> CompileCreate(object owner)
+			{
+				Type ownerType = typeof(DefaultObjectPool4<T>);
+				FieldInfo policyField = ownerType.GetField(nameof(_policy), BindingFlags.NonPublic | BindingFlags.Instance);
+				Type target = policy.GetType();
+				MethodInfo createMethod = target.GetMethod(nameof(IPooledObjectPolicy<T>.Create));
+				DynamicMethod dm = new DynamicMethod("_Create_", typeof(T), new[] { ownerType }, ownerType);
+				ILGenerator ilGen = dm.GetILGenerator();
+
+				ilGen.Emit(OpCodes.Ldarg_0);
+				ilGen.Emit(OpCodes.Ldfld, policyField);
+				ilGen.Emit(OpCodes.Call, createMethod);
+				ilGen.Emit(OpCodes.Ret);
+
+				return dm.CreateDelegate(typeof(Func<T>), owner) as Func<T>;
+			}
+
+			Func<T, bool> CompileReturn(object owner)
+			{
+				Type ownerType = typeof(DefaultObjectPool4<T>);
+				FieldInfo policyField = ownerType.GetField(nameof(_policy), BindingFlags.NonPublic | BindingFlags.Instance);
+				Type target = policy.GetType();
+				MethodInfo returnMethod = target.GetMethod(nameof(IPooledObjectPolicy<T>.Return));
+				DynamicMethod dm = new DynamicMethod("_Return_", typeof(bool), new[] { ownerType, typeof(T) }, ownerType);
+				ILGenerator ilGen = dm.GetILGenerator();
+
+				ilGen.Emit(OpCodes.Ldarg_0);
+				ilGen.Emit(OpCodes.Ldfld, policyField);
+				ilGen.Emit(OpCodes.Ldarg_1);
+				ilGen.Emit(OpCodes.Call, returnMethod);
+				ilGen.Emit(OpCodes.Ret);
+
+				return dm.CreateDelegate(typeof(Func<T, bool>), owner) as Func<T, bool>;
 			}
 		}
 
@@ -62,12 +103,12 @@ namespace Microsoft.Extensions.ObjectPool
 					break;
 			}
 
-			return item ?? _policy.Create();
+			return item ?? _create();
 		}
 
 		public override void Return(T obj)
 		{
-			if (_isDefaultPolicy || _policy.Return(obj))
+			if (_isDefaultPolicy || _return(obj))
 			{
 				if (_firstItem != null || Interlocked.CompareExchange(ref _firstItem, obj, null) != null)
 				{

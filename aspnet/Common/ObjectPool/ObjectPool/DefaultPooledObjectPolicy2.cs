@@ -3,10 +3,16 @@
 
 namespace Microsoft.Extensions.ObjectPool
 {
-	public interface IPooledObjectPolicy<T>
+	public sealed class DefaultPooledObjectPolicy2<T> : PooledObjectPolicy<T> where T : class, new()
 	{
-		T Create();
+		public override T Create()
+		{
+			return new T();
+		}
 
-		bool Return(T obj);
+		public override bool Return(T obj)
+		{
+			return true;
+		}
 	}
 }

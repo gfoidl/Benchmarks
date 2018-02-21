@@ -3,10 +3,10 @@
 
 namespace Microsoft.Extensions.ObjectPool
 {
-	public interface IPooledObjectPolicy<T>
+	public abstract class PooledObjectPolicy<T> : IPooledObjectPolicy<T>
 	{
-		T Create();
+		public abstract T Create();
 
-		bool Return(T obj);
+		public abstract bool Return(T obj);
 	}
 }

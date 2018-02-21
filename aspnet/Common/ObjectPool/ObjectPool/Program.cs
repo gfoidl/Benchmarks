@@ -26,6 +26,9 @@ namespace ObjectPool
 				case nameof(HalfFullPoolBenchmarks):
 					HalfFullPoolBenchmarks.Run();
 					break;
+				case nameof(StringBuilderFullPoolBenchmarks):
+					StringBuilderFullPoolBenchmarks.Run();
+					break;
 				default:
 					Console.WriteLine($"unknown benchmark '{arg}'");
 					break;

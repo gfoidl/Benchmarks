@@ -31,9 +31,7 @@ namespace Microsoft.Extensions.ObjectPool
 			{
 				var type = policy.GetType();
 
-				return type.IsGenericType
-					? type.GetGenericTypeDefinition() == typeof(DefaultPooledObjectPolicy<>)
-					: false;
+				return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(DefaultPooledObjectPolicy<>);
 			}
 		}
 
