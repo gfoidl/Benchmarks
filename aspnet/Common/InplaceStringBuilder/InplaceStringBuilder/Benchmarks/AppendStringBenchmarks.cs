@@ -12,8 +12,9 @@ namespace InplaceStringBuilder
 			var benchs = new AppendStringBenchmarks();
 
 			Console.WriteLine(benchs.Default());
-			Console.WriteLine(benchs.Default_ThrowHelper());
-			Console.WriteLine(benchs.Default_ThrowHelper_AggressiveInlining());
+			Console.WriteLine(benchs.This_PR());
+			Console.WriteLine(benchs.This_PR_wo_pre_init());
+			Console.WriteLine(benchs.New_Idea());
 			Console.WriteLine(benchs.CharArray());
 #if !DEBUG
 			BenchmarkRunner.Run<AppendStringBenchmarks>();
@@ -34,7 +35,7 @@ namespace InplaceStringBuilder
 		}
 		//---------------------------------------------------------------------
 		[Benchmark]
-		public string Default_ThrowHelper_AggressiveInlining()
+		public string This_PR()
 		{
 			var sb = new InplaceStringBuilder00(N);
 
@@ -45,7 +46,18 @@ namespace InplaceStringBuilder
 		}
 		//---------------------------------------------------------------------
 		[Benchmark]
-		public string Default_ThrowHelper()
+		public string This_PR_wo_pre_init()
+		{
+			var sb = new InplaceStringBuilder02(N);
+
+			for (int i = 0; i < N / 2; ++i)
+				sb.Append("ab");
+
+			return sb.ToString();
+		}
+		//---------------------------------------------------------------------
+		[Benchmark]
+		public string New_Idea()
 		{
 			var sb = new InplaceStringBuilder01(N);
 
@@ -55,7 +67,7 @@ namespace InplaceStringBuilder
 			return sb.ToString();
 		}
 		//---------------------------------------------------------------------
-		[Benchmark]
+		//[Benchmark]
 		public string CharArray()
 		{
 			var sb = new InplaceStringBuilder1(N);

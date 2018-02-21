@@ -8,12 +8,13 @@ using System.Runtime.CompilerServices;
 namespace Microsoft.Extensions.Primitives
 {
 	[DebuggerDisplay("Value = {_value}")]
-	public struct InplaceStringBuilder00
+	public struct InplaceStringBuilder01
 	{
 		private int _offset;
+		private int _capacity;
 		private string _value;
 
-		public InplaceStringBuilder00(int capacity) : this()
+		public InplaceStringBuilder01(int capacity) : this()
 		{
 			if (capacity < 0)
 			{
@@ -21,11 +22,12 @@ namespace Microsoft.Extensions.Primitives
 			}
 
 			_value = new string('\0', capacity);
+			_capacity = capacity;
 		}
 
 		public int Capacity
 		{
-			get => _value?.Length ?? 0;
+			get => _capacity;
 			set
 			{
 				if (value < 0)
@@ -40,6 +42,7 @@ namespace Microsoft.Extensions.Primitives
 				}
 
 				_value = new string('\0', value);
+				_capacity = value;
 			}
 		}
 

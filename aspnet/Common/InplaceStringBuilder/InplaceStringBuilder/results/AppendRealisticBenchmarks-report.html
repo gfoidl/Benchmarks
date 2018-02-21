@@ -13,9 +13,9 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.10.12, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.125)
+BenchmarkDotNet=v0.10.12, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.248)
 Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical cores and 4 physical cores
-Frequency=2742191 Hz, Resolution=364.6719 ns, Timer=TSC
+Frequency=2742187 Hz, Resolution=364.6724 ns, Timer=TSC
 .NET Core SDK=2.1.4
   [Host]     : .NET Core 2.0.5 (Framework 4.6.26020.03), 64bit RyuJIT
   DefaultJob : .NET Core 2.0.5 (Framework 4.6.26020.03), 64bit RyuJIT
@@ -23,12 +23,12 @@ Frequency=2742191 Hz, Resolution=364.6719 ns, Timer=TSC
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>                          Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th>
+<thead><tr><th>       Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>Gen 0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>Default</td><td>74.63 ns</td><td>1.5745 ns</td><td>2.5426 ns</td><td>1.00</td><td>0.00</td>
-</tr><tr><td>Default_ThrowHelper_AggressiveInlining</td><td>42.83 ns</td><td>0.5936 ns</td><td>0.5262 ns</td><td>0.57</td><td>0.02</td>
-</tr><tr><td>Default_ThrowHelper</td><td>54.69 ns</td><td>0.3238 ns</td><td>0.2704 ns</td><td>0.73</td><td>0.02</td>
-</tr><tr><td>CharArray</td><td>178.26 ns</td><td>1.7530 ns</td><td>1.6397 ns</td><td>2.39</td><td>0.08</td>
+</thead><tbody><tr><td>Default</td><td>68.31 ns</td><td>0.7611 ns</td><td>0.6747 ns</td><td>1.00</td><td>0.0151</td><td>48 B</td>
+</tr><tr><td>This_PR</td><td>44.31 ns</td><td>0.3620 ns</td><td>0.3023 ns</td><td>0.65</td><td>0.0152</td><td>48 B</td>
+</tr><tr><td>This_PR_wo_pre_init</td><td>34.11 ns</td><td>0.4492 ns</td><td>0.4202 ns</td><td>0.50</td><td>0.0152</td><td>48 B</td>
+</tr><tr><td>New_Idea</td><td>34.92 ns</td><td>0.2254 ns</td><td>0.1998 ns</td><td>0.51</td><td>0.0152</td><td>48 B</td>
 </tr></tbody></table>
 </body>
 </html>
