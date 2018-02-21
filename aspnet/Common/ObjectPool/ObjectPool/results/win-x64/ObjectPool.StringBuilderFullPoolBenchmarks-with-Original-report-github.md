@@ -11,7 +11,8 @@ Frequency=2742187 Hz, Resolution=364.6724 ns, Timer=TSC
 ```
 |        Method |     Mean |     Error |    StdDev | Scaled |
 |-------------- |---------:|----------:|----------:|-------:|
-|       Default | 28.11 ns | 0.2196 ns | 0.2054 ns |   1.00 |
-|   NoInterface | 21.75 ns | 0.1348 ns | 0.1261 ns |   0.77 |
-|   Expressions | 23.38 ns | 0.1760 ns | 0.1646 ns |   0.83 |
-| DynamicMethod | 21.92 ns | 0.3097 ns | 0.2897 ns |   0.78 |
+|      Original | 34.14 ns | 0.4016 ns | 0.3756 ns |   1.00 |
+|       Default | 29.24 ns | 0.1374 ns | 0.1285 ns |   0.86 |
+|   NoInterface | 21.92 ns | 0.2210 ns | 0.2068 ns |   0.64 |
+|   Expressions | 23.43 ns | 0.1165 ns | 0.1089 ns |   0.69 |
+| DynamicMethod | 21.80 ns | 0.1269 ns | 0.1187 ns |   0.64 |
