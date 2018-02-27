@@ -9,7 +9,7 @@ Frequency=2742187 Hz, Resolution=364.6724 ns, Timer=TSC
 
 
 ```
-|  Method |     Mean |     Error |    StdDev | Scaled | ScaledSD |
-|-------- |---------:|----------:|----------:|-------:|---------:|
-| Default | 15.23 ns | 0.3410 ns | 0.4188 ns |   1.00 |     0.00 |
-|     New | 13.14 ns | 0.2340 ns | 0.2074 ns |   0.86 |     0.03 |
+| Method |     Mean |     Error |    StdDev | Scaled | ScaledSD |
+|------- |---------:|----------:|----------:|-------:|---------:|
+|    New | 12.52 ns | 0.0707 ns | 0.0661 ns |   1.00 |     0.00 |
+|   Span | 27.92 ns | 0.1910 ns | 0.1787 ns |   2.23 |     0.02 |
