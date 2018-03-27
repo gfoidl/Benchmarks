@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>StringCreate</title>
+
+<style type="text/css">
+    table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+    td, th { padding: 6px 13px; border: 1px solid #ddd; }
+    tr { background-color: #fff; border-top: 1px solid #ccc; }
+    tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.13, OS=ubuntu 16.04
+Intel Xeon CPU 2.60GHz, 1 CPU, 2 logical cores and 1 physical core
+.NET Core SDK=2.1.300-preview3-008416
+  [Host]     : .NET Core 2.1.0-preview2-26314-02 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+  DefaultJob : .NET Core 2.1.0-preview2-26314-02 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>  Method</th><th>Size</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>String_Ctor</td><td>10</td><td>72.16 ns</td><td>0.1287 ns</td><td>0.0931 ns</td><td>1.00</td><td>0.00</td><td>0.0075</td><td>48 B</td>
+</tr><tr><td>String_Create</td><td>10</td><td>84.41 ns</td><td>0.7099 ns</td><td>0.5928 ns</td><td>1.17</td><td>0.01</td><td>0.0176</td><td>112 B</td>
+</tr><tr><td>String_Create1</td><td>10</td><td>71.90 ns</td><td>0.4653 ns</td><td>0.3885 ns</td><td>1.00</td><td>0.01</td><td>0.0075</td><td>48 B</td>
+</tr><tr><td>String_Ctor</td><td>50</td><td>84.88 ns</td><td>1.2038 ns</td><td>1.1261 ns</td><td>1.00</td><td>0.00</td><td>0.0201</td><td>128 B</td>
+</tr><tr><td>String_Create</td><td>50</td><td>90.33 ns</td><td>0.8942 ns</td><td>0.6982 ns</td><td>1.06</td><td>0.02</td><td>0.0304</td><td>192 B</td>
+</tr><tr><td>String_Create1</td><td>50</td><td>85.96 ns</td><td>1.4009 ns</td><td>1.3104 ns</td><td>1.01</td><td>0.02</td><td>0.0201</td><td>128 B</td>
+</tr><tr><td>String_Ctor</td><td>100</td><td>101.09 ns</td><td>1.9965 ns</td><td>1.8675 ns</td><td>1.00</td><td>0.00</td><td>0.0367</td><td>232 B</td>
+</tr><tr><td>String_Create</td><td>100</td><td>111.43 ns</td><td>2.0976 ns</td><td>1.9621 ns</td><td>1.10</td><td>0.03</td><td>0.0468</td><td>296 B</td>
+</tr><tr><td>String_Create1</td><td>100</td><td>98.87 ns</td><td>1.9325 ns</td><td>3.1752 ns</td><td>0.98</td><td>0.04</td><td>0.0367</td><td>232 B</td>
+</tr></tbody></table>
+</body>
+</html>

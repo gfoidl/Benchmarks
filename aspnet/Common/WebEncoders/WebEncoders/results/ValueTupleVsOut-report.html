@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>ValueTupleVsOut</title>
+
+<style type="text/css">
+    table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+    td, th { padding: 6px 13px; border: 1px solid #ddd; }
+    tr { background-color: #fff; border-top: 1px solid #ccc; }
+    tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.13, OS=ubuntu 16.04
+Intel Xeon CPU 2.60GHz, 1 CPU, 2 logical cores and 1 physical core
+.NET Core SDK=2.1.300-preview3-008416
+  [Host]     : .NET Core 2.1.0-preview2-26314-02 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+  DefaultJob : .NET Core 2.1.0-preview2-26314-02 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th>
+</tr>
+</thead><tbody><tr><td>ValueTuple</td><td>10.878 ns</td><td>0.0188 ns</td><td>0.0176 ns</td><td>1.00</td>
+</tr><tr><td>Out</td><td>2.387 ns</td><td>0.0192 ns</td><td>0.0180 ns</td><td>0.22</td>
+</tr></tbody></table>
+</body>
+</html>

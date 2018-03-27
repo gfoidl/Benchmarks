@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <LangVersion>latest</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <RootNamespace>WebEncodersBench</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+        <TargetFrameworks>netcoreapp2.1;netcoreapp2.0;net461</TargetFrameworks>
+        <DefineConstants>OS_WIN</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" Version="0.10.13" />
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.0-preview2-26308-02" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp2.1'">
+        <PackageReference Include="System.Memory" Version="4.5.0-preview2-26308-02" />
+    </ItemGroup>
+
+</Project>
