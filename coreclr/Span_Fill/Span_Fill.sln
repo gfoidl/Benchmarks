@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2015
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Span_Fill", "Span_Fill\Span_Fill.csproj", "{E488D473-F4F4-4719-81F6-09FEAD671AB0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{0C86CA0B-7EB2-426C-9623-F861600DE47E}"
+	ProjectSection(SolutionItems) = preProject
+		NuGet.config = NuGet.config
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E488D473-F4F4-4719-81F6-09FEAD671AB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E488D473-F4F4-4719-81F6-09FEAD671AB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E488D473-F4F4-4719-81F6-09FEAD671AB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E488D473-F4F4-4719-81F6-09FEAD671AB0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {25D5F197-DC40-4ABC-97F7-F9C8CDF3383E}
+	EndGlobalSection
+EndGlobal
