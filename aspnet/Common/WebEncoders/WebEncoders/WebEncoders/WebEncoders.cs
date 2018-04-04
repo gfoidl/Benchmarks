@@ -567,7 +567,8 @@ namespace Microsoft.Extensions.Internal
 
             Span<char> base64 = stackalloc char[base64Len];
             Convert.TryToBase64Chars(data, base64, out int written);
-            return EncodingHelper.UrlEncode(base64, base64Url);
+            //return EncodingHelper.UrlEncode(base64, base64Url);
+            return written;
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

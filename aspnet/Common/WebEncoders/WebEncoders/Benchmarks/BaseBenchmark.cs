@@ -7,7 +7,7 @@ using BenchmarkDotNet.Attributes.Jobs;
 namespace WebEncodersBench.Benchmarks
 {
 #if OS_WIN
-    [CoreJob, ClrJob]
+    //[CoreJob, ClrJob]
 #endif
     [MemoryDiagnoser]
     public abstract class BaseBenchmark { }
