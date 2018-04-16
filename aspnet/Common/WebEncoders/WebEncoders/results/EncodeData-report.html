@@ -13,31 +13,37 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.10.13, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.309)
+BenchmarkDotNet=v0.10.13, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.371)
 Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical cores and 4 physical cores
-Frequency=2742189 Hz, Resolution=364.6722 ns, Timer=TSC
-.NET Core SDK=2.1.300-preview3-008384
-  [Host] : .NET Core 2.1.0-preview2-26313-01 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+Frequency=2742187 Hz, Resolution=364.6724 ns, Timer=TSC
+.NET Core SDK=2.1.300-preview3-008618
+  [Host] : .NET Core 2.1.0-preview3-26411-06 (CoreCLR 4.6.26411.07, CoreFX 4.6.26411.06), 64bit RyuJIT
   Clr    : .NET Framework 4.7.1 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.2633.0
-  Core   : .NET Core 2.1.0-preview2-26313-01 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+  Core   : .NET Core 2.1.0-preview3-26411-06 (CoreCLR 4.6.26411.07, CoreFX 4.6.26411.06), 64bit RyuJIT
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method</th><th>Job</th><th>Runtime</th><th>DataSize</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Allocated</th>
+<thead><tr><th>Method</th><th>Job</th><th>Runtime</th><th>DataSize</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>Gen 0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>10</td><td>99.66 ns</td><td>2.085 ns</td><td>4.259 ns</td><td>1.00</td><td>0.00</td><td>0.0355</td><td>112 B</td>
-</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>10</td><td>96.82 ns</td><td>1.934 ns</td><td>1.986 ns</td><td>0.97</td><td>0.04</td><td>0.0355</td><td>112 B</td>
-</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>10</td><td>94.31 ns</td><td>1.966 ns</td><td>5.178 ns</td><td>1.00</td><td>0.00</td><td>0.0355</td><td>112 B</td>
-</tr><tr><td>New</td><td>Core</td><td>Core</td><td>10</td><td>85.06 ns</td><td>1.768 ns</td><td>2.479 ns</td><td>0.90</td><td>0.05</td><td>0.0178</td><td>56 B</td>
-</tr><tr><td>Default</td><td>Clr</td><td>Clr</td><td>50</td><td>292.39 ns</td><td>1.660 ns</td><td>1.472 ns</td><td>1.00</td><td>0.00</td><td>0.1016</td><td>320 B</td>
-</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>50</td><td>242.92 ns</td><td>4.917 ns</td><td>10.897 ns</td><td>0.83</td><td>0.04</td><td>0.1016</td><td>320 B</td>
-</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>50</td><td>240.90 ns</td><td>4.883 ns</td><td>4.796 ns</td><td>1.00</td><td>0.00</td><td>0.1016</td><td>320 B</td>
-</tr><tr><td>New</td><td>Core</td><td>Core</td><td>50</td><td>151.45 ns</td><td>3.082 ns</td><td>5.479 ns</td><td>0.63</td><td>0.03</td><td>0.0508</td><td>160 B</td>
-</tr><tr><td>Default</td><td>Clr</td><td>Clr</td><td>100</td><td>557.73 ns</td><td>10.927 ns</td><td>13.008 ns</td><td>1.00</td><td>0.00</td><td>0.1879</td><td>592 B</td>
-</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>100</td><td>431.71 ns</td><td>7.723 ns</td><td>6.846 ns</td><td>0.77</td><td>0.02</td><td>0.1879</td><td>592 B</td>
-</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>100</td><td>467.78 ns</td><td>9.396 ns</td><td>19.614 ns</td><td>1.00</td><td>0.00</td><td>0.1879</td><td>592 B</td>
-</tr><tr><td>New</td><td>Core</td><td>Core</td><td>100</td><td>326.64 ns</td><td>6.474 ns</td><td>5.739 ns</td><td>0.70</td><td>0.03</td><td>0.0939</td><td>296 B</td>
+</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>10</td><td>88.40 ns</td><td>0.7236 ns</td><td>0.6769 ns</td><td>1.00</td><td>0.0355</td><td>112 B</td>
+</tr><tr><td>PR_334</td><td>Clr</td><td>Clr</td><td>10</td><td>134.56 ns</td><td>0.6604 ns</td><td>0.5514 ns</td><td>1.52</td><td>0.0176</td><td>56 B</td>
+</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>10</td><td>83.58 ns</td><td>0.7490 ns</td><td>0.6639 ns</td><td>0.95</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>10</td><td>81.69 ns</td><td>0.4227 ns</td><td>0.3954 ns</td><td>1.00</td><td>0.0355</td><td>112 B</td>
+</tr><tr><td>PR_334</td><td>Core</td><td>Core</td><td>10</td><td>77.21 ns</td><td>0.6466 ns</td><td>0.5732 ns</td><td>0.95</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>New</td><td>Core</td><td>Core</td><td>10</td><td>63.37 ns</td><td>0.3465 ns</td><td>0.3241 ns</td><td>0.78</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>Default</td><td>Clr</td><td>Clr</td><td>50</td><td>264.01 ns</td><td>1.7501 ns</td><td>1.6370 ns</td><td>1.00</td><td>0.1016</td><td>320 B</td>
+</tr><tr><td>PR_334</td><td>Clr</td><td>Clr</td><td>50</td><td>253.22 ns</td><td>1.9782 ns</td><td>1.8504 ns</td><td>0.96</td><td>0.0505</td><td>160 B</td>
+</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>50</td><td>136.01 ns</td><td>1.0058 ns</td><td>0.8916 ns</td><td>0.52</td><td>0.0508</td><td>160 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>50</td><td>218.02 ns</td><td>1.1414 ns</td><td>1.0676 ns</td><td>1.00</td><td>0.1016</td><td>320 B</td>
+</tr><tr><td>PR_334</td><td>Core</td><td>Core</td><td>50</td><td>131.78 ns</td><td>0.8857 ns</td><td>0.7396 ns</td><td>0.60</td><td>0.0508</td><td>160 B</td>
+</tr><tr><td>New</td><td>Core</td><td>Core</td><td>50</td><td>98.77 ns</td><td>0.4972 ns</td><td>0.4651 ns</td><td>0.45</td><td>0.0508</td><td>160 B</td>
+</tr><tr><td>Default</td><td>Clr</td><td>Clr</td><td>100</td><td>471.31 ns</td><td>1.9779 ns</td><td>1.7534 ns</td><td>1.00</td><td>0.1879</td><td>592 B</td>
+</tr><tr><td>PR_334</td><td>Clr</td><td>Clr</td><td>100</td><td>443.90 ns</td><td>2.8687 ns</td><td>2.6834 ns</td><td>0.94</td><td>0.1879</td><td>592 B</td>
+</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>100</td><td>215.07 ns</td><td>1.2431 ns</td><td>1.1019 ns</td><td>0.46</td><td>0.1881</td><td>592 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>100</td><td>415.51 ns</td><td>3.1875 ns</td><td>2.9816 ns</td><td>1.00</td><td>0.1879</td><td>592 B</td>
+</tr><tr><td>PR_334</td><td>Core</td><td>Core</td><td>100</td><td>289.83 ns</td><td>1.7229 ns</td><td>1.4387 ns</td><td>0.70</td><td>0.0939</td><td>296 B</td>
+</tr><tr><td>New</td><td>Core</td><td>Core</td><td>100</td><td>151.40 ns</td><td>1.8358 ns</td><td>1.7172 ns</td><td>0.36</td><td>0.0939</td><td>296 B</td>
 </tr></tbody></table>
 </body>
 </html>

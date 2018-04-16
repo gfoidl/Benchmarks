@@ -13,23 +13,25 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.10.13, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.309)
+BenchmarkDotNet=v0.10.13, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.371)
 Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical cores and 4 physical cores
-Frequency=2742189 Hz, Resolution=364.6722 ns, Timer=TSC
-.NET Core SDK=2.1.300-preview3-008384
-  [Host] : .NET Core 2.1.0-preview2-26313-01 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+Frequency=2742187 Hz, Resolution=364.6724 ns, Timer=TSC
+.NET Core SDK=2.1.300-preview3-008618
+  [Host] : .NET Core 2.1.0-preview3-26411-06 (CoreCLR 4.6.26411.07, CoreFX 4.6.26411.06), 64bit RyuJIT
   Clr    : .NET Framework 4.7.1 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.2633.0
-  Core   : .NET Core 2.1.0-preview2-26313-01 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+  Core   : .NET Core 2.1.0-preview3-26411-06 (CoreCLR 4.6.26411.07, CoreFX 4.6.26411.06), 64bit RyuJIT
 </code></pre>
 <pre><code></code></pre>
 
 <table>
 <thead><tr><th>Method</th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>159.8 ns</td><td>3.171 ns</td><td>3.525 ns</td><td>1.00</td><td>0.00</td><td>0.0355</td><td>112 B</td>
-</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>126.4 ns</td><td>2.110 ns</td><td>1.973 ns</td><td>0.79</td><td>0.02</td><td>0.0126</td><td>40 B</td>
-</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>172.6 ns</td><td>3.249 ns</td><td>2.880 ns</td><td>1.00</td><td>0.00</td><td>0.0355</td><td>112 B</td>
-</tr><tr><td>New</td><td>Core</td><td>Core</td><td>119.0 ns</td><td>2.292 ns</td><td>2.032 ns</td><td>0.69</td><td>0.02</td><td>0.0126</td><td>40 B</td>
+</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>144.07 ns</td><td>2.426 ns</td><td>2.1510 ns</td><td>1.00</td><td>0.00</td><td>0.0355</td><td>112 B</td>
+</tr><tr><td>PR_334</td><td>Clr</td><td>Clr</td><td>120.28 ns</td><td>1.893 ns</td><td>1.7703 ns</td><td>0.84</td><td>0.02</td><td>0.0126</td><td>40 B</td>
+</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>64.49 ns</td><td>1.004 ns</td><td>0.9390 ns</td><td>0.45</td><td>0.01</td><td>0.0126</td><td>40 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>161.53 ns</td><td>1.206 ns</td><td>1.0072 ns</td><td>1.00</td><td>0.00</td><td>0.0355</td><td>112 B</td>
+</tr><tr><td>PR_334</td><td>Core</td><td>Core</td><td>104.90 ns</td><td>2.161 ns</td><td>3.6103 ns</td><td>0.65</td><td>0.02</td><td>0.0126</td><td>40 B</td>
+</tr><tr><td>New</td><td>Core</td><td>Core</td><td>52.92 ns</td><td>1.100 ns</td><td>1.1766 ns</td><td>0.33</td><td>0.01</td><td>0.0127</td><td>40 B</td>
 </tr></tbody></table>
 </body>
 </html>
