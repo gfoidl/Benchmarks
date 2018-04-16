@@ -24,8 +24,8 @@ namespace WebEncodersBench.Benchmarks
         [Benchmark(Baseline = true)]
         public byte[] Default() => WebEncoders0.Base64UrlDecode(_base64UrlEncoded);
         //---------------------------------------------------------------------
-        //[Benchmark]
-        public byte[] Base_PR() => WebEncoders1.Base64UrlDecode(_base64UrlEncoded);
+        [Benchmark]
+        public byte[] PR_334() => WebEncoders1.Base64UrlDecode(_base64UrlEncoded);
         //---------------------------------------------------------------------
         [Benchmark]
         public byte[] New() => WebEncoders.Base64UrlDecode(_base64UrlEncoded);

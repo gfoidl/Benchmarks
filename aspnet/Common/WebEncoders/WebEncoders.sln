@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{57EA7AE2
 		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EncodingMaps", "EncodingMaps\EncodingMaps.csproj", "{6E67FE0B-422A-4429-8BEF-3AADD8383F2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{78B74F90-AB59-445A-A21A-AF086FFBE637}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78B74F90-AB59-445A-A21A-AF086FFBE637}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78B74F90-AB59-445A-A21A-AF086FFBE637}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E67FE0B-422A-4429-8BEF-3AADD8383F2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E67FE0B-422A-4429-8BEF-3AADD8383F2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E67FE0B-422A-4429-8BEF-3AADD8383F2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E67FE0B-422A-4429-8BEF-3AADD8383F2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

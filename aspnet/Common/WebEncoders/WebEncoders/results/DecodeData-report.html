@@ -13,31 +13,37 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet=v0.10.13, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.309)
+BenchmarkDotNet=v0.10.13, OS=Windows 10 Redstone 3 [1709, Fall Creators Update] (10.0.16299.371)
 Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical cores and 4 physical cores
-Frequency=2742189 Hz, Resolution=364.6722 ns, Timer=TSC
-.NET Core SDK=2.1.300-preview3-008384
-  [Host] : .NET Core 2.1.0-preview2-26313-01 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+Frequency=2742187 Hz, Resolution=364.6724 ns, Timer=TSC
+.NET Core SDK=2.1.300-preview3-008618
+  [Host] : .NET Core 2.1.0-preview3-26411-06 (CoreCLR 4.6.26411.07, CoreFX 4.6.26411.06), 64bit RyuJIT
   Clr    : .NET Framework 4.7.1 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.2633.0
-  Core   : .NET Core 2.1.0-preview2-26313-01 (CoreCLR 4.6.26310.01, CoreFX 4.6.26313.01), 64bit RyuJIT
+  Core   : .NET Core 2.1.0-preview3-26411-06 (CoreCLR 4.6.26411.07, CoreFX 4.6.26411.06), 64bit RyuJIT
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method</th><th>Job</th><th>Runtime</th><th>DataSize</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Allocated</th>
+<thead><tr><th>Method</th><th>Job</th><th>Runtime</th><th>DataSize</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>10</td><td>119.7 ns</td><td>2.4100 ns</td><td>2.6787 ns</td><td>119.4 ns</td><td>1.00</td><td>0.00</td><td>0.0303</td><td>96 B</td>
-</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>10</td><td>124.7 ns</td><td>2.5604 ns</td><td>3.4181 ns</td><td>124.7 ns</td><td>1.04</td><td>0.04</td><td>0.0126</td><td>40 B</td>
-</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>10</td><td>131.0 ns</td><td>2.7016 ns</td><td>5.6392 ns</td><td>129.9 ns</td><td>1.00</td><td>0.00</td><td>0.0303</td><td>96 B</td>
-</tr><tr><td>New</td><td>Core</td><td>Core</td><td>10</td><td>106.6 ns</td><td>3.3803 ns</td><td>9.6988 ns</td><td>103.2 ns</td><td>0.82</td><td>0.08</td><td>0.0126</td><td>40 B</td>
-</tr><tr><td>Default</td><td>Clr</td><td>Clr</td><td>50</td><td>398.0 ns</td><td>7.8665 ns</td><td>9.3645 ns</td><td>398.5 ns</td><td>1.00</td><td>0.00</td><td>0.0758</td><td>240 B</td>
-</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>50</td><td>203.1 ns</td><td>1.3501 ns</td><td>1.0541 ns</td><td>202.9 ns</td><td>0.51</td><td>0.01</td><td>0.0253</td><td>80 B</td>
-</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>50</td><td>430.2 ns</td><td>3.4316 ns</td><td>3.2099 ns</td><td>431.0 ns</td><td>1.00</td><td>0.00</td><td>0.0758</td><td>240 B</td>
-</tr><tr><td>New</td><td>Core</td><td>Core</td><td>50</td><td>132.8 ns</td><td>0.7019 ns</td><td>0.6222 ns</td><td>133.0 ns</td><td>0.31</td><td>0.00</td><td>0.0253</td><td>80 B</td>
-</tr><tr><td>Default</td><td>Clr</td><td>Clr</td><td>100</td><td>744.1 ns</td><td>10.4349 ns</td><td>8.7136 ns</td><td>742.6 ns</td><td>1.00</td><td>0.00</td><td>0.1345</td><td>424 B</td>
-</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>100</td><td>380.2 ns</td><td>7.5157 ns</td><td>12.5570 ns</td><td>380.2 ns</td><td>0.51</td><td>0.02</td><td>0.0911</td><td>288 B</td>
-</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>100</td><td>866.1 ns</td><td>15.9919 ns</td><td>22.4184 ns</td><td>864.3 ns</td><td>1.00</td><td>0.00</td><td>0.1345</td><td>424 B</td>
-</tr><tr><td>New</td><td>Core</td><td>Core</td><td>100</td><td>277.8 ns</td><td>5.5897 ns</td><td>9.9358 ns</td><td>278.1 ns</td><td>0.32</td><td>0.01</td><td>0.0405</td><td>128 B</td>
+</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>10</td><td>113.56 ns</td><td>2.3357 ns</td><td>4.4439 ns</td><td>1.00</td><td>0.00</td><td>0.0303</td><td>96 B</td>
+</tr><tr><td>PR_334</td><td>Clr</td><td>Clr</td><td>10</td><td>130.38 ns</td><td>2.6556 ns</td><td>2.4840 ns</td><td>1.15</td><td>0.05</td><td>0.0126</td><td>40 B</td>
+</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>10</td><td>57.09 ns</td><td>1.0639 ns</td><td>0.8884 ns</td><td>0.50</td><td>0.02</td><td>0.0126</td><td>40 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>10</td><td>132.83 ns</td><td>2.7128 ns</td><td>6.1785 ns</td><td>1.00</td><td>0.00</td><td>0.0303</td><td>96 B</td>
+</tr><tr><td>PR_334</td><td>Core</td><td>Core</td><td>10</td><td>83.82 ns</td><td>0.4884 ns</td><td>0.4569 ns</td><td>0.63</td><td>0.03</td><td>0.0126</td><td>40 B</td>
+</tr><tr><td>New</td><td>Core</td><td>Core</td><td>10</td><td>44.06 ns</td><td>0.4275 ns</td><td>0.3790 ns</td><td>0.33</td><td>0.02</td><td>0.0127</td><td>40 B</td>
+</tr><tr><td>Default</td><td>Clr</td><td>Clr</td><td>50</td><td>367.18 ns</td><td>3.2591 ns</td><td>3.0486 ns</td><td>1.00</td><td>0.00</td><td>0.0758</td><td>240 B</td>
+</tr><tr><td>PR_334</td><td>Clr</td><td>Clr</td><td>50</td><td>206.31 ns</td><td>3.3799 ns</td><td>3.1615 ns</td><td>0.56</td><td>0.01</td><td>0.0253</td><td>80 B</td>
+</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>50</td><td>103.92 ns</td><td>1.4526 ns</td><td>1.2877 ns</td><td>0.28</td><td>0.00</td><td>0.0254</td><td>80 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>50</td><td>352.06 ns</td><td>3.4024 ns</td><td>3.1826 ns</td><td>1.00</td><td>0.00</td><td>0.0758</td><td>240 B</td>
+</tr><tr><td>PR_334</td><td>Core</td><td>Core</td><td>50</td><td>120.36 ns</td><td>2.4488 ns</td><td>3.8841 ns</td><td>0.34</td><td>0.01</td><td>0.0253</td><td>80 B</td>
+</tr><tr><td>New</td><td>Core</td><td>Core</td><td>50</td><td>96.80 ns</td><td>2.1195 ns</td><td>3.1067 ns</td><td>0.27</td><td>0.01</td><td>0.0254</td><td>80 B</td>
+</tr><tr><td>Default</td><td>Clr</td><td>Clr</td><td>100</td><td>733.31 ns</td><td>14.2941 ns</td><td>15.8878 ns</td><td>1.00</td><td>0.00</td><td>0.1345</td><td>424 B</td>
+</tr><tr><td>PR_334</td><td>Clr</td><td>Clr</td><td>100</td><td>373.12 ns</td><td>7.4124 ns</td><td>13.5540 ns</td><td>0.51</td><td>0.02</td><td>0.0911</td><td>288 B</td>
+</tr><tr><td>New</td><td>Clr</td><td>Clr</td><td>100</td><td>153.03 ns</td><td>3.0541 ns</td><td>3.6357 ns</td><td>0.21</td><td>0.01</td><td>0.0405</td><td>128 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>100</td><td>645.58 ns</td><td>13.2485 ns</td><td>22.1353 ns</td><td>1.00</td><td>0.00</td><td>0.1345</td><td>424 B</td>
+</tr><tr><td>PR_334</td><td>Core</td><td>Core</td><td>100</td><td>237.82 ns</td><td>1.9677 ns</td><td>1.8406 ns</td><td>0.37</td><td>0.01</td><td>0.0405</td><td>128 B</td>
+</tr><tr><td>New</td><td>Core</td><td>Core</td><td>100</td><td>158.39 ns</td><td>2.0021 ns</td><td>1.7748 ns</td><td>0.25</td><td>0.01</td><td>0.0405</td><td>128 B</td>
 </tr></tbody></table>
 </body>
 </html>
