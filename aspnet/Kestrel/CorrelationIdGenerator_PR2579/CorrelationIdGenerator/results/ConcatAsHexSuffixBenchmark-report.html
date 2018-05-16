@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>ConcatAsHexSuffixBenchmark</title>
+
+<style type="text/css">
+    table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+    td, th { padding: 6px 13px; border: 1px solid #ddd; }
+    tr { background-color: #fff; border-top: 1px solid #ccc; }
+    tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.14, OS=Windows 10.0.17134
+Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
+Frequency=2742192 Hz, Resolution=364.6718 ns, Timer=TSC
+.NET Core SDK=2.1.300-rc1-008673
+  [Host] : .NET Core 2.1.0-rc1 (CoreCLR 4.6.26426.02, CoreFX 4.6.26426.04), 64bit RyuJIT
+  Clr    : .NET Framework 4.7.1 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3101.0
+  Core   : .NET Core 2.1.0-rc1 (CoreCLR 4.6.26426.02, CoreFX 4.6.26426.04), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>          Method</th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>31.33 ns</td><td>0.6917 ns</td><td>0.8748 ns</td><td>1.00</td><td>0.00</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>StringCreateSpanUnsafe</td><td>Clr</td><td>Clr</td><td>30.18 ns</td><td>0.2140 ns</td><td>0.1897 ns</td><td>0.96</td><td>0.03</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>29.77 ns</td><td>0.2383 ns</td><td>0.2112 ns</td><td>1.00</td><td>0.00</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>StringCreateSpanUnsafe</td><td>Core</td><td>Core</td><td>24.77 ns</td><td>0.1765 ns</td><td>0.1651 ns</td><td>0.83</td><td>0.01</td><td>0.0229</td><td>72 B</td>
+</tr></tbody></table>
+</body>
+</html>

@@ -2,7 +2,7 @@
 using BenchmarkDotNet.Attributes.Jobs;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure;
 
-namespace CorrelationIdGeneratorBenchmarks
+namespace CorrelationIdGeneratorBenchmarks.Benchmarks
 {
     [MemoryDiagnoser]
     [CoreJob, ClrJob]
