@@ -24,14 +24,18 @@ Frequency=2742192 Hz, Resolution=364.6718 ns, Timer=TSC
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>          Method</th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>Gen 0</th><th>Allocated</th>
+<thead><tr><th>          Method</th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>30.55 ns</td><td>0.3343 ns</td><td>0.2610 ns</td><td>1.00</td><td>0.0178</td><td>56 B</td>
-</tr><tr><td>StringCreate</td><td>Clr</td><td>Clr</td><td>30.72 ns</td><td>0.3675 ns</td><td>0.3437 ns</td><td>1.01</td><td>0.0178</td><td>56 B</td>
-</tr><tr><td>StringCreateSpanUnsafe</td><td>Clr</td><td>Clr</td><td>29.00 ns</td><td>0.1565 ns</td><td>0.1463 ns</td><td>0.95</td><td>0.0178</td><td>56 B</td>
-</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>38.56 ns</td><td>0.7330 ns</td><td>0.6498 ns</td><td>1.00</td><td>0.0178</td><td>56 B</td>
-</tr><tr><td>StringCreate</td><td>Core</td><td>Core</td><td>29.07 ns</td><td>0.1224 ns</td><td>0.1022 ns</td><td>0.75</td><td>0.0178</td><td>56 B</td>
-</tr><tr><td>StringCreateSpanUnsafe</td><td>Core</td><td>Core</td><td>24.21 ns</td><td>0.1273 ns</td><td>0.1129 ns</td><td>0.63</td><td>0.0178</td><td>56 B</td>
+</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>32.91 ns</td><td>0.6418 ns</td><td>0.6004 ns</td><td>1.00</td><td>0.00</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>StringCreate</td><td>Clr</td><td>Clr</td><td>31.06 ns</td><td>0.4951 ns</td><td>0.4631 ns</td><td>0.94</td><td>0.02</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>StringCreateSpanUnsafe</td><td>Clr</td><td>Clr</td><td>28.88 ns</td><td>0.3857 ns</td><td>0.3608 ns</td><td>0.88</td><td>0.02</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>NoLookup</td><td>Clr</td><td>Clr</td><td>32.77 ns</td><td>0.4607 ns</td><td>0.4309 ns</td><td>1.00</td><td>0.02</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>NoLookupBranchless</td><td>Clr</td><td>Clr</td><td>35.48 ns</td><td>0.1829 ns</td><td>0.1428 ns</td><td>1.08</td><td>0.02</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>38.00 ns</td><td>0.2891 ns</td><td>0.2705 ns</td><td>1.00</td><td>0.00</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>StringCreate</td><td>Core</td><td>Core</td><td>29.55 ns</td><td>0.3055 ns</td><td>0.2858 ns</td><td>0.78</td><td>0.01</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>StringCreateSpanUnsafe</td><td>Core</td><td>Core</td><td>24.50 ns</td><td>0.2452 ns</td><td>0.2294 ns</td><td>0.64</td><td>0.01</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>NoLookup</td><td>Core</td><td>Core</td><td>27.75 ns</td><td>0.4264 ns</td><td>0.3780 ns</td><td>0.73</td><td>0.01</td><td>0.0178</td><td>56 B</td>
+</tr><tr><td>NoLookupBranchless</td><td>Core</td><td>Core</td><td>28.91 ns</td><td>0.4621 ns</td><td>0.4322 ns</td><td>0.76</td><td>0.01</td><td>0.0178</td><td>56 B</td>
 </tr></tbody></table>
 </body>
 </html>

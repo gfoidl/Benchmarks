@@ -12,8 +12,12 @@ Frequency=2742192 Hz, Resolution=364.6718 ns, Timer=TSC
 ```
 |                 Method |  Job | Runtime |     Mean |     Error |    StdDev | Scaled | ScaledSD |  Gen 0 | Allocated |
 |----------------------- |----- |-------- |---------:|----------:|----------:|-------:|---------:|-------:|----------:|
-|                Default |  Clr |     Clr | 31.33 ns | 0.6917 ns | 0.8748 ns |   1.00 |     0.00 | 0.0228 |      72 B |
-| StringCreateSpanUnsafe |  Clr |     Clr | 30.18 ns | 0.2140 ns | 0.1897 ns |   0.96 |     0.03 | 0.0228 |      72 B |
+|                Default |  Clr |     Clr | 31.14 ns | 0.3393 ns | 0.3173 ns |   1.00 |     0.00 | 0.0228 |      72 B |
+| StringCreateSpanUnsafe |  Clr |     Clr | 30.45 ns | 0.5382 ns | 0.5034 ns |   0.98 |     0.02 | 0.0228 |      72 B |
+|               NoLookup |  Clr |     Clr | 33.77 ns | 0.4602 ns | 0.4304 ns |   1.08 |     0.02 | 0.0228 |      72 B |
+|     NoLookupBranchless |  Clr |     Clr | 33.81 ns | 0.4356 ns | 0.3861 ns |   1.09 |     0.02 | 0.0228 |      72 B |
 |                        |      |         |          |           |           |        |          |        |           |
-|                Default | Core |    Core | 29.77 ns | 0.2383 ns | 0.2112 ns |   1.00 |     0.00 | 0.0228 |      72 B |
-| StringCreateSpanUnsafe | Core |    Core | 24.77 ns | 0.1765 ns | 0.1651 ns |   0.83 |     0.01 | 0.0229 |      72 B |
+|                Default | Core |    Core | 34.12 ns | 0.7521 ns | 0.7386 ns |   1.00 |     0.00 | 0.0228 |      72 B |
+| StringCreateSpanUnsafe | Core |    Core | 26.85 ns | 0.4039 ns | 0.3778 ns |   0.79 |     0.02 | 0.0228 |      72 B |
+|               NoLookup | Core |    Core | 26.77 ns | 0.3949 ns | 0.3694 ns |   0.79 |     0.02 | 0.0228 |      72 B |
+|     NoLookupBranchless | Core |    Core | 28.02 ns | 0.3557 ns | 0.3328 ns |   0.82 |     0.02 | 0.0228 |      72 B |

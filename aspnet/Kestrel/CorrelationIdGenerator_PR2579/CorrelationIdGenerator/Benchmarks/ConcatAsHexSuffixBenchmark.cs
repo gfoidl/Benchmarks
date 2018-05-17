@@ -13,6 +13,8 @@ namespace CorrelationIdGeneratorBenchmarks.Benchmarks
         {
             Console.WriteLine(this.Default());
             Console.WriteLine(this.StringCreateSpanUnsafe());
+            Console.WriteLine(this.NoLookup());
+            Console.WriteLine(this.NoLookupBranchless());
         }
         //---------------------------------------------------------------------
         private string _connectionId = CorrelationIdGenerator2.GetNextId();
@@ -23,5 +25,11 @@ namespace CorrelationIdGeneratorBenchmarks.Benchmarks
         //---------------------------------------------------------------------
         [Benchmark]
         public string StringCreateSpanUnsafe() => StringUtilities1.ConcatAsHexSuffix(_connectionId, ':', (uint)_streamId);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public string NoLookup() => StringUtilities2.ConcatAsHexSuffix(_connectionId, ':', (uint)_streamId);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public string NoLookupBranchless() => StringUtilities3.ConcatAsHexSuffix(_connectionId, ':', (uint)_streamId);
     }
 }

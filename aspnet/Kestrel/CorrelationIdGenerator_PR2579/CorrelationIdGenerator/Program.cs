@@ -12,9 +12,9 @@ namespace CorrelationIdGeneratorBenchmarks
     {
         static void Main(string[] args)
         {
-            Run<GetNextIdBenchmark>(args);
-            //Run<ConcatAsHexSuffixBenchmark>(args);
+            //Run<GetNextIdBenchmark>(args);
             //Run<BeginChunkBytesBenchmarks>(args);
+            Run<ConcatAsHexSuffixBenchmark>(args);
         }
         //---------------------------------------------------------------------
         private static void Run<T>(string[] args) where T : IBenchmark, new()

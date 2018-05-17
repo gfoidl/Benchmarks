@@ -26,10 +26,14 @@ Frequency=2742192 Hz, Resolution=364.6718 ns, Timer=TSC
 <table>
 <thead><tr><th>          Method</th><th>Job</th><th>Runtime</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>31.33 ns</td><td>0.6917 ns</td><td>0.8748 ns</td><td>1.00</td><td>0.00</td><td>0.0228</td><td>72 B</td>
-</tr><tr><td>StringCreateSpanUnsafe</td><td>Clr</td><td>Clr</td><td>30.18 ns</td><td>0.2140 ns</td><td>0.1897 ns</td><td>0.96</td><td>0.03</td><td>0.0228</td><td>72 B</td>
-</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>29.77 ns</td><td>0.2383 ns</td><td>0.2112 ns</td><td>1.00</td><td>0.00</td><td>0.0228</td><td>72 B</td>
-</tr><tr><td>StringCreateSpanUnsafe</td><td>Core</td><td>Core</td><td>24.77 ns</td><td>0.1765 ns</td><td>0.1651 ns</td><td>0.83</td><td>0.01</td><td>0.0229</td><td>72 B</td>
+</thead><tbody><tr><td>Default</td><td>Clr</td><td>Clr</td><td>31.14 ns</td><td>0.3393 ns</td><td>0.3173 ns</td><td>1.00</td><td>0.00</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>StringCreateSpanUnsafe</td><td>Clr</td><td>Clr</td><td>30.45 ns</td><td>0.5382 ns</td><td>0.5034 ns</td><td>0.98</td><td>0.02</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>NoLookup</td><td>Clr</td><td>Clr</td><td>33.77 ns</td><td>0.4602 ns</td><td>0.4304 ns</td><td>1.08</td><td>0.02</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>NoLookupBranchless</td><td>Clr</td><td>Clr</td><td>33.81 ns</td><td>0.4356 ns</td><td>0.3861 ns</td><td>1.09</td><td>0.02</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>Default</td><td>Core</td><td>Core</td><td>34.12 ns</td><td>0.7521 ns</td><td>0.7386 ns</td><td>1.00</td><td>0.00</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>StringCreateSpanUnsafe</td><td>Core</td><td>Core</td><td>26.85 ns</td><td>0.4039 ns</td><td>0.3778 ns</td><td>0.79</td><td>0.02</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>NoLookup</td><td>Core</td><td>Core</td><td>26.77 ns</td><td>0.3949 ns</td><td>0.3694 ns</td><td>0.79</td><td>0.02</td><td>0.0228</td><td>72 B</td>
+</tr><tr><td>NoLookupBranchless</td><td>Core</td><td>Core</td><td>28.02 ns</td><td>0.3557 ns</td><td>0.3328 ns</td><td>0.82</td><td>0.02</td><td>0.0228</td><td>72 B</td>
 </tr></tbody></table>
 </body>
 </html>

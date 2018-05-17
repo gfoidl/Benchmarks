@@ -10,12 +10,16 @@ Frequency=2742192 Hz, Resolution=364.6718 ns, Timer=TSC
 
 
 ```
-|                 Method |  Job | Runtime |     Mean |     Error |    StdDev | Scaled |  Gen 0 | Allocated |
-|----------------------- |----- |-------- |---------:|----------:|----------:|-------:|-------:|----------:|
-|                Default |  Clr |     Clr | 30.55 ns | 0.3343 ns | 0.2610 ns |   1.00 | 0.0178 |      56 B |
-|           StringCreate |  Clr |     Clr | 30.72 ns | 0.3675 ns | 0.3437 ns |   1.01 | 0.0178 |      56 B |
-| StringCreateSpanUnsafe |  Clr |     Clr | 29.00 ns | 0.1565 ns | 0.1463 ns |   0.95 | 0.0178 |      56 B |
-|                        |      |         |          |           |           |        |        |           |
-|                Default | Core |    Core | 38.56 ns | 0.7330 ns | 0.6498 ns |   1.00 | 0.0178 |      56 B |
-|           StringCreate | Core |    Core | 29.07 ns | 0.1224 ns | 0.1022 ns |   0.75 | 0.0178 |      56 B |
-| StringCreateSpanUnsafe | Core |    Core | 24.21 ns | 0.1273 ns | 0.1129 ns |   0.63 | 0.0178 |      56 B |
+|                 Method |  Job | Runtime |     Mean |     Error |    StdDev | Scaled | ScaledSD |  Gen 0 | Allocated |
+|----------------------- |----- |-------- |---------:|----------:|----------:|-------:|---------:|-------:|----------:|
+|                Default |  Clr |     Clr | 32.91 ns | 0.6418 ns | 0.6004 ns |   1.00 |     0.00 | 0.0178 |      56 B |
+|           StringCreate |  Clr |     Clr | 31.06 ns | 0.4951 ns | 0.4631 ns |   0.94 |     0.02 | 0.0178 |      56 B |
+| StringCreateSpanUnsafe |  Clr |     Clr | 28.88 ns | 0.3857 ns | 0.3608 ns |   0.88 |     0.02 | 0.0178 |      56 B |
+|               NoLookup |  Clr |     Clr | 32.77 ns | 0.4607 ns | 0.4309 ns |   1.00 |     0.02 | 0.0178 |      56 B |
+|     NoLookupBranchless |  Clr |     Clr | 35.48 ns | 0.1829 ns | 0.1428 ns |   1.08 |     0.02 | 0.0178 |      56 B |
+|                        |      |         |          |           |           |        |          |        |           |
+|                Default | Core |    Core | 38.00 ns | 0.2891 ns | 0.2705 ns |   1.00 |     0.00 | 0.0178 |      56 B |
+|           StringCreate | Core |    Core | 29.55 ns | 0.3055 ns | 0.2858 ns |   0.78 |     0.01 | 0.0178 |      56 B |
+| StringCreateSpanUnsafe | Core |    Core | 24.50 ns | 0.2452 ns | 0.2294 ns |   0.64 |     0.01 | 0.0178 |      56 B |
+|               NoLookup | Core |    Core | 27.75 ns | 0.4264 ns | 0.3780 ns |   0.73 |     0.01 | 0.0178 |      56 B |
+|     NoLookupBranchless | Core |    Core | 28.91 ns | 0.4621 ns | 0.4322 ns |   0.76 |     0.01 | 0.0178 |      56 B |
