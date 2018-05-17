@@ -9,14 +9,11 @@ using System.Threading;
 
 namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
 {
-    internal static class CorrelationIdGenerator2
+    internal static class CorrelationIdGenerator4
     {
 #if NETCOREAPP2_1
         private static readonly SpanAction<char, long> _spanAction = FillBufferAction;
 #endif
-
-        // Base32 encoding - in ascii sort order for easy text based sorting
-        private static readonly char[] _encode32Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUV".ToCharArray();
 
         // Seed the _lastConnectionId for this application instance with
         // the number of 100-nanosecond intervals that have elapsed since 12:00:00 midnight, January 1, 0001
@@ -28,7 +25,6 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             set => _lastId = value;
         }
 #endif
-
         public static string GetNextId() => GenerateId(Interlocked.Increment(ref _lastId));
 
         private static unsafe string GenerateId(long id)
@@ -42,7 +38,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
 #else
             // stackalloc to allocate array on stack rather than heap
             char* charBuffer = stackalloc char[13];
-            FillBuffer(ref Unsafe.AsRef<char>(charBuffer), id, ref _encode32Chars[0]);
+            FillBuffer(ref Unsafe.AsRef<char>(charBuffer), id);
 
             // string ctor overload that takes char*
             return new string(charBuffer, 0, 13);
@@ -53,28 +49,49 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
         private static void FillBufferAction(Span<char> charBuffer, long id)
         {
             ref char buffer = ref MemoryMarshal.GetReference(charBuffer);
-            ref char encodeChars = ref _encode32Chars[0];
 
-            FillBuffer(ref buffer, id, ref encodeChars);
+            FillBuffer(ref buffer, id);
         }
 #endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void FillBuffer(ref char buffer, long id, ref char encodeChars)
+        private static void FillBuffer(ref char buffer, long id)
         {
-            Unsafe.Add(ref buffer, 0) = Unsafe.Add(ref encodeChars, (int)(id >> 60) & 31);
-            Unsafe.Add(ref buffer, 1) = Unsafe.Add(ref encodeChars, (int)(id >> 55) & 31);
-            Unsafe.Add(ref buffer, 2) = Unsafe.Add(ref encodeChars, (int)(id >> 50) & 31);
-            Unsafe.Add(ref buffer, 3) = Unsafe.Add(ref encodeChars, (int)(id >> 45) & 31);
-            Unsafe.Add(ref buffer, 4) = Unsafe.Add(ref encodeChars, (int)(id >> 40) & 31);
-            Unsafe.Add(ref buffer, 5) = Unsafe.Add(ref encodeChars, (int)(id >> 35) & 31);
-            Unsafe.Add(ref buffer, 6) = Unsafe.Add(ref encodeChars, (int)(id >> 30) & 31);
-            Unsafe.Add(ref buffer, 7) = Unsafe.Add(ref encodeChars, (int)(id >> 25) & 31);
-            Unsafe.Add(ref buffer, 8) = Unsafe.Add(ref encodeChars, (int)(id >> 20) & 31);
-            Unsafe.Add(ref buffer, 9) = Unsafe.Add(ref encodeChars, (int)(id >> 15) & 31);
-            Unsafe.Add(ref buffer, 10) = Unsafe.Add(ref encodeChars, (int)(id >> 10) & 31);
-            Unsafe.Add(ref buffer, 11) = Unsafe.Add(ref encodeChars, (int)(id >> 5) & 31);
-            Unsafe.Add(ref buffer, 12) = Unsafe.Add(ref encodeChars, (int)(id >> 0) & 31);
+            Unsafe.Add(ref buffer, 0) = EncodeBase32(id, 60);
+            Unsafe.Add(ref buffer, 1) = EncodeBase32(id, 55);
+            Unsafe.Add(ref buffer, 2) = EncodeBase32(id, 50);
+            Unsafe.Add(ref buffer, 3) = EncodeBase32(id, 45);
+            Unsafe.Add(ref buffer, 4) = EncodeBase32(id, 40);
+            Unsafe.Add(ref buffer, 5) = EncodeBase32(id, 35);
+            Unsafe.Add(ref buffer, 6) = EncodeBase32(id, 30);
+            Unsafe.Add(ref buffer, 7) = EncodeBase32(id, 25);
+            Unsafe.Add(ref buffer, 8) = EncodeBase32(id, 20);
+            Unsafe.Add(ref buffer, 9) = EncodeBase32(id, 15);
+            Unsafe.Add(ref buffer, 10) = EncodeBase32(id, 10);
+            Unsafe.Add(ref buffer, 11) = EncodeBase32(id, 5);
+            Unsafe.Add(ref buffer, 12) = EncodeBase32(id, 0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static char EncodeBase32(long id, byte shift)
+        {
+            // Base32 encoding - in ascii sort order for easy text based sorting
+            // 0123456789ABCDEFGHIJKLMNOPQRSTUV
+
+            var digit = (id >> shift) & 0x1f;
+            var add = BranchlessSelect((int)digit);
+            return (char)(digit + add);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int BranchlessSelect(int digit)
+        {
+            const int trueValue = '0';
+            const int falseValue = 'A' - 10;
+            const int comparison = 10;
+            int wordbits = IntPtr.Size == 8 ? 64 : 32;
+
+            return (((digit - comparison) >> (wordbits - 1)) & (trueValue ^ falseValue)) ^ falseValue;
         }
     }
 }

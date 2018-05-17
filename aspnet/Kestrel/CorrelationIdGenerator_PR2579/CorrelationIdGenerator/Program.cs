@@ -12,25 +12,18 @@ namespace CorrelationIdGeneratorBenchmarks
     {
         static void Main(string[] args)
         {
-            var bench = new BeginChunkBytesBenchmarks();
-            Console.WriteLine(GetString(bench.Default()));
-            Console.WriteLine(GetString(bench.Unsafe()));
-            Console.WriteLine(GetString(bench.BytesSafeHexUnsafe()));
-            Console.WriteLine(GetString(bench.NoLookup()));
-            Console.WriteLine(GetString(bench.NoLookupBranchless()));
-#if !DEBUG
-            BenchmarkRunner.Run<BeginChunkBytesBenchmarks>();
-#endif
+            Run<GetNextIdBenchmark>(args);
+            //Run<ConcatAsHexSuffixBenchmark>(args);
+            //Run<BeginChunkBytesBenchmarks>(args);
         }
         //---------------------------------------------------------------------
-        private static string GetString(ArraySegment<byte> arraySegment)
+        private static void Run<T>(string[] args) where T : IBenchmark, new()
         {
-            var span = arraySegment.AsSpan();
-            var sb = new StringBuilder(span.Length);
-            for (int i = 0; i < span.Length; ++i)
-                sb.AppendFormat("{0} ", span[i]);
-
-            return sb.ToString();
+            var bench = new T();
+            bench.Run(args);
+#if !DEBUG
+            BenchmarkRunner.Run<T>();
+#endif
         }
     }
 }

@@ -15,6 +15,13 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
         // the number of 100-nanosecond intervals that have elapsed since 12:00:00 midnight, January 1, 0001
         // for a roughly increasing _lastId over restarts
         private static long _lastId = DateTime.UtcNow.Ticks;
+#if DEBUG
+        public static long LastId
+        {
+            get => _lastId;
+            set => _lastId = value;
+        }
+#endif
 
         public static string GetNextId() => GenerateId(Interlocked.Increment(ref _lastId));
 

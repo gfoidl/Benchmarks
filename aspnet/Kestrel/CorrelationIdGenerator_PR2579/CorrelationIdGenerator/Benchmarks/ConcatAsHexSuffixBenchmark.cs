@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System;
+using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Jobs;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure;
 
@@ -6,8 +7,14 @@ namespace CorrelationIdGeneratorBenchmarks.Benchmarks
 {
     [MemoryDiagnoser]
     [CoreJob, ClrJob]
-    public class ConcatAsHexSuffixBenchmark
+    public class ConcatAsHexSuffixBenchmark : IBenchmark
     {
+        public void Run(string[] args)
+        {
+            Console.WriteLine(this.Default());
+            Console.WriteLine(this.StringCreateSpanUnsafe());
+        }
+        //---------------------------------------------------------------------
         private string _connectionId = CorrelationIdGenerator2.GetNextId();
         private int    _streamId = 42;
         //---------------------------------------------------------------------
