@@ -1,7 +1,9 @@
 ﻿//#define APPEND_CHAR
-#define APPEND_STRING
-#define APPEND_SINGLECHAR_STRING
+//#define APPEND_STRING
+//#define APPEND_SINGLECHAR_STRING
+#define APPEND_LONG_STRING
 
+using System;
 using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Attributes.Columns;
@@ -162,6 +164,75 @@ namespace ValueStringBuilderBenchmarks.Benchmarks
             for (var i = 0; i < N; i++)
             {
                 builder.Append(SingleCharStringToAppend);
+            }
+
+            return builder.ToString();
+        }
+#endif
+#if APPEND_LONG_STRING
+        [Params(10, 100, 1000)]
+        public int Len { get; set; }
+
+        private char[] _longStringInitialBuffer;
+
+        [GlobalSetup]
+        public void GlobalSetup()
+        {
+            _longStringInitialBuffer = new char[Len];
+            var rnd = new Random();
+
+            for (int i = 0; i < Len; ++i)
+            {
+                _longStringInitialBuffer[i] = (char)rnd.Next('A', 'Z' + 1);
+            }
+        }
+
+        [Benchmark(Baseline = true), BenchmarkCategory("AppendLongString")]
+        public string StringBuilder_AppendLongString()
+        {
+            var builder = new StringBuilder(_stringInitialBuffer.Length);
+            for (var i = 0; i < N; i++)
+            {
+                builder.Append(StringToAppend);
+            }
+
+            return builder.ToString();
+        }
+
+        [Benchmark, BenchmarkCategory("AppendLongString")]
+        public string ValueStringBuilder0_AppendLongString()
+        {
+            var builder = new ValueStringBuilder0(_stringInitialBuffer);
+
+            for (var i = 0; i < N; i++)
+            {
+                builder.Append(StringToAppend);
+            }
+
+            return builder.ToString();
+        }
+
+        //[Benchmark, BenchmarkCategory("AppendLongString")]
+        public string ValueStringBuilder1_AppendLongString()
+        {
+            var builder = new ValueStringBuilder1(_stringInitialBuffer);
+
+            for (var i = 0; i < N; i++)
+            {
+                builder.Append(StringToAppend);
+            }
+
+            return builder.ToString();
+        }
+
+        [Benchmark, BenchmarkCategory("AppendLongString")]
+        public string ValueStringBuilder2_AppendLongString()
+        {
+            var builder = new ValueStringBuilder2(_stringInitialBuffer);
+
+            for (var i = 0; i < N; i++)
+            {
+                builder.Append(StringToAppend);
             }
 
             return builder.ToString();
