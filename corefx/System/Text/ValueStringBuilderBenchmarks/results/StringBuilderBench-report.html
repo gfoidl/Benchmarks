@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>StringBuilderBench</title>
+
+<style type="text/css">
+    table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+    td, th { padding: 6px 13px; border: 1px solid #ddd; }
+    tr { background-color: #fff; border-top: 1px solid #ccc; }
+    tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.14, OS=ubuntu 16.04
+Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 4 logical and 4 physical cores
+.NET Core SDK=2.1.300
+  [Host]     : .NET Core ? (CoreCLR 4.6.26702.0, CoreFX 4.6.26515.06), 64bit RyuJIT
+  DefaultJob : .NET Core 2.1.0 (CoreCLR 4.6.26515.07, CoreFX 4.6.26515.06), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>                    Method</th><th>Categories</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>StringBuilder_AppendChar</td><td>AppendChar</td><td>360.0 us</td><td>5.702 us</td><td>5.055 us</td><td>1.00</td><td>0.00</td><td>111.3281</td><td>110.8398</td><td>110.8398</td><td>391.6 KB</td>
+</tr><tr><td>ValueStringBuilder0_AppendChar</td><td>AppendChar</td><td>230.2 us</td><td>3.250 us</td><td>3.040 us</td><td>0.64</td><td>0.01</td><td>61.2793</td><td>58.5938</td><td>58.5938</td><td>195.34 KB</td>
+</tr><tr><td>ValueStringBuilder1_AppendChar</td><td>AppendChar</td><td>213.2 us</td><td>4.003 us</td><td>3.932 us</td><td>0.59</td><td>0.01</td><td>58.5938</td><td>58.3496</td><td>58.3496</td><td>195.34 KB</td>
+</tr><tr><td>StringBuilder_AppendString</td><td>AppendString</td><td>1,314.9 us</td><td>31.264 us</td><td>30.705 us</td><td>1.00</td><td>0.00</td><td>375.0000</td><td>341.7969</td><td>248.0469</td><td>1573.09 KB</td>
+</tr><tr><td>ValueStringBuilder0_AppendString</td><td>AppendString</td><td>2,740.3 us</td><td>22.909 us</td><td>20.309 us</td><td>2.09</td><td>0.05</td><td>179.6875</td><td>179.6875</td><td>179.6875</td><td>781.28 KB</td>
+</tr><tr><td>ValueStringBuilder1_AppendString</td><td>AppendString</td><td>877.5 us</td><td>9.289 us</td><td>8.234 us</td><td>0.67</td><td>0.02</td><td>185.5469</td><td>185.5469</td><td>185.5469</td><td>781.28 KB</td>
+</tr></tbody></table>
+</body>
+</html>
