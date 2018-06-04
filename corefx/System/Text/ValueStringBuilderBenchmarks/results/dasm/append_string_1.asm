@@ -63,7 +63,7 @@ G_M56192_IG03:
        488D770C             lea      rsi, bword ptr [rdi+12]
        488BD6               mov      rdx, rsi
        8B7F08               mov      edi, dword ptr [rdi+8]
-       488BF2               mov      rsi, rdx
+       488BF2               mov      rsi, rdx		; strange -- see https://github.com/aspnet/Common/pull/324#discussion_r172172914
        488BD6               mov      rdx, rsi
        488BF2               mov      rsi, rdx
        8BD7                 mov      edx, edi
