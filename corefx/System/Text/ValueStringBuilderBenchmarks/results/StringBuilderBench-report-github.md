@@ -8,16 +8,14 @@ Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 4 logical and 4 physical co
 
 
 ```
-|                                     Method |             Categories |       Mean |     Error |     StdDev | Scaled | ScaledSD |    Gen 0 |    Gen 1 |    Gen 2 |  Allocated |
-|------------------------------------------- |----------------------- |-----------:|----------:|-----------:|-------:|---------:|---------:|---------:|---------:|-----------:|
-|                   StringBuilder_AppendChar |             AppendChar |   346.1 us |  4.065 us |  3.6035 us |   1.00 |     0.00 | 111.8164 | 110.8398 | 110.8398 |  391.58 KB |
-|             ValueStringBuilder0_AppendChar |             AppendChar |   227.8 us |  2.463 us |  2.3038 us |   0.66 |     0.01 |  59.3262 |  58.5938 |  58.5938 |  195.34 KB |
-|             ValueStringBuilder1_AppendChar |             AppendChar |   210.2 us |  1.304 us |  1.2198 us |   0.61 |     0.01 |  58.3496 |  58.3496 |  58.3496 |  195.34 KB |
-|                                            |                        |            |           |            |        |          |          |          |          |            |
-|                 StringBuilder_AppendString |           AppendString | 1,289.2 us | 13.140 us | 10.9725 us |   1.00 |     0.00 | 332.0313 | 332.0313 | 332.0313 | 1565.16 KB |
-|           ValueStringBuilder0_AppendString |           AppendString | 2,944.3 us | 42.710 us | 39.9510 us |   2.28 |     0.04 | 195.3125 | 195.3125 | 195.3125 |  781.28 KB |
-|           ValueStringBuilder1_AppendString |           AppendString |   818.8 us |  3.762 us |  3.5190 us |   0.64 |     0.01 | 198.2422 | 198.2422 | 198.2422 |  781.28 KB |
-|                                            |                        |            |           |            |        |          |          |          |          |            |
-|       StringBuilder_AppendSingleCharString | AppendSingleCharString |   458.2 us |  1.428 us |  1.2658 us |   1.00 |     0.00 | 111.3281 | 110.8398 | 110.8398 |   391.6 KB |
-| ValueStringBuilder0_AppendSingleCharString | AppendSingleCharString |   238.1 us |  1.218 us |  0.9512 us |   0.52 |     0.00 |  61.7676 |  58.5938 |  58.5938 |  195.34 KB |
-| ValueStringBuilder1_AppendSingleCharString | AppendSingleCharString |   268.1 us |  1.553 us |  1.3771 us |   0.59 |     0.00 |  58.5938 |  58.5938 |  58.5938 |  195.34 KB |
+|                                     Method |             Categories |       Mean |     Error |    StdDev | Scaled | ScaledSD |    Gen 0 |    Gen 1 |    Gen 2 |  Allocated |
+|------------------------------------------- |----------------------- |-----------:|----------:|----------:|-------:|---------:|---------:|---------:|---------:|-----------:|
+|                 StringBuilder_AppendString |           AppendString | 1,331.0 us | 26.521 us | 33.540 us |   1.00 |     0.00 | 332.0313 | 332.0313 | 332.0313 | 1565.16 KB |
+|           ValueStringBuilder0_AppendString |           AppendString | 2,378.5 us | 16.157 us | 14.323 us |   1.79 |     0.04 | 195.3125 | 195.3125 | 195.3125 |  781.28 KB |
+|           ValueStringBuilder1_AppendString |           AppendString |   846.3 us | 16.374 us | 19.492 us |   0.64 |     0.02 | 198.2422 | 198.2422 | 198.2422 |  781.28 KB |
+|           ValueStringBuilder2_AppendString |           AppendString |   875.6 us | 15.632 us | 19.770 us |   0.66 |     0.02 | 198.2422 | 198.2422 | 198.2422 |  781.28 KB |
+|                                            |                        |            |           |           |        |          |          |          |          |            |
+|       StringBuilder_AppendSingleCharString | AppendSingleCharString |   472.7 us |  9.280 us |  8.680 us |   1.00 |     0.00 | 111.3281 | 110.8398 | 110.8398 |   391.6 KB |
+| ValueStringBuilder0_AppendSingleCharString | AppendSingleCharString |   272.5 us |  5.381 us |  5.285 us |   0.58 |     0.01 |  59.0820 |  58.1055 |  58.1055 |  195.34 KB |
+| ValueStringBuilder1_AppendSingleCharString | AppendSingleCharString |   288.4 us |  5.711 us |  8.191 us |   0.61 |     0.02 |  60.5469 |  58.5938 |  58.5938 |  195.34 KB |
+| ValueStringBuilder2_AppendSingleCharString | AppendSingleCharString |   251.7 us |  5.021 us |  7.359 us |   0.53 |     0.02 |  60.3027 |  58.5938 |  58.5938 |  195.34 KB |

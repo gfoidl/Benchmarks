@@ -9,13 +9,13 @@ using System.Runtime.InteropServices;
 
 namespace System.Text
 {
-    internal ref struct ValueStringBuilder
+    internal ref struct ValueStringBuilder1
     {
         private char[] _arrayToReturnToPool;
         private Span<char> _chars;
         private int _pos;
 
-        public ValueStringBuilder(Span<char> initialBuffer)
+        public ValueStringBuilder1(Span<char> initialBuffer)
         {
             _arrayToReturnToPool = null;
             _chars = initialBuffer;

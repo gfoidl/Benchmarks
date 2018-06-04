@@ -1,4 +1,4 @@
-﻿#define APPEND_CHAR
+﻿//#define APPEND_CHAR
 #define APPEND_STRING
 #define APPEND_SINGLECHAR_STRING
 
@@ -92,7 +92,7 @@ namespace ValueStringBuilderBenchmarks.Benchmarks
         [Benchmark, BenchmarkCategory("AppendString")]
         public string ValueStringBuilder1_AppendString()
         {
-            var builder = new ValueStringBuilder(_stringInitialBuffer);
+            var builder = new ValueStringBuilder1(_stringInitialBuffer);
 
             for (var i = 0; i < N; i++)
             {
@@ -101,6 +101,19 @@ namespace ValueStringBuilderBenchmarks.Benchmarks
 
             return builder.ToString();
         }
+
+        [Benchmark, BenchmarkCategory("AppendString")]
+        public string ValueStringBuilder2_AppendString()
+        {
+            var builder = new ValueStringBuilder2(_stringInitialBuffer);
+
+            for (var i = 0; i < N; i++)
+            {
+                builder.Append(StringToAppend);
+            }
+
+            return builder.ToString();
+        }       
 #endif
 #if APPEND_SINGLECHAR_STRING
         [Benchmark(Baseline = true), BenchmarkCategory("AppendSingleCharString")]
@@ -131,7 +144,20 @@ namespace ValueStringBuilderBenchmarks.Benchmarks
         [Benchmark, BenchmarkCategory("AppendSingleCharString")]
         public string ValueStringBuilder1_AppendSingleCharString()
         {
-            var builder = new ValueStringBuilder(_charInitialBuffer);
+            var builder = new ValueStringBuilder1(_charInitialBuffer);
+
+            for (var i = 0; i < N; i++)
+            {
+                builder.Append(SingleCharStringToAppend);
+            }
+
+            return builder.ToString();
+        }
+
+        [Benchmark, BenchmarkCategory("AppendSingleCharString")]
+        public string ValueStringBuilder2_AppendSingleCharString()
+        {
+            var builder = new ValueStringBuilder2(_charInitialBuffer);
 
             for (var i = 0; i < N; i++)
             {

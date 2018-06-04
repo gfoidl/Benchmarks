@@ -11,7 +11,7 @@ namespace System.Text.Tests
         [Fact]
         public void Ctor_Default_CanAppend()
         {
-            var vsb = default(ValueStringBuilder);
+            var vsb = default(ValueStringBuilder2);
             Assert.Equal(0, vsb.Length);
 
             vsb.Append('a');
@@ -22,7 +22,7 @@ namespace System.Text.Tests
         [Fact]
         public void Ctor_Span_CanAppend()
         {
-            var vsb = new ValueStringBuilder(new char[1]);
+            var vsb = new ValueStringBuilder2(new char[1]);
             Assert.Equal(0, vsb.Length);
 
             vsb.Append('a');
@@ -34,7 +34,7 @@ namespace System.Text.Tests
         public void Append_Char_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
             for (int i = 1; i <= 100; i++)
             {
                 sb.Append((char)i);
@@ -49,7 +49,7 @@ namespace System.Text.Tests
         public void Append_String_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
             for (int i = 1; i <= 100; i++)
             {
                 string s = i.ToString();
@@ -68,7 +68,7 @@ namespace System.Text.Tests
         public void Append_String_Large_MatchesStringBuilder(int initialLength, int stringLength)
         {
             var sb = new StringBuilder(initialLength);
-            var vsb = new ValueStringBuilder(new char[initialLength]);
+            var vsb = new ValueStringBuilder2(new char[initialLength]);
 
             string s = new string('a', stringLength);
             sb.Append(s);
@@ -82,7 +82,7 @@ namespace System.Text.Tests
         public void Append_CharInt_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
             for (int i = 1; i <= 100; i++)
             {
                 sb.Append((char)i, i);
@@ -97,7 +97,7 @@ namespace System.Text.Tests
         public unsafe void Append_PtrInt_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
             for (int i = 1; i <= 100; i++)
             {
                 string s = i.ToString();
@@ -116,7 +116,7 @@ namespace System.Text.Tests
         public void AppendSpan_DataAppendedCorrectly()
         {
             var sb = new StringBuilder();
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
 
             for (int i = 1; i <= 1000; i++)
             {
@@ -138,7 +138,7 @@ namespace System.Text.Tests
         public void Insert_IntCharInt_MatchesStringBuilder()
         {
             var sb = new StringBuilder();
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
             var rand = new Random(42);
 
             for (int i = 1; i <= 100; i++)
@@ -156,7 +156,7 @@ namespace System.Text.Tests
         public void ToString_ClearsBuilder_ThenReusable()
         {
             const string Text1 = "test";
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
 
             vsb.Append(Text1);
             Assert.Equal(Text1.Length, vsb.Length);
@@ -177,7 +177,7 @@ namespace System.Text.Tests
         [Fact]
         public void TryCopyTo_FailsWhenDestinationIsTooSmall_SucceedsWhenItsLargeEnough()
         {
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
 
             const string Text = "expected text";
             vsb.Append(Text);
@@ -193,7 +193,7 @@ namespace System.Text.Tests
         public void TryCopyTo_ClearsBuilder_ThenReusable()
         {
             const string Text1 = "test";
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
 
             vsb.Append(Text1);
             Assert.Equal(Text1.Length, vsb.Length);
@@ -217,7 +217,7 @@ namespace System.Text.Tests
         public unsafe void Indexer()
         {
             const string Text1 = "foobar";
-            var vsb = new ValueStringBuilder();
+            var vsb = new ValueStringBuilder2();
 
             vsb.Append(Text1);
 
