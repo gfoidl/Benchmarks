@@ -60,7 +60,7 @@ namespace System.Text
             get
             {
                 Debug.Assert(index < _pos);
-                return ref Unsafe.Add(ref MemoryMarshal.GetReference(_chars), index);
+                return ref _chars[index];
             }
         }
 
