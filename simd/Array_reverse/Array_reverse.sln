@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2041
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Array_reverse", "Array_reverse\Array_reverse.csproj", "{5D5B334A-FF49-4F9B-9E24-F6B5762C8581}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Array_reverse_native", "Array_reverse_native\Array_reverse_native.vcxproj", "{795E9708-3093-4E53-87BB-0A780DB0B2EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5D5B334A-FF49-4F9B-9E24-F6B5762C8581}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D5B334A-FF49-4F9B-9E24-F6B5762C8581}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D5B334A-FF49-4F9B-9E24-F6B5762C8581}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5D5B334A-FF49-4F9B-9E24-F6B5762C8581}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D5B334A-FF49-4F9B-9E24-F6B5762C8581}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D5B334A-FF49-4F9B-9E24-F6B5762C8581}.Release|x64.ActiveCfg = Release|Any CPU
+		{795E9708-3093-4E53-87BB-0A780DB0B2EB}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{795E9708-3093-4E53-87BB-0A780DB0B2EB}.Debug|x64.ActiveCfg = Debug|x64
+		{795E9708-3093-4E53-87BB-0A780DB0B2EB}.Debug|x64.Build.0 = Debug|x64
+		{795E9708-3093-4E53-87BB-0A780DB0B2EB}.Release|Any CPU.ActiveCfg = Release|x64
+		{795E9708-3093-4E53-87BB-0A780DB0B2EB}.Release|x64.ActiveCfg = Release|x64
+		{795E9708-3093-4E53-87BB-0A780DB0B2EB}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {142EF993-4BAC-48E0-8FB8-8F8C2D256546}
+	EndGlobalSection
+EndGlobal

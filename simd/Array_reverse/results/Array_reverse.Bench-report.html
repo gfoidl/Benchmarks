@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Array_reverse.Bench</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.11.1, OS=Windows 10.0.17134.345 (1803/April2018Update/Redstone4)
+Intel Core i7-7700HQ CPU 2.80GHz (Max: 2.81GHz) (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
+Frequency=2742184 Hz, Resolution=364.6728 ns, Timer=TSC
+.NET Core SDK=2.1.402
+  [Host]     : .NET Core 2.1.4 (CoreCLR 4.6.26814.03, CoreFX 4.6.26814.02), 64bit RyuJIT
+  DefaultJob : .NET Core 2.1.4 (CoreCLR 4.6.26814.03, CoreFX 4.6.26814.02), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>       Method</th><th>N</th><th>    Mean</th><th>  Error</th><th> StdDev</th><th>Scaled</th>
+</tr>
+</thead><tbody><tr><td>Sequential_2</td><td>10</td><td>4.396 ns</td><td>0.0302 ns</td><td>0.0282 ns</td><td>1.00</td>
+</tr><tr><td>Simd_Sse2</td><td>10</td><td>2.056 ns</td><td>0.0345 ns</td><td>0.0306 ns</td><td>0.47</td>
+</tr><tr><td>Simd_Sse2_CacheLine</td><td>10</td><td>3.007 ns</td><td>0.0277 ns</td><td>0.0259 ns</td><td>0.68</td>
+</tr><tr><td>Sequential_2</td><td>1000</td><td>331.245 ns</td><td>3.1415 ns</td><td>2.7849 ns</td><td>1.00</td>
+</tr><tr><td>Simd_Sse2</td><td>1000</td><td>98.705 ns</td><td>0.5496 ns</td><td>0.5141 ns</td><td>0.30</td>
+</tr><tr><td>Simd_Sse2_CacheLine</td><td>1000</td><td>86.118 ns</td><td>0.7573 ns</td><td>0.7084 ns</td><td>0.26</td>
+</tr><tr><td>Sequential_2</td><td>1000000</td><td>382,392.825 ns</td><td>3,671.3216 ns</td><td>3,065.7195 ns</td><td>1.00</td>
+</tr><tr><td>Simd_Sse2</td><td>1000000</td><td>152,647.636 ns</td><td>1,286.2660 ns</td><td>1,140.2412 ns</td><td>0.40</td>
+</tr><tr><td>Simd_Sse2_CacheLine</td><td>1000000</td><td>148,007.414 ns</td><td>1,427.9031 ns</td><td>1,265.7988 ns</td><td>0.39</td>
+</tr></tbody></table>
+</body>
+</html>
