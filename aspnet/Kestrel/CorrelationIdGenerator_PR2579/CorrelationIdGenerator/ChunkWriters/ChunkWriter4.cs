@@ -1,0 +1,70 @@
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Buffers;
+using System.Runtime.CompilerServices;
+using System.Text;
+
+namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http
+{
+    internal static class ChunkWriter4
+    {
+        private static readonly ArraySegment<byte> _endChunkBytes = CreateAsciiByteArraySegment("\r\n");
+        private static readonly byte[] _hex = Encoding.ASCII.GetBytes("0123456789abcdef");
+        //---------------------------------------------------------------------
+        private static ArraySegment<byte> CreateAsciiByteArraySegment(string text)
+        {
+            var bytes = Encoding.ASCII.GetBytes(text);
+            return new ArraySegment<byte>(bytes);
+        }
+        //---------------------------------------------------------------------
+        public static ArraySegment<byte> BeginChunkBytes(int dataCount)
+        {
+            var bytes = new byte[10]
+            {
+                GetChunkByte(dataCount, 0x1c),
+                GetChunkByte(dataCount, 0x18),
+                GetChunkByte(dataCount, 0x14),
+                GetChunkByte(dataCount, 0x10),
+                GetChunkByte(dataCount, 0x0c),
+                GetChunkByte(dataCount, 0x08),
+                GetChunkByte(dataCount, 0x04),
+                GetChunkByte(dataCount, 0x00),
+                (byte)'\r',
+                (byte)'\n'
+            };
+
+            // Determine the most-significant non-zero nibble
+            int total, shift;
+            total = (dataCount > 0xffff) ? 0x10 : 0x00;
+            dataCount >>= total;
+            shift = (dataCount > 0x00ff) ? 0x08 : 0x00;
+            dataCount >>= shift;
+            total |= shift;
+            total |= (dataCount > 0x000f) ? 0x04 : 0x00;
+
+            var offset = 7 - (total >> 2);
+            return new ArraySegment<byte>(bytes, offset, 10 - offset);
+        }
+        //---------------------------------------------------------------------
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static byte GetChunkByte(int dataCount, byte shift)
+        {
+            int digit = (dataCount >> shift) & 0x0f;
+            int add = BranchlessSelect(digit);
+            return (byte)(digit + add);
+        }
+        //---------------------------------------------------------------------
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int BranchlessSelect(int digit)
+        {
+            const int trueValue = '0';
+            const int falseValue = 'a' - 10;
+            const int comparison = 10;
+            int wordbits = IntPtr.Size == 8 ? 64 : 32;
+
+            return (((digit - comparison) >> (wordbits - 1)) & (trueValue ^ falseValue)) ^ falseValue;
+        }
+    }
+}
