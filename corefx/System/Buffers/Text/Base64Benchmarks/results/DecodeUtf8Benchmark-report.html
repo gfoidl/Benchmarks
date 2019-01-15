@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Base64Benchmarks.DecodeUtf8Benchmark</title>
+
+<style type="text/css">
+    table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+    td, th { padding: 6px 13px; border: 1px solid #ddd; }
+    tr { background-color: #fff; border-top: 1px solid #ccc; }
+    tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.11.3, OS=ubuntu 16.04
+Intel Xeon CPU 2.00GHz, 1 CPU, 2 logical cores and 1 physical core
+.NET Core SDK=3.0.100-preview-010046
+  [Host]     : .NET Core 3.0.0-preview-27308-3 (CoreCLR 4.6.27220.01, CoreFX 4.7.19.5401), 64bit RyuJIT
+  DefaultJob : .NET Core 3.0.0-preview-27308-3 (CoreCLR 4.6.27220.01, CoreFX 4.7.19.5401), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>    Method</th><th>DataLen</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th>
+</tr>
+</thead><tbody><tr><td>PR34529_Base</td><td>5</td><td>34.94 ns</td><td>0.7413 ns</td><td>1.979 ns</td><td>35.92 ns</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>PR34529_Pointers</td><td>5</td><td>41.40 ns</td><td>0.8648 ns</td><td>1.727 ns</td><td>42.45 ns</td><td>1.18</td><td>0.08</td>
+</tr><tr><td>PR34529_Base</td><td>16</td><td>38.49 ns</td><td>0.8118 ns</td><td>2.276 ns</td><td>39.88 ns</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>PR34529_Pointers</td><td>16</td><td>46.67 ns</td><td>0.9792 ns</td><td>2.383 ns</td><td>47.89 ns</td><td>1.22</td><td>0.11</td>
+</tr><tr><td>PR34529_Base</td><td>1000</td><td>175.68 ns</td><td>3.5467 ns</td><td>8.360 ns</td><td>179.68 ns</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>PR34529_Pointers</td><td>1000</td><td>174.48 ns</td><td>3.5126 ns</td><td>9.004 ns</td><td>180.14 ns</td><td>0.99</td><td>0.07</td>
+</tr></tbody></table>
+</body>
+</html>
