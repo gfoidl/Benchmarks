@@ -49,7 +49,6 @@ namespace System.Buffers.Text
 
             fixed (byte* srcBytes = &MemoryMarshal.GetReference(bytes))
             fixed (byte* destBytes = &MemoryMarshal.GetReference(utf8))
-            fixed (byte* encodingMap = &MemoryMarshal.GetReference(EncodingMapSpan))
             {
                 int srcLength = bytes.Length;
                 int destLength = utf8.Length;
@@ -90,12 +89,13 @@ namespace System.Buffers.Text
                     }
                 }
 
+                ref byte encodingMap = ref MemoryMarshal.GetReference(EncodingMapSpan);
                 uint result = 0;
 
                 srcMax -= 2;
                 while (src < srcMax)
                 {
-                    result = Encode(src, encodingMap);
+                    result = Encode(src, ref encodingMap);
                     Unsafe.WriteUnaligned(dest, result);
                     src += 3;
                     dest += 4;
@@ -109,14 +109,14 @@ namespace System.Buffers.Text
 
                 if (src + 1 == srcEnd)
                 {
-                    result = EncodeAndPadTwo(src, encodingMap);
+                    result = EncodeAndPadTwo(src, ref encodingMap);
                     Unsafe.WriteUnaligned(dest, result);
                     src += 1;
                     dest += 4;
                 }
                 else if (src + 2 == srcEnd)
                 {
-                    result = EncodeAndPadOne(src, encodingMap);
+                    result = EncodeAndPadOne(src, ref encodingMap);
                     Unsafe.WriteUnaligned(dest, result);
                     src += 2;
                     dest += 4;
@@ -178,7 +178,6 @@ namespace System.Buffers.Text
             }
 
             fixed (byte* bufferBytes = &MemoryMarshal.GetReference(buffer))
-            fixed (byte* encodingMap = &MemoryMarshal.GetReference(EncodingMapSpan))
             {
                 int encodedLength = GetMaxEncodedToUtf8Length(dataLength);
                 if (buffer.Length < encodedLength)
@@ -190,17 +189,18 @@ namespace System.Buffers.Text
                 nuint destinationIndex = (nuint)(encodedLength - 4);
                 nuint sourceIndex = (nuint)(dataLength - leftover);
                 uint result = 0;
+                ref byte encodingMap = ref MemoryMarshal.GetReference(EncodingMapSpan);
 
                 // encode last pack to avoid conditional in the main loop
                 if (leftover != 0)
                 {
                     if (leftover == 1)
                     {
-                        result = EncodeAndPadTwo(bufferBytes + sourceIndex, encodingMap);
+                        result = EncodeAndPadTwo(bufferBytes + sourceIndex, ref encodingMap);
                     }
                     else
                     {
-                        result = EncodeAndPadOne(bufferBytes + sourceIndex, encodingMap);
+                        result = EncodeAndPadOne(bufferBytes + sourceIndex, ref encodingMap);
                     }
 
                     Unsafe.WriteUnaligned(bufferBytes + destinationIndex, result);
@@ -210,7 +210,7 @@ namespace System.Buffers.Text
                 sourceIndex -= 3;
                 while ((int)sourceIndex >= 0)
                 {
-                    result = Encode(bufferBytes + sourceIndex, encodingMap);
+                    result = Encode(bufferBytes + sourceIndex, ref encodingMap);
                     Unsafe.WriteUnaligned(bufferBytes + destinationIndex, result);
                     destinationIndex -= 4;
                     sourceIndex -= 3;
@@ -334,7 +334,7 @@ namespace System.Buffers.Text
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe uint Encode(byte* threeBytes, byte* encodingMap)
+        private static unsafe uint Encode(byte* threeBytes, ref byte encodingMap)
         {
             nuint t0 = threeBytes[0];
             nuint t1 = threeBytes[1];
@@ -342,38 +342,38 @@ namespace System.Buffers.Text
 
             nuint i = (t0 << 16) | (t1 << 8) | t2;
 
-            nuint i0 = encodingMap[i >> 18];
-            nuint i1 = encodingMap[(i >> 12) & 0x3F];
-            nuint i2 = encodingMap[(i >> 6) & 0x3F];
-            nuint i3 = encodingMap[i & 0x3F];
+            nuint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 18));
+            nuint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 12) & 0x3F));
+            nuint i2 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 6) & 0x3F));
+            nuint i3 = Unsafe.Add(ref encodingMap, (IntPtr)(i & 0x3F));
 
             return (uint)(i0 | (i1 << 8) | (i2 << 16) | (i3 << 24));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe uint EncodeAndPadOne(byte* twoBytes, byte* encodingMap)
+        private static unsafe uint EncodeAndPadOne(byte* twoBytes, ref byte encodingMap)
         {
             nuint t0 = twoBytes[0];
             nuint t1 = twoBytes[1];
 
             nuint i = (t0 << 16) | (t1 << 8);
 
-            nuint i0 = encodingMap[i >> 18];
-            nuint i1 = encodingMap[(i >> 12) & 0x3F];
-            nuint i2 = encodingMap[(i >> 6) & 0x3F];
+            nuint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 18));
+            nuint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 12) & 0x3F));
+            nuint i2 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 6) & 0x3F));
 
             return (uint)(i0 | (i1 << 8) | (i2 << 16) | (EncodingPad << 24));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe uint EncodeAndPadTwo(byte* oneByte, byte* encodingMap)
+        private static unsafe uint EncodeAndPadTwo(byte* oneByte, ref byte encodingMap)
         {
             nuint t0 = oneByte[0];
 
             nuint i = t0 << 8;
 
-            nuint i0 = encodingMap[i >> 10];
-            nuint i1 = encodingMap[(i >> 4) & 0x3F];
+            nuint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 10));
+            nuint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 4) & 0x3F));
 
             return (uint)(i0 | (i1 << 8) | (EncodingPad << 16) | (EncodingPad << 24));
         }
