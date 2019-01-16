@@ -49,7 +49,7 @@ namespace System.Buffers.Text
 
             fixed (byte* srcBytes = &MemoryMarshal.GetReference(bytes))
             fixed (byte* destBytes = &MemoryMarshal.GetReference(utf8))
-            fixed (byte* encodingMap = s_encodingMap)
+            fixed (byte* encodingMap = &MemoryMarshal.GetReference(EncodingMapSpan))
             {
                 int srcLength = bytes.Length;
                 int destLength = utf8.Length;
@@ -178,7 +178,7 @@ namespace System.Buffers.Text
             }
 
             fixed (byte* bufferBytes = &MemoryMarshal.GetReference(buffer))
-            fixed (byte* encodingMap = s_encodingMap)
+            fixed (byte* encodingMap = &MemoryMarshal.GetReference(EncodingMapSpan))
             {
                 int encodedLength = GetMaxEncodedToUtf8Length(dataLength);
                 if (buffer.Length < encodedLength)
@@ -383,7 +383,7 @@ namespace System.Buffers.Text
         private const int MaximumEncodeLength = (int.MaxValue / 4) * 3; // 1610612733
 
         // Pre-computing this table using a custom string(s_characters) and GenerateEncodingMapAndVerify (found in tests)
-        private static readonly byte[] s_encodingMap = {
+        private static ReadOnlySpan<byte> EncodingMapSpan => new byte[] {
             65, 66, 67, 68, 69, 70, 71, 72,         //A..H
             73, 74, 75, 76, 77, 78, 79, 80,         //I..P
             81, 82, 83, 84, 85, 86, 87, 88,         //Q..X
@@ -392,7 +392,7 @@ namespace System.Buffers.Text
             111, 112, 113, 114, 115, 116, 117, 118, //o..v
             119, 120, 121, 122, 48, 49, 50, 51,     //w..z, 0..3
             52, 53, 54, 55, 56, 57, 43, 47          //4..9, +, /
-        };
+        };  // uses C# compiler's optimization for static byte[] data
 
         private static readonly Vector128<sbyte> s_sseEncodeShuffleVec = Ssse3.IsSupported ? Vector128.Create(
             1, 0, 2, 1,

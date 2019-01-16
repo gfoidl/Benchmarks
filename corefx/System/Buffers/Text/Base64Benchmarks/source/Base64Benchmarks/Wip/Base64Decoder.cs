@@ -48,7 +48,7 @@ namespace System.Buffers.Text
 
             fixed (byte* srcBytes = &MemoryMarshal.GetReference(utf8))
             fixed (byte* destBytes = &MemoryMarshal.GetReference(bytes))
-            fixed (sbyte* decodingMap = s_decodingMap)
+            fixed (sbyte* decodingMap = &MemoryMarshal.GetReference(DecodingMapSpan))
             {
                 int srcLength = utf8.Length & ~0x3;  // only decode input up to the closest multiple of 4.
                 int destLength = bytes.Length;
@@ -261,7 +261,7 @@ namespace System.Buffers.Text
             }
 
             fixed (byte* bufferBytes = &MemoryMarshal.GetReference(buffer))
-            fixed (sbyte* decodingMap = s_decodingMap)
+            fixed (sbyte* decodingMap = &MemoryMarshal.GetReference(DecodingMapSpan))
             {
                 int bufferLength = buffer.Length;
                 uint sourceIndex = 0;
@@ -482,7 +482,7 @@ namespace System.Buffers.Text
         }
 
         // Pre-computing this table using a custom string(s_characters) and GenerateDecodingMapAndVerify (found in tests)
-        private static readonly sbyte[] s_decodingMap = {
+        private static ReadOnlySpan<sbyte> DecodingMapSpan => new sbyte[] {
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,         //62 is placed at index 43 (for +), 63 at index 47 (for /)
