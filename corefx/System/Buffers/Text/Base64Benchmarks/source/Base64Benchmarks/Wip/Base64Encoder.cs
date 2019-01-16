@@ -50,6 +50,9 @@ namespace System.Buffers.Text
             fixed (byte* srcBytes = &MemoryMarshal.GetReference(bytes))
             fixed (byte* destBytes = &MemoryMarshal.GetReference(utf8))
             {
+                // PERF: needs to be initialized here, for good codegen
+                ref byte encodingMap = ref s_encodingMap[0];
+
                 int srcLength = bytes.Length;
                 int destLength = utf8.Length;
                 int maxSrcLength;
@@ -89,19 +92,6 @@ namespace System.Buffers.Text
                     }
                 }
 
-                // Pre-computing this table using a custom string(s_characters) and GenerateEncodingMapAndVerify (found in tests)
-                ReadOnlySpan<byte> encodingMapSpan = new byte[] {
-                    65, 66, 67, 68, 69, 70, 71, 72,         //A..H
-                    73, 74, 75, 76, 77, 78, 79, 80,         //I..P
-                    81, 82, 83, 84, 85, 86, 87, 88,         //Q..X
-                    89, 90, 97, 98, 99, 100, 101, 102,      //Y..Z, a..f
-                    103, 104, 105, 106, 107, 108, 109, 110, //g..n
-                    111, 112, 113, 114, 115, 116, 117, 118, //o..v
-                    119, 120, 121, 122, 48, 49, 50, 51,     //w..z, 0..3
-                    52, 53, 54, 55, 56, 57, 43, 47          //4..9, +, /
-                };  // uses C# compiler's optimization for static byte[] data
-
-                ref byte encodingMap = ref MemoryMarshal.GetReference(encodingMapSpan);
                 uint result = 0;
 
                 srcMax -= 2;
@@ -197,24 +187,12 @@ namespace System.Buffers.Text
 
                 int leftover = dataLength - (dataLength / 3) * 3; // how many bytes after packs of 3
 
-                // Pre-computing this table using a custom string(s_characters) and GenerateEncodingMapAndVerify (found in tests)
-                ReadOnlySpan<byte> encodingMapSpan = new byte[] {
-                    65, 66, 67, 68, 69, 70, 71, 72,         //A..H
-                    73, 74, 75, 76, 77, 78, 79, 80,         //I..P
-                    81, 82, 83, 84, 85, 86, 87, 88,         //Q..X
-                    89, 90, 97, 98, 99, 100, 101, 102,      //Y..Z, a..f
-                    103, 104, 105, 106, 107, 108, 109, 110, //g..n
-                    111, 112, 113, 114, 115, 116, 117, 118, //o..v
-                    119, 120, 121, 122, 48, 49, 50, 51,     //w..z, 0..3
-                    52, 53, 54, 55, 56, 57, 43, 47          //4..9, +, /
-                };  // uses C# compiler's optimization for static byte[] data
-
-                ref byte encodingMap = ref MemoryMarshal.GetReference(encodingMapSpan);
 
                 // PERF: use nuint to avoid the sign-extensions
                 nuint destinationIndex = (nuint)(encodedLength - 4);
                 nuint sourceIndex = (nuint)(dataLength - leftover);
                 uint result = 0;
+                ref byte encodingMap = ref s_encodingMap[0];
 
                 // encode last pack to avoid conditional in the main loop
                 if (leftover != 0)
@@ -406,6 +384,18 @@ namespace System.Buffers.Text
         private const uint EncodingPad = '='; // '=', for padding
 
         private const int MaximumEncodeLength = (int.MaxValue / 4) * 3; // 1610612733
+
+        // Pre-computing this table using a custom string(s_characters) and GenerateEncodingMapAndVerify (found in tests)
+        private static readonly byte[] s_encodingMap = {
+            65, 66, 67, 68, 69, 70, 71, 72,         //A..H
+            73, 74, 75, 76, 77, 78, 79, 80,         //I..P
+            81, 82, 83, 84, 85, 86, 87, 88,         //Q..X
+            89, 90, 97, 98, 99, 100, 101, 102,      //Y..Z, a..f
+            103, 104, 105, 106, 107, 108, 109, 110, //g..n
+            111, 112, 113, 114, 115, 116, 117, 118, //o..v
+            119, 120, 121, 122, 48, 49, 50, 51,     //w..z, 0..3
+            52, 53, 54, 55, 56, 57, 43, 47          //4..9, +, /
+        };
 
         private static readonly Vector128<sbyte> s_sseEncodeShuffleVec = Ssse3.IsSupported ? Vector128.Create(
             1, 0, 2, 1,
