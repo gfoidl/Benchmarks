@@ -20,20 +20,26 @@ namespace Base64Benchmarks
             _data   = new byte[this.DataLen];
             _base64 = new byte[(this.DataLen + 2) / 3 * 4];
 
-            var rnd = new Random();
+            var rnd = new Random(42);
             rnd.NextBytes(_data);
         }
         //---------------------------------------------------------------------
-        [Benchmark(Baseline = true)]
+        //[Benchmark(Baseline = true)]
         public OperationStatus PR34529_Base()
         {
             return Base64_Baseline.EncodeToUtf8(_data, _base64, out int _, out int _);
         }
         //---------------------------------------------------------------------
-        [Benchmark]
-        public OperationStatus PR34529_Pointers()
+        [Benchmark(Baseline = true)]
+        public OperationStatus PR34529_Pointers_GetPinnableReference()
         {
             return Base64_1.EncodeToUtf8(_data, _base64, out int _, out int _);
+        }
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public OperationStatus PR34529_Pointers_Reference()
+        {
+            return Base64_2.EncodeToUtf8(_data, _base64, out int _, out int _);
         }
     }
 }

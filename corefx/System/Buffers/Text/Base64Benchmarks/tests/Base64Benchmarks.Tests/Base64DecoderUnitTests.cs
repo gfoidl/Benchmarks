@@ -10,20 +10,6 @@ namespace System.Buffers.Text.Tests
     public class Base64DecoderUnitTests
     {
         [Fact]
-        public void Decode16Bytes()
-        {
-            Span<byte> source = new byte[24];
-            Span<byte> decodedBytes = new byte[16];
-            Base64TestHelper.InitalizeDecodableBytes(source);
-
-            Assert.Equal(OperationStatus.Done,
-                Base64_1.DecodeFromUtf8(source, decodedBytes, out int consumed, out int decodedByteCount));
-            Assert.Equal(24, consumed);
-            Assert.Equal(16, decodedByteCount);
-            Assert.True(Base64TestHelper.VerifyDecodingCorrectness(source.Length, decodedBytes.Length, source, decodedBytes));
-        }
-
-        [Fact]
         public void BasicDecoding()
         {
             var rnd = new Random(42);
@@ -56,6 +42,20 @@ namespace System.Buffers.Text.Tests
                 Base64_1.DecodeFromUtf8(source, decodedBytes, out int consumed, out int decodedByteCount));
             Assert.Equal(source.Length, consumed);
             Assert.Equal(decodedBytes.Length, decodedByteCount);
+            Assert.True(Base64TestHelper.VerifyDecodingCorrectness(source.Length, decodedBytes.Length, source, decodedBytes));
+        }
+
+        [Fact]
+        public void DecodeGuid()
+        {
+            Span<byte> source = new byte[24];
+            Span<byte> decodedBytes = Guid.NewGuid().ToByteArray();
+            Base64_1.EncodeToUtf8(decodedBytes, source, out int _, out int _);
+
+            Assert.Equal(OperationStatus.Done,
+                Base64_1.DecodeFromUtf8(source, decodedBytes, out int consumed, out int decodedByteCount));
+            Assert.Equal(24, consumed);
+            Assert.Equal(16, decodedByteCount);
             Assert.True(Base64TestHelper.VerifyDecodingCorrectness(source.Length, decodedBytes.Length, source, decodedBytes));
         }
 

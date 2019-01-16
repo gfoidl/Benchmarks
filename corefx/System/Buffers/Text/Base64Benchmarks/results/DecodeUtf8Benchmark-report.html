@@ -22,14 +22,14 @@ Intel Xeon CPU 2.00GHz, 1 CPU, 2 logical cores and 1 physical core
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>    Method</th><th>DataLen</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th>
+<thead><tr><th>                         Method</th><th>DataLen</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th>
 </tr>
-</thead><tbody><tr><td>PR34529_Base</td><td>5</td><td>34.94 ns</td><td>0.7413 ns</td><td>1.979 ns</td><td>35.92 ns</td><td>1.00</td><td>0.00</td>
-</tr><tr><td>PR34529_Pointers</td><td>5</td><td>41.40 ns</td><td>0.8648 ns</td><td>1.727 ns</td><td>42.45 ns</td><td>1.18</td><td>0.08</td>
-</tr><tr><td>PR34529_Base</td><td>16</td><td>38.49 ns</td><td>0.8118 ns</td><td>2.276 ns</td><td>39.88 ns</td><td>1.00</td><td>0.00</td>
-</tr><tr><td>PR34529_Pointers</td><td>16</td><td>46.67 ns</td><td>0.9792 ns</td><td>2.383 ns</td><td>47.89 ns</td><td>1.22</td><td>0.11</td>
-</tr><tr><td>PR34529_Base</td><td>1000</td><td>175.68 ns</td><td>3.5467 ns</td><td>8.360 ns</td><td>179.68 ns</td><td>1.00</td><td>0.00</td>
-</tr><tr><td>PR34529_Pointers</td><td>1000</td><td>174.48 ns</td><td>3.5126 ns</td><td>9.004 ns</td><td>180.14 ns</td><td>0.99</td><td>0.07</td>
+</thead><tbody><tr><td>PR34529_Pointers_GetPinnableReference</td><td>5</td><td>47.69 ns</td><td>0.9889 ns</td><td>0.9712 ns</td><td>47.73 ns</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>PR34529_Pointers_Reference</td><td>5</td><td>46.48 ns</td><td>0.9671 ns</td><td>1.5889 ns</td><td>46.73 ns</td><td>0.98</td><td>0.03</td>
+</tr><tr><td>PR34529_Pointers_GetPinnableReference</td><td>16</td><td>51.49 ns</td><td>0.6306 ns</td><td>0.5899 ns</td><td>51.53 ns</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>PR34529_Pointers_Reference</td><td>16</td><td>50.84 ns</td><td>0.9104 ns</td><td>0.8516 ns</td><td>51.15 ns</td><td>0.99</td><td>0.02</td>
+</tr><tr><td>PR34529_Pointers_GetPinnableReference</td><td>1000</td><td>178.89 ns</td><td>3.6082 ns</td><td>7.7670 ns</td><td>181.99 ns</td><td>1.00</td><td>0.00</td>
+</tr><tr><td>PR34529_Pointers_Reference</td><td>1000</td><td>181.56 ns</td><td>3.6187 ns</td><td>5.8435 ns</td><td>183.46 ns</td><td>1.01</td><td>0.05</td>
 </tr></tbody></table>
 </body>
 </html>

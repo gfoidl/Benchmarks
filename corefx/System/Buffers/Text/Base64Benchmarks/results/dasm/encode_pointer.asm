@@ -5,130 +5,132 @@
 ; fully interruptible
 ; Final local variable assignments
 ;
-;  V00 arg0         [V00,T19] (  6,  4.25)  struct (16) [rbp-0x38]   do-not-enreg[SF] ld-addr-op
-;  V01 arg1         [V01,T23] (  5,  3.25)  struct (16) [rbp-0x48]   do-not-enreg[SF] ld-addr-op
-;  V02 arg2         [V02,T20] (  6,  4   )   byref  ->  rbx
-;  V03 arg3         [V03,T21] (  6,  4   )   byref  ->  r14
-;  V04 arg4         [V04,T105] (  1,  0.50)    bool  ->  [rbp+0x10]
-;  V05 loc0         [V05,T25] (  8,  4   )    long  ->  r15
+;  V00 arg0         [V00    ] (  5,  4   )  struct (16) [rbp-0x38]   do-not-enreg[XSFB] addr-exposed ld-addr-op
+;  V01 arg1         [V01    ] (  4,  3   )  struct (16) [rbp-0x48]   do-not-enreg[XSFB] addr-exposed ld-addr-op
+;  V02 arg2         [V02,T19] (  6,  4   )   byref  ->  rbx
+;  V03 arg3         [V03,T20] (  6,  4   )   byref  ->  r14
+;  V04 arg4         [V04,T103] (  1,  0.50)    bool  ->  [rbp+0x10]
+;  V05 loc0         [V05,T23] (  8,  4   )    long  ->  r15
 ;  V06 loc1         [V06    ] (  1,  0.50)   byref  ->  [rbp-0x50]   must-init pinned
-;  V07 loc2         [V07,T41] (  6,  3   )    long  ->  r12
+;  V07 loc2         [V07,T39] (  6,  3   )    long  ->  r12
 ;  V08 loc3         [V08    ] (  1,  0.50)   byref  ->  [rbp-0x58]   must-init pinned
 ;  V09 loc4         [V09,T03] ( 11, 19.50)    long  ->  rdi
 ;  V10 loc5         [V10    ] (  4,  2   )     ref  ->  [rbp-0x60]   must-init pinned class-hnd
-;  V11 loc6         [V11,T42] (  6,  3   )     int  ->  rsi
+;  V11 loc6         [V11,T40] (  6,  3   )     int  ->  rsi
 ;  V12 loc7         [V12,T72] (  3,  1.50)     int  ->  rcx
 ;  V13 loc8         [V13,T62] (  4,  2   )     int  ->  rax
 ;  V14 loc9         [V14,T00] ( 28, 35   )    long  ->  rdx         ld-addr-op
 ;  V15 loc10        [V15,T04] ( 16, 18.50)    long  ->  rcx         ld-addr-op
-;  V16 loc11        [V16,T43] (  6,  3   )    long  ->  rsi
+;  V16 loc11        [V16,T41] (  6,  3   )    long  ->  rsi
 ;  V17 loc12        [V17,T16] (  8,  7.50)    long  ->   r8
 ;  V18 loc13        [V18,T08] (  6, 10   )     int  ->  rax
-;  V19 loc14        [V19,T22] (  6,  6   )    long  ->  rax
+;  V19 loc14        [V19,T21] (  6,  6   )    long  ->  rax
 ;# V20 OutArgs      [V20    ] (  1,  1   )  lclBlk ( 0) [rsp+0x00]   "OutgoingArgSpace"
-;  V21 tmp1         [V21,T44] (  3,  3   )     ref  ->  rax         class-hnd "dup spill"
-;  V22 tmp2         [V22,T70] (  3,  1.50)   byref  ->  rdi         "Inline return value spill temp"
-;  V23 tmp3         [V23,T74] (  3,  1.25)   byref  ->  rdi         "Inline stloc first use temp"
-;* V24 tmp4         [V24    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V25 tmp5         [V25,T71] (  3,  1.50)   byref  ->  rdi         "Inline return value spill temp"
-;  V26 tmp6         [V26,T75] (  3,  1.25)   byref  ->  rdi         "Inline stloc first use temp"
-;* V27 tmp7         [V27    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V28 tmp8         [V28,T46] (  2,  2.50)  simd32  ->  mm0         "Inline stloc first use temp"
-;  V29 tmp9         [V29,T76] (  2,  1   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
-;  V30 tmp10        [V30,T47] (  2,  2.50)  simd32  ->  mm1         "Inline stloc first use temp"
-;  V31 tmp11        [V31,T48] (  2,  2.50)  simd32  ->  mm2         "Inline stloc first use temp"
-;  V32 tmp12        [V32,T49] (  2,  2.50)  simd32  ->  mm3         "Inline stloc first use temp"
-;  V33 tmp13        [V33,T50] (  2,  2.50)  simd32  ->  mm4         "Inline stloc first use temp"
-;  V34 tmp14        [V34,T51] (  2,  2.50)  simd32  ->  mm5         "Inline stloc first use temp"
-;  V35 tmp15        [V35,T52] (  2,  2.50)  simd32  ->  mm6         "Inline stloc first use temp"
-;  V36 tmp16        [V36,T53] (  2,  2.50)  simd32  ->  mm7         "Inline stloc first use temp"
-;  V37 tmp17        [V37,T09] (  6,  9   )    long  ->  rdx         "Inline stloc first use temp"
-;  V38 tmp18        [V38,T17] (  5,  7   )    long  ->  rcx         "Inline stloc first use temp"
-;  V39 tmp19        [V39,T24] (  4,  5   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
-;  V40 tmp20        [V40,T01] ( 12, 22.50)  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
-;  V41 tmp21        [V41,T26] (  2,  4   )  simd32  ->  mm9         ld-addr-op "Inline stloc first use temp"
-;  V42 tmp22        [V42,T27] (  2,  4   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
-;  V43 tmp23        [V43,T28] (  2,  4   )  simd32  ->  mm9         ld-addr-op "Inline stloc first use temp"
-;  V44 tmp24        [V44,T29] (  2,  4   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
-;  V45 tmp25        [V45,T30] (  2,  4   )  simd32  ->  mm9         ld-addr-op "Inline stloc first use temp"
-;  V46 tmp26        [V46,T31] (  2,  4   )  simd32  ->  mm10         "Inline stloc first use temp"
-;  V47 tmp27        [V47,T32] (  2,  4   )  simd32  ->  mm9         "Inline stloc first use temp"
-;  V48 tmp28        [V48,T77] (  2,  1   )  simd32  ->  mm1         "Inline return value spill temp"
-;  V49 tmp29        [V49,T78] (  2,  1   )  simd16  ->  mm1         "Inline stloc first use temp"
-;  V50 tmp30        [V50,T79] (  2,  1   )  simd32  ->  mm2         "Inline return value spill temp"
-;  V51 tmp31        [V51,T80] (  2,  1   )  simd16  ->  mm2         "Inline stloc first use temp"
-;  V52 tmp32        [V52,T81] (  2,  1   )  simd32  ->  mm3         "Inline return value spill temp"
-;  V53 tmp33        [V53,T82] (  2,  1   )  simd16  ->  mm3         "Inline stloc first use temp"
-;  V54 tmp34        [V54,T83] (  2,  1   )  simd32  ->  mm4         "Inline return value spill temp"
-;  V55 tmp35        [V55,T84] (  2,  1   )  simd16  ->  mm4         "Inline stloc first use temp"
-;  V56 tmp36        [V56,T85] (  2,  1   )  simd32  ->  mm5         "Inline return value spill temp"
-;  V57 tmp37        [V57,T86] (  2,  1   )  simd16  ->  mm5         "Inline stloc first use temp"
-;  V58 tmp38        [V58,T87] (  2,  1   )  simd32  ->  mm6         "Inline return value spill temp"
-;  V59 tmp39        [V59,T88] (  2,  1   )  simd16  ->  mm6         "Inline stloc first use temp"
-;  V60 tmp40        [V60,T54] (  2,  2.50)  simd16  ->  mm0         "Inline stloc first use temp"
-;* V61 tmp41        [V61    ] (  0,  0   )  simd16  ->  zero-ref    ld-addr-op "Inline stloc first use temp"
-;  V62 tmp42        [V62,T55] (  2,  2.50)  simd16  ->  mm1         "Inline stloc first use temp"
-;  V63 tmp43        [V63,T56] (  2,  2.50)  simd16  ->  mm2         "Inline stloc first use temp"
-;  V64 tmp44        [V64,T57] (  2,  2.50)  simd16  ->  mm3         "Inline stloc first use temp"
-;  V65 tmp45        [V65,T58] (  2,  2.50)  simd16  ->  mm4         "Inline stloc first use temp"
-;  V66 tmp46        [V66,T59] (  2,  2.50)  simd16  ->  mm5         "Inline stloc first use temp"
-;  V67 tmp47        [V67,T60] (  2,  2.50)  simd16  ->  mm6         "Inline stloc first use temp"
-;  V68 tmp48        [V68,T61] (  2,  2.50)  simd16  ->  mm7         "Inline stloc first use temp"
-;  V69 tmp49        [V69,T10] (  6,  9   )    long  ->  rdx         "Inline stloc first use temp"
-;  V70 tmp50        [V70,T18] (  5,  7   )    long  ->  rcx         "Inline stloc first use temp"
-;  V71 tmp51        [V71,T33] (  2,  4   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
-;  V72 tmp52        [V72,T05] (  9, 18   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
-;  V73 tmp53        [V73,T34] (  2,  4   )  simd16  ->  mm9         ld-addr-op "Inline stloc first use temp"
-;  V74 tmp54        [V74,T35] (  2,  4   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
-;  V75 tmp55        [V75,T36] (  2,  4   )  simd16  ->  mm9         ld-addr-op "Inline stloc first use temp"
-;  V76 tmp56        [V76,T37] (  2,  4   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
-;  V77 tmp57        [V77,T38] (  2,  4   )  simd16  ->  mm9         ld-addr-op "Inline stloc first use temp"
-;  V78 tmp58        [V78,T39] (  2,  4   )  simd16  ->  mm10         "Inline stloc first use temp"
-;  V79 tmp59        [V79,T40] (  2,  4   )  simd16  ->  mm9         "Inline stloc first use temp"
-;  V80 tmp60        [V80,T89] (  2,  1   )  simd16  ->  mm1         "Inline return value spill temp"
-;  V81 tmp61        [V81,T90] (  2,  1   )  simd16  ->  mm1         "Inline stloc first use temp"
-;  V82 tmp62        [V82,T91] (  2,  1   )  simd16  ->  mm2         "Inline return value spill temp"
-;  V83 tmp63        [V83,T92] (  2,  1   )  simd16  ->  mm2         "Inline stloc first use temp"
-;  V84 tmp64        [V84,T93] (  2,  1   )  simd16  ->  mm3         "Inline return value spill temp"
-;  V85 tmp65        [V85,T94] (  2,  1   )  simd16  ->  mm3         "Inline stloc first use temp"
-;  V86 tmp66        [V86,T95] (  2,  1   )  simd16  ->  mm4         "Inline return value spill temp"
-;  V87 tmp67        [V87,T96] (  2,  1   )  simd16  ->  mm4         "Inline stloc first use temp"
-;  V88 tmp68        [V88,T97] (  2,  1   )  simd16  ->  mm5         "Inline return value spill temp"
-;  V89 tmp69        [V89,T98] (  2,  1   )  simd16  ->  mm5         "Inline stloc first use temp"
-;  V90 tmp70        [V90,T99] (  2,  1   )  simd16  ->  mm6         "Inline return value spill temp"
-;  V91 tmp71        [V91,T100] (  2,  1   )  simd16  ->  mm6         "Inline stloc first use temp"
-;* V92 tmp72        [V92    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V93 tmp73        [V93,T11] (  2,  8   )    long  ->   r9         "Inline stloc first use temp"
-;  V94 tmp74        [V94,T06] (  2, 16   )    long  ->  rax         "impAppendStmt"
-;  V95 tmp75        [V95,T12] (  2,  8   )    long  ->  r10         "Inline stloc first use temp"
-;  V96 tmp76        [V96,T02] (  5, 20   )    long  ->  rax         "Inline stloc first use temp"
-;  V97 tmp77        [V97,T13] (  2,  8   )    long  ->  r10         "Inline stloc first use temp"
-;  V98 tmp78        [V98,T07] (  2, 16   )    long  ->   r9         "impAppendStmt"
-;  V99 tmp79        [V99,T14] (  2,  8   )    long  ->  r11         "Inline stloc first use temp"
-;  V100 tmp80       [V100,T15] (  2,  8   )    long  ->  rax         "Inline stloc first use temp"
-;* V101 tmp81       [V101    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
+;  V21 tmp1         [V21,T42] (  3,  3   )     ref  ->  rax         class-hnd "dup spill"
+;* V22 tmp2         [V22    ] (  0,  0   )  struct (16) zero-ref    ld-addr-op "Inlining Arg"
+;* V23 tmp3         [V23    ] (  0,  0   )  struct (16) zero-ref    ld-addr-op "Inlining Arg"
+;  V24 tmp4         [V24,T46] (  2,  2.50)  simd32  ->  mm0         "Inline stloc first use temp"
+;  V25 tmp5         [V25,T74] (  2,  1   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
+;  V26 tmp6         [V26,T47] (  2,  2.50)  simd32  ->  mm1         "Inline stloc first use temp"
+;  V27 tmp7         [V27,T48] (  2,  2.50)  simd32  ->  mm2         "Inline stloc first use temp"
+;  V28 tmp8         [V28,T49] (  2,  2.50)  simd32  ->  mm3         "Inline stloc first use temp"
+;  V29 tmp9         [V29,T50] (  2,  2.50)  simd32  ->  mm4         "Inline stloc first use temp"
+;  V30 tmp10        [V30,T51] (  2,  2.50)  simd32  ->  mm5         "Inline stloc first use temp"
+;  V31 tmp11        [V31,T52] (  2,  2.50)  simd32  ->  mm6         "Inline stloc first use temp"
+;  V32 tmp12        [V32,T53] (  2,  2.50)  simd32  ->  mm7         "Inline stloc first use temp"
+;  V33 tmp13        [V33,T09] (  6,  9   )    long  ->  rdx         "Inline stloc first use temp"
+;  V34 tmp14        [V34,T17] (  5,  7   )    long  ->  rcx         "Inline stloc first use temp"
+;  V35 tmp15        [V35,T22] (  4,  5   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
+;  V36 tmp16        [V36,T01] ( 12, 22.50)  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
+;  V37 tmp17        [V37,T24] (  2,  4   )  simd32  ->  mm9         ld-addr-op "Inline stloc first use temp"
+;  V38 tmp18        [V38,T25] (  2,  4   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
+;  V39 tmp19        [V39,T26] (  2,  4   )  simd32  ->  mm9         ld-addr-op "Inline stloc first use temp"
+;  V40 tmp20        [V40,T27] (  2,  4   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
+;  V41 tmp21        [V41,T28] (  2,  4   )  simd32  ->  mm9         ld-addr-op "Inline stloc first use temp"
+;  V42 tmp22        [V42,T29] (  2,  4   )  simd32  ->  mm10         "Inline stloc first use temp"
+;  V43 tmp23        [V43,T30] (  2,  4   )  simd32  ->  mm9         "Inline stloc first use temp"
+;  V44 tmp24        [V44,T75] (  2,  1   )  simd32  ->  mm1         "Inline return value spill temp"
+;  V45 tmp25        [V45,T76] (  2,  1   )  simd16  ->  mm1         "Inline stloc first use temp"
+;  V46 tmp26        [V46,T77] (  2,  1   )  simd32  ->  mm2         "Inline return value spill temp"
+;  V47 tmp27        [V47,T78] (  2,  1   )  simd16  ->  mm2         "Inline stloc first use temp"
+;  V48 tmp28        [V48,T79] (  2,  1   )  simd32  ->  mm3         "Inline return value spill temp"
+;  V49 tmp29        [V49,T80] (  2,  1   )  simd16  ->  mm3         "Inline stloc first use temp"
+;  V50 tmp30        [V50,T81] (  2,  1   )  simd32  ->  mm4         "Inline return value spill temp"
+;  V51 tmp31        [V51,T82] (  2,  1   )  simd16  ->  mm4         "Inline stloc first use temp"
+;  V52 tmp32        [V52,T83] (  2,  1   )  simd32  ->  mm5         "Inline return value spill temp"
+;  V53 tmp33        [V53,T84] (  2,  1   )  simd16  ->  mm5         "Inline stloc first use temp"
+;  V54 tmp34        [V54,T85] (  2,  1   )  simd32  ->  mm6         "Inline return value spill temp"
+;  V55 tmp35        [V55,T86] (  2,  1   )  simd16  ->  mm6         "Inline stloc first use temp"
+;  V56 tmp36        [V56,T54] (  2,  2.50)  simd16  ->  mm0         "Inline stloc first use temp"
+;* V57 tmp37        [V57    ] (  0,  0   )  simd16  ->  zero-ref    ld-addr-op "Inline stloc first use temp"
+;  V58 tmp38        [V58,T55] (  2,  2.50)  simd16  ->  mm1         "Inline stloc first use temp"
+;  V59 tmp39        [V59,T56] (  2,  2.50)  simd16  ->  mm2         "Inline stloc first use temp"
+;  V60 tmp40        [V60,T57] (  2,  2.50)  simd16  ->  mm3         "Inline stloc first use temp"
+;  V61 tmp41        [V61,T58] (  2,  2.50)  simd16  ->  mm4         "Inline stloc first use temp"
+;  V62 tmp42        [V62,T59] (  2,  2.50)  simd16  ->  mm5         "Inline stloc first use temp"
+;  V63 tmp43        [V63,T60] (  2,  2.50)  simd16  ->  mm6         "Inline stloc first use temp"
+;  V64 tmp44        [V64,T61] (  2,  2.50)  simd16  ->  mm7         "Inline stloc first use temp"
+;  V65 tmp45        [V65,T10] (  6,  9   )    long  ->  rdx         "Inline stloc first use temp"
+;  V66 tmp46        [V66,T18] (  5,  7   )    long  ->  rcx         "Inline stloc first use temp"
+;  V67 tmp47        [V67,T31] (  2,  4   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
+;  V68 tmp48        [V68,T05] (  9, 18   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
+;  V69 tmp49        [V69,T32] (  2,  4   )  simd16  ->  mm9         ld-addr-op "Inline stloc first use temp"
+;  V70 tmp50        [V70,T33] (  2,  4   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
+;  V71 tmp51        [V71,T34] (  2,  4   )  simd16  ->  mm9         ld-addr-op "Inline stloc first use temp"
+;  V72 tmp52        [V72,T35] (  2,  4   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
+;  V73 tmp53        [V73,T36] (  2,  4   )  simd16  ->  mm9         ld-addr-op "Inline stloc first use temp"
+;  V74 tmp54        [V74,T37] (  2,  4   )  simd16  ->  mm10         "Inline stloc first use temp"
+;  V75 tmp55        [V75,T38] (  2,  4   )  simd16  ->  mm9         "Inline stloc first use temp"
+;  V76 tmp56        [V76,T87] (  2,  1   )  simd16  ->  mm1         "Inline return value spill temp"
+;  V77 tmp57        [V77,T88] (  2,  1   )  simd16  ->  mm1         "Inline stloc first use temp"
+;  V78 tmp58        [V78,T89] (  2,  1   )  simd16  ->  mm2         "Inline return value spill temp"
+;  V79 tmp59        [V79,T90] (  2,  1   )  simd16  ->  mm2         "Inline stloc first use temp"
+;  V80 tmp60        [V80,T91] (  2,  1   )  simd16  ->  mm3         "Inline return value spill temp"
+;  V81 tmp61        [V81,T92] (  2,  1   )  simd16  ->  mm3         "Inline stloc first use temp"
+;  V82 tmp62        [V82,T93] (  2,  1   )  simd16  ->  mm4         "Inline return value spill temp"
+;  V83 tmp63        [V83,T94] (  2,  1   )  simd16  ->  mm4         "Inline stloc first use temp"
+;  V84 tmp64        [V84,T95] (  2,  1   )  simd16  ->  mm5         "Inline return value spill temp"
+;  V85 tmp65        [V85,T96] (  2,  1   )  simd16  ->  mm5         "Inline stloc first use temp"
+;  V86 tmp66        [V86,T97] (  2,  1   )  simd16  ->  mm6         "Inline return value spill temp"
+;  V87 tmp67        [V87,T98] (  2,  1   )  simd16  ->  mm6         "Inline stloc first use temp"
+;* V88 tmp68        [V88    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
+;  V89 tmp69        [V89,T11] (  2,  8   )    long  ->   r9         "Inline stloc first use temp"
+;  V90 tmp70        [V90,T06] (  2, 16   )    long  ->  rax         "impAppendStmt"
+;  V91 tmp71        [V91,T12] (  2,  8   )    long  ->  r10         "Inline stloc first use temp"
+;  V92 tmp72        [V92,T02] (  5, 20   )    long  ->  rax         "Inline stloc first use temp"
+;  V93 tmp73        [V93,T13] (  2,  8   )    long  ->  r10         "Inline stloc first use temp"
+;  V94 tmp74        [V94,T07] (  2, 16   )    long  ->   r9         "impAppendStmt"
+;  V95 tmp75        [V95,T14] (  2,  8   )    long  ->  r11         "Inline stloc first use temp"
+;  V96 tmp76        [V96,T15] (  2,  8   )    long  ->  rax         "Inline stloc first use temp"
+;* V97 tmp77        [V97    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
+;* V98 tmp78        [V98    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
+;  V99 tmp79        [V99,T73] (  3,  1.50)    long  ->  rax         "Inline stloc first use temp"
+;  V100 tmp80       [V100,T99] (  2,  1   )    long  ->  rax         "Inline stloc first use temp"
+;  V101 tmp81       [V101,T64] (  2,  2   )    long  ->  rsi         "impAppendStmt"
 ;* V102 tmp82       [V102    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V103 tmp83       [V103,T73] (  3,  1.50)    long  ->  rax         "Inline stloc first use temp"
-;  V104 tmp84       [V104,T101] (  2,  1   )    long  ->  rax         "Inline stloc first use temp"
-;  V105 tmp85       [V105,T64] (  2,  2   )    long  ->  rsi         "impAppendStmt"
-;* V106 tmp86       [V106    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;* V107 tmp87       [V107    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V108 tmp88       [V108,T102] (  2,  1   )    long  ->  rsi         "Inline stloc first use temp"
-;  V109 tmp89       [V109,T65] (  2,  2   )    long  ->  rax         "impAppendStmt"
-;  V110 tmp90       [V110,T63] (  4,  2   )    long  ->  rax         "Inline stloc first use temp"
-;  V111 tmp91       [V111,T103] (  2,  1   )    long  ->   r8         "Inline stloc first use temp"
-;  V112 tmp92       [V112,T66] (  2,  2   )    long  ->  rsi         "impAppendStmt"
-;  V113 tmp93       [V113,T104] (  2,  1   )    long  ->  rax         "Inline stloc first use temp"
-;* V114 tmp94       [V114    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V115 tmp95       [V115,T67] (  2,  2   )    long  ->  r15         "Cast away GC"
-;  V116 tmp96       [V116,T68] (  2,  2   )    long  ->  r12         "Cast away GC"
-;  V117 tmp97       [V117,T69] (  2,  2   )    long  ->  rdi         "Cast away GC"
-;* V118 cse0        [V118,T106] (  0,  0   )    long  ->  zero-ref    "ValNumCSE"
-;  V119 rat0        [V119,T45] (  3,  3   )     int  ->  rdx         "ReplaceWithLclVar is creating a new local variable"
+;* V103 tmp83       [V103    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
+;  V104 tmp84       [V104,T100] (  2,  1   )    long  ->  rsi         "Inline stloc first use temp"
+;  V105 tmp85       [V105,T65] (  2,  2   )    long  ->  rax         "impAppendStmt"
+;  V106 tmp86       [V106,T63] (  4,  2   )    long  ->  rax         "Inline stloc first use temp"
+;  V107 tmp87       [V107,T101] (  2,  1   )    long  ->   r8         "Inline stloc first use temp"
+;  V108 tmp88       [V108,T66] (  2,  2   )    long  ->  rsi         "impAppendStmt"
+;  V109 tmp89       [V109,T102] (  2,  1   )    long  ->  rax         "Inline stloc first use temp"
+;* V110 tmp90       [V110    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
+;  V111 tmp91       [V111,T70] (  3,  1.50)   byref  ->  rsi         V22._pointer(offs=0x00) P-INDEP "field V22._pointer (fldOffset=0x0)"
+;* V112 tmp92       [V112    ] (  0,  0   )     int  ->  zero-ref    V22._length(offs=0x08) P-INDEP "field V22._length (fldOffset=0x8)"
+;  V113 tmp93       [V113,T71] (  3,  1.50)   byref  ->  rsi         V23._pointer(offs=0x00) P-INDEP "field V23._pointer (fldOffset=0x0)"
+;* V114 tmp94       [V114    ] (  0,  0   )     int  ->  zero-ref    V23._length(offs=0x08) P-INDEP "field V23._length (fldOffset=0x8)"
+;  V115 tmp95       [V115,T43] (  3,  3   )   byref  ->  rdi         "BlockOp address local"
+;  V116 tmp96       [V116,T67] (  2,  2   )    long  ->  r15         "Cast away GC"
+;  V117 tmp97       [V117,T44] (  3,  3   )   byref  ->  rdi         "BlockOp address local"
+;  V118 tmp98       [V118,T68] (  2,  2   )    long  ->  r12         "Cast away GC"
+;  V119 tmp99       [V119,T69] (  2,  2   )    long  ->  rdi         "Cast away GC"
+;* V120 cse0        [V120,T104] (  0,  0   )    long  ->  zero-ref    "ValNumCSE"
+;  V121 rat0        [V121,T45] (  3,  3   )     int  ->  rdx         "ReplaceWithLclVar is creating a new local variable"
 ;
 ; Lcl frame size = 56
 
-G_M39728_IG01:
+G_M39726_IG01:
        push     rbp
        push     r15
        push     r14
@@ -153,14 +155,14 @@ G_M39728_IG01:
        mov      rbx, r8
        mov      r14, r9
 
-G_M39728_IG02:
+G_M39726_IG02:
        cmp      dword ptr [rbp-30H], 0
-       ja       SHORT G_M39728_IG04
+       ja       SHORT G_M39726_IG04
        xor      eax, eax
        mov      dword ptr [rbx], eax
        mov      dword ptr [r14], eax
 
-G_M39728_IG03:
+G_M39726_IG03:
        vzeroupper
        lea      rsp, [rbp-28H]
        pop      rbx
@@ -171,23 +173,17 @@ G_M39728_IG03:
        pop      rbp
        ret
 
-G_M39728_IG04:
-       xor      rdi, rdi
-       cmp      dword ptr [rbp-30H], 0
-       je       SHORT G_M39728_IG05
-       mov      rdi, bword ptr [rbp-38H]
-
-G_M39728_IG05:
-       mov      bword ptr [rbp-50H], rdi
-       mov      r15, rdi
-       xor      rdi, rdi
-       cmp      dword ptr [rbp-40H], 0
-       je       SHORT G_M39728_IG06
-       mov      rdi, bword ptr [rbp-48H]
-
-G_M39728_IG06:
-       mov      bword ptr [rbp-58H], rdi
-       mov      r12, rdi
+G_M39726_IG04:
+       lea      rdi, bword ptr [rbp-38H]
+       mov      rsi, bword ptr [rdi]
+       mov      edi, dword ptr [rdi+8]
+       mov      bword ptr [rbp-50H], rsi
+       mov      r15, rsi
+       lea      rdi, bword ptr [rbp-48H]
+       mov      rsi, bword ptr [rdi]
+       mov      edi, dword ptr [rdi+8]
+       mov      bword ptr [rbp-58H], rsi
+       mov      r12, rsi
        mov      rdi, 0xD1FFAB1E
        mov      esi, 4
        call     CORINFO_HELP_GETSHARED_NONGCSTATIC_BASE
@@ -195,31 +191,31 @@ G_M39728_IG06:
        mov      rax, gword ptr [rax]
        mov      gword ptr [rbp-60H], rax
        test     rax, rax
-       je       SHORT G_M39728_IG07
+       je       SHORT G_M39726_IG05
        mov      rax, gword ptr [rbp-60H]
        cmp      dword ptr [rax+8], 0
-       jne      SHORT G_M39728_IG08
+       jne      SHORT G_M39726_IG06
 
-G_M39728_IG07:
+G_M39726_IG05:
        xor      rdi, rdi
-       jmp      SHORT G_M39728_IG09
+       jmp      SHORT G_M39726_IG07
 
-G_M39728_IG08:
+G_M39726_IG06:
        mov      rdi, gword ptr [rbp-60H]
        cmp      dword ptr [rdi+8], 0
-       jbe      G_M39728_IG28
+       jbe      G_M39726_IG26
        mov      rax, gword ptr [rbp-60H]
        lea      rdi, bword ptr [rax+16]
 
-G_M39728_IG09:
+G_M39726_IG07:
        mov      esi, dword ptr [rbp-30H]
        mov      ecx, dword ptr [rbp-40H]
        cmp      esi, 0xD1FFAB1E
-       jg       SHORT G_M39728_IG11
+       jg       SHORT G_M39726_IG09
        cmp      esi, 0xD1FFAB1E
-       ja       G_M39728_IG27
+       ja       G_M39726_IG25
 
-G_M39728_IG10:
+G_M39726_IG08:
        lea      eax, [rsi+2]
        mov      edx, 0xD1FFAB1E
        imul     edx:eax, edx
@@ -228,15 +224,15 @@ G_M39728_IG10:
        add      edx, eax
        shl      edx, 2
        cmp      edx, ecx
-       jg       SHORT G_M39728_IG11
+       jg       SHORT G_M39726_IG09
        mov      eax, esi
-       jmp      SHORT G_M39728_IG12
+       jmp      SHORT G_M39726_IG10
 
-G_M39728_IG11:
+G_M39726_IG09:
        sar      ecx, 2
        lea      eax, [rcx+2*rcx]
 
-G_M39728_IG12:
+G_M39726_IG10:
        mov      rdx, r15
        mov      rcx, r12
        movsxd   rsi, esi
@@ -244,10 +240,10 @@ G_M39728_IG12:
        movsxd   r8, eax
        add      r8, rdx
        cmp      eax, 16
-       jl       G_M39728_IG17
+       jl       G_M39726_IG15
        lea      rax, [r8-32]
        cmp      rax, r15
-       jb       G_M39728_IG15
+       jb       G_M39726_IG13
        mov      rdx, 0xD1FFAB1E
        mov      rcx, gword ptr [rdx]
        vmovupd  ymm0, ymmword ptr[rcx+8]
@@ -280,7 +276,7 @@ G_M39728_IG12:
        vpermd   ymm8, ymm9, ymm8
        lea      rdx, [r15-4]
 
-G_M39728_IG13:
+G_M39726_IG11:
        vpshufb  ymm8, ymm8, ymm0
        vpand    ymm9, ymm8, ymm1
        vpand    ymm8, ymm8, ymm2
@@ -296,19 +292,19 @@ G_M39728_IG13:
        add      rdx, 24
        add      rcx, 32
        cmp      rdx, rax
-       ja       SHORT G_M39728_IG14
+       ja       SHORT G_M39726_IG12
        vmovdqu  ymm8, ymmword ptr[rdx]
-       jmp      SHORT G_M39728_IG13
+       jmp      SHORT G_M39726_IG11
 
-G_M39728_IG14:
+G_M39726_IG12:
        add      rdx, 4
        cmp      rdx, rsi
-       je       G_M39728_IG21
+       je       G_M39726_IG19
 
-G_M39728_IG15:
+G_M39726_IG13:
        lea      rax, [r8-16]
        cmp      rax, rdx
-       jb       G_M39728_IG17
+       jb       G_M39726_IG15
        mov      r9, 0xD1FFAB1E
        mov      r9, gword ptr [r9]
        vmovupd  xmm0, xmmword ptr [r9+8]
@@ -334,7 +330,7 @@ G_M39728_IG15:
        mov      r9, gword ptr [r9]
        vmovupd  xmm7, xmmword ptr [r9+8]
 
-G_M39728_IG16:
+G_M39726_IG14:
        vmovdqu  xmm8, xmmword ptr [rdx]
        vpshufb  xmm8, xmm8, xmm0
        vpand    xmm9, xmm8, xmm1
@@ -351,16 +347,16 @@ G_M39728_IG16:
        add      rdx, 12
        add      rcx, 16
        cmp      rdx, rax
-       jbe      SHORT G_M39728_IG16
+       jbe      SHORT G_M39726_IG14
        cmp      rdx, rsi
-       je       G_M39728_IG21
+       je       G_M39726_IG19
 
-G_M39728_IG17:
+G_M39726_IG15:
        add      r8, -2
        cmp      rdx, r8
-       jae      G_M39728_IG19
+       jae      G_M39726_IG17
 
-G_M39728_IG18:
+G_M39726_IG16:
        movzx    rax, byte  ptr [rdx]
        mov      eax, eax
        movzx    r9, byte  ptr [rdx+1]
@@ -398,17 +394,17 @@ G_M39728_IG18:
        add      rdx, 3
        add      rcx, 4
        cmp      rdx, r8
-       jb       G_M39728_IG18
+       jb       G_M39726_IG16
 
-G_M39728_IG19:
+G_M39726_IG17:
        add      r8, 2
        cmp      r8, rsi
-       jne      G_M39728_IG23
+       jne      G_M39726_IG21
        cmp      byte  ptr [rbp+10H], 0
-       je       G_M39728_IG25
+       je       G_M39726_IG23
        lea      rax, [rdx+1]
        cmp      rax, rsi
-       jne      SHORT G_M39728_IG20
+       jne      SHORT G_M39726_IG18
        movzx    rsi, byte  ptr [rdx]
        mov      eax, esi
        shl      rax, 8
@@ -428,12 +424,12 @@ G_M39728_IG19:
        mov      dword ptr [rcx], eax
        inc      rdx
        add      rcx, 4
-       jmp      SHORT G_M39728_IG21
+       jmp      SHORT G_M39726_IG19
 
-G_M39728_IG20:
+G_M39726_IG18:
        lea      rax, [rdx+2]
        cmp      rax, rsi
-       jne      SHORT G_M39728_IG21
+       jne      SHORT G_M39726_IG19
        movzx    rax, byte  ptr [rdx]
        mov      eax, eax
        movzx    rsi, byte  ptr [rdx+1]
@@ -464,7 +460,7 @@ G_M39728_IG20:
        add      rdx, 2
        add      rcx, 4
 
-G_M39728_IG21:
+G_M39726_IG19:
        mov      rax, rdx
        sub      rax, r15
        mov      dword ptr [rbx], eax
@@ -473,7 +469,7 @@ G_M39728_IG21:
        mov      dword ptr [r14], eax
        xor      eax, eax
 
-G_M39728_IG22:
+G_M39726_IG20:
        vzeroupper
        lea      rsp, [rbp-28H]
        pop      rbx
@@ -484,7 +480,7 @@ G_M39728_IG22:
        pop      rbp
        ret
 
-G_M39728_IG23:
+G_M39726_IG21:
        mov      rax, rdx
        sub      rax, r15
        mov      dword ptr [rbx], eax
@@ -493,7 +489,7 @@ G_M39728_IG23:
        mov      dword ptr [r14], eax
        mov      eax, 1
 
-G_M39728_IG24:
+G_M39726_IG22:
        vzeroupper
        lea      rsp, [rbp-28H]
        pop      rbx
@@ -504,7 +500,7 @@ G_M39728_IG24:
        pop      rbp
        ret
 
-G_M39728_IG25:
+G_M39726_IG23:
        sub      rdx, r15
        mov      eax, edx
        mov      dword ptr [rbx], eax
@@ -513,7 +509,7 @@ G_M39728_IG25:
        mov      dword ptr [r14], eax
        mov      eax, 2
 
-G_M39728_IG26:
+G_M39726_IG24:
        vzeroupper
        lea      rsp, [rbp-28H]
        pop      rbx
@@ -524,14 +520,14 @@ G_M39728_IG26:
        pop      rbp
        ret
 
-G_M39728_IG27:
+G_M39726_IG25:
        xor      edi, edi
        call     ThrowHelper:ThrowArgumentOutOfRangeException(int)
        int3
 
-G_M39728_IG28:
+G_M39726_IG26:
        call     CORINFO_HELP_RNGCHKFAIL
        int3
 
-; Total bytes of code 1269, prolog size 69 for method Base64_1:EncodeToUtf8(struct,struct,byref,byref,bool):int
+; Total bytes of code 1265, prolog size 69 for method Base64_1:EncodeToUtf8(struct,struct,byref,byref,bool):int
 ; ============================================================
