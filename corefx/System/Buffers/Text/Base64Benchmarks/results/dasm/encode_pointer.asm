@@ -5,33 +5,33 @@
 ; fully interruptible
 ; Final local variable assignments
 ;
-;  V00 arg0         [V00,T20] (  6,  4.25)  struct (16) [rbp-0x38]   do-not-enreg[SF] ld-addr-op
+;  V00 arg0         [V00,T19] (  6,  4.25)  struct (16) [rbp-0x38]   do-not-enreg[SF] ld-addr-op
 ;  V01 arg1         [V01,T23] (  5,  3.25)  struct (16) [rbp-0x48]   do-not-enreg[SF] ld-addr-op
-;  V02 arg2         [V02,T21] (  6,  4   )   byref  ->  rbx
-;  V03 arg3         [V03,T22] (  6,  4   )   byref  ->  r14
+;  V02 arg2         [V02,T20] (  6,  4   )   byref  ->  rbx
+;  V03 arg3         [V03,T21] (  6,  4   )   byref  ->  r14
 ;  V04 arg4         [V04,T105] (  1,  0.50)    bool  ->  [rbp+0x10]
-;  V05 loc0         [V05,T25] (  8,  4   )    long  ->  rdi
+;  V05 loc0         [V05,T25] (  8,  4   )    long  ->  r15
 ;  V06 loc1         [V06    ] (  1,  0.50)   byref  ->  [rbp-0x50]   must-init pinned
-;  V07 loc2         [V07,T41] (  6,  3   )    long  ->  rsi
+;  V07 loc2         [V07,T41] (  6,  3   )    long  ->  r12
 ;  V08 loc3         [V08    ] (  1,  0.50)   byref  ->  [rbp-0x58]   must-init pinned
-;  V09 loc4         [V09,T03] ( 11, 19.50)    long  ->  rcx
+;  V09 loc4         [V09,T03] ( 11, 19.50)    long  ->  rdi
 ;  V10 loc5         [V10    ] (  4,  2   )     ref  ->  [rbp-0x60]   must-init pinned class-hnd
-;  V11 loc6         [V11,T42] (  6,  3   )     int  ->   r8
-;  V12 loc7         [V12,T72] (  3,  1.50)     int  ->   r9
+;  V11 loc6         [V11,T42] (  6,  3   )     int  ->  rsi
+;  V12 loc7         [V12,T72] (  3,  1.50)     int  ->  rcx
 ;  V13 loc8         [V13,T62] (  4,  2   )     int  ->  rax
 ;  V14 loc9         [V14,T00] ( 28, 35   )    long  ->  rdx         ld-addr-op
-;  V15 loc10        [V15,T04] ( 16, 18.50)    long  ->   r9         ld-addr-op
-;  V16 loc11        [V16,T43] (  6,  3   )    long  ->   r8
-;  V17 loc12        [V17,T16] (  8,  7.50)    long  ->  r10
-;  V18 loc13        [V18,T08] (  6, 10   )    long  ->  rax
-;  V19 loc14        [V19,T19] (  7,  6.50)    long  ->  rax
+;  V15 loc10        [V15,T04] ( 16, 18.50)    long  ->  rcx         ld-addr-op
+;  V16 loc11        [V16,T43] (  6,  3   )    long  ->  rsi
+;  V17 loc12        [V17,T16] (  8,  7.50)    long  ->   r8
+;  V18 loc13        [V18,T08] (  6, 10   )     int  ->  rax
+;  V19 loc14        [V19,T22] (  6,  6   )    long  ->  rax
 ;# V20 OutArgs      [V20    ] (  1,  1   )  lclBlk ( 0) [rsp+0x00]   "OutgoingArgSpace"
 ;  V21 tmp1         [V21,T44] (  3,  3   )     ref  ->  rax         class-hnd "dup spill"
-;  V22 tmp2         [V22,T70] (  3,  1.50)   byref  ->  rax         "Inline return value spill temp"
-;  V23 tmp3         [V23,T74] (  3,  1.25)   byref  ->  rax         "Inline stloc first use temp"
+;  V22 tmp2         [V22,T70] (  3,  1.50)   byref  ->  rdi         "Inline return value spill temp"
+;  V23 tmp3         [V23,T74] (  3,  1.25)   byref  ->  rdi         "Inline stloc first use temp"
 ;* V24 tmp4         [V24    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V25 tmp5         [V25,T71] (  3,  1.50)   byref  ->  rax         "Inline return value spill temp"
-;  V26 tmp6         [V26,T75] (  3,  1.25)   byref  ->  rax         "Inline stloc first use temp"
+;  V25 tmp5         [V25,T71] (  3,  1.50)   byref  ->  rdi         "Inline return value spill temp"
+;  V26 tmp6         [V26,T75] (  3,  1.25)   byref  ->  rdi         "Inline stloc first use temp"
 ;* V27 tmp7         [V27    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
 ;  V28 tmp8         [V28,T46] (  2,  2.50)  simd32  ->  mm0         "Inline stloc first use temp"
 ;  V29 tmp9         [V29,T76] (  2,  1   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
@@ -42,8 +42,8 @@
 ;  V34 tmp14        [V34,T51] (  2,  2.50)  simd32  ->  mm5         "Inline stloc first use temp"
 ;  V35 tmp15        [V35,T52] (  2,  2.50)  simd32  ->  mm6         "Inline stloc first use temp"
 ;  V36 tmp16        [V36,T53] (  2,  2.50)  simd32  ->  mm7         "Inline stloc first use temp"
-;  V37 tmp17        [V37,T10] (  6,  9   )    long  ->  rdx         "Inline stloc first use temp"
-;  V38 tmp18        [V38,T17] (  5,  7   )    long  ->   r9         "Inline stloc first use temp"
+;  V37 tmp17        [V37,T09] (  6,  9   )    long  ->  rdx         "Inline stloc first use temp"
+;  V38 tmp18        [V38,T17] (  5,  7   )    long  ->  rcx         "Inline stloc first use temp"
 ;  V39 tmp19        [V39,T24] (  4,  5   )  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
 ;  V40 tmp20        [V40,T01] ( 12, 22.50)  simd32  ->  mm8         ld-addr-op "Inline stloc first use temp"
 ;  V41 tmp21        [V41,T26] (  2,  4   )  simd32  ->  mm9         ld-addr-op "Inline stloc first use temp"
@@ -74,8 +74,8 @@
 ;  V66 tmp46        [V66,T59] (  2,  2.50)  simd16  ->  mm5         "Inline stloc first use temp"
 ;  V67 tmp47        [V67,T60] (  2,  2.50)  simd16  ->  mm6         "Inline stloc first use temp"
 ;  V68 tmp48        [V68,T61] (  2,  2.50)  simd16  ->  mm7         "Inline stloc first use temp"
-;  V69 tmp49        [V69,T09] (  7,  9.50)    long  ->  rdx         "Inline stloc first use temp"
-;  V70 tmp50        [V70,T18] (  5,  7   )    long  ->   r9         "Inline stloc first use temp"
+;  V69 tmp49        [V69,T10] (  6,  9   )    long  ->  rdx         "Inline stloc first use temp"
+;  V70 tmp50        [V70,T18] (  5,  7   )    long  ->  rcx         "Inline stloc first use temp"
 ;  V71 tmp51        [V71,T33] (  2,  4   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
 ;  V72 tmp52        [V72,T05] (  9, 18   )  simd16  ->  mm8         ld-addr-op "Inline stloc first use temp"
 ;  V73 tmp53        [V73,T34] (  2,  4   )  simd16  ->  mm9         ld-addr-op "Inline stloc first use temp"
@@ -98,443 +98,440 @@
 ;  V90 tmp70        [V90,T99] (  2,  1   )  simd16  ->  mm6         "Inline return value spill temp"
 ;  V91 tmp71        [V91,T100] (  2,  1   )  simd16  ->  mm6         "Inline stloc first use temp"
 ;* V92 tmp72        [V92    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V93 tmp73        [V93,T11] (  2,  8   )    long  ->  r11         "Inline stloc first use temp"
+;  V93 tmp73        [V93,T11] (  2,  8   )    long  ->   r9         "Inline stloc first use temp"
 ;  V94 tmp74        [V94,T06] (  2, 16   )    long  ->  rax         "impAppendStmt"
-;  V95 tmp75        [V95,T12] (  2,  8   )    long  ->  r15         "Inline stloc first use temp"
+;  V95 tmp75        [V95,T12] (  2,  8   )    long  ->  r10         "Inline stloc first use temp"
 ;  V96 tmp76        [V96,T02] (  5, 20   )    long  ->  rax         "Inline stloc first use temp"
-;  V97 tmp77        [V97,T13] (  2,  8   )    long  ->  r15         "Inline stloc first use temp"
-;  V98 tmp78        [V98,T07] (  2, 16   )    long  ->  r11         "impAppendStmt"
-;  V99 tmp79        [V99,T14] (  2,  8   )    long  ->  r12         "Inline stloc first use temp"
+;  V97 tmp77        [V97,T13] (  2,  8   )    long  ->  r10         "Inline stloc first use temp"
+;  V98 tmp78        [V98,T07] (  2, 16   )    long  ->   r9         "impAppendStmt"
+;  V99 tmp79        [V99,T14] (  2,  8   )    long  ->  r11         "Inline stloc first use temp"
 ;  V100 tmp80       [V100,T15] (  2,  8   )    long  ->  rax         "Inline stloc first use temp"
 ;* V101 tmp81       [V101    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
 ;* V102 tmp82       [V102    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
 ;  V103 tmp83       [V103,T73] (  3,  1.50)    long  ->  rax         "Inline stloc first use temp"
 ;  V104 tmp84       [V104,T101] (  2,  1   )    long  ->  rax         "Inline stloc first use temp"
-;  V105 tmp85       [V105,T64] (  2,  2   )    long  ->   r8         "impAppendStmt"
+;  V105 tmp85       [V105,T64] (  2,  2   )    long  ->  rsi         "impAppendStmt"
 ;* V106 tmp86       [V106    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
 ;* V107 tmp87       [V107    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V108 tmp88       [V108,T102] (  2,  1   )    long  ->   r8         "Inline stloc first use temp"
+;  V108 tmp88       [V108,T102] (  2,  1   )    long  ->  rsi         "Inline stloc first use temp"
 ;  V109 tmp89       [V109,T65] (  2,  2   )    long  ->  rax         "impAppendStmt"
 ;  V110 tmp90       [V110,T63] (  4,  2   )    long  ->  rax         "Inline stloc first use temp"
-;  V111 tmp91       [V111,T103] (  2,  1   )    long  ->  r10         "Inline stloc first use temp"
-;  V112 tmp92       [V112,T66] (  2,  2   )    long  ->   r8         "impAppendStmt"
+;  V111 tmp91       [V111,T103] (  2,  1   )    long  ->   r8         "Inline stloc first use temp"
+;  V112 tmp92       [V112,T66] (  2,  2   )    long  ->  rsi         "impAppendStmt"
 ;  V113 tmp93       [V113,T104] (  2,  1   )    long  ->  rax         "Inline stloc first use temp"
 ;* V114 tmp94       [V114    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V115 tmp95       [V115,T67] (  2,  2   )    long  ->  rdi         "Cast away GC"
-;  V116 tmp96       [V116,T68] (  2,  2   )    long  ->  rsi         "Cast away GC"
-;  V117 tmp97       [V117,T69] (  2,  2   )    long  ->  rcx         "Cast away GC"
-;  V118 rat0        [V118,T45] (  3,  3   )     int  ->  rdx         "ReplaceWithLclVar is creating a new local variable"
+;  V115 tmp95       [V115,T67] (  2,  2   )    long  ->  r15         "Cast away GC"
+;  V116 tmp96       [V116,T68] (  2,  2   )    long  ->  r12         "Cast away GC"
+;  V117 tmp97       [V117,T69] (  2,  2   )    long  ->  rdi         "Cast away GC"
+;* V118 cse0        [V118,T106] (  0,  0   )    long  ->  zero-ref    "ValNumCSE"
+;  V119 rat0        [V119,T45] (  3,  3   )     int  ->  rdx         "ReplaceWithLclVar is creating a new local variable"
 ;
 ; Lcl frame size = 56
 
 G_M39728_IG01:
-       55                   push     rbp
-       4157                 push     r15
-       4156                 push     r14
-       4155                 push     r13
-       4154                 push     r12
-       53                   push     rbx
-       4883EC38             sub      rsp, 56
-       C5F877               vzeroupper
-       488D6C2460           lea      rbp, [rsp+60H]
-       4C8BE1               mov      r12, rcx
-       4C8BEF               mov      r13, rdi
-       488D7DA0             lea      rdi, [rbp-60H]
-       B906000000           mov      ecx, 6
-       33C0                 xor      rax, rax
-       F3AB                 rep stosd
-       498BCC               mov      rcx, r12
-       498BFD               mov      rdi, r13
-       48897DC8             mov      bword ptr [rbp-38H], rdi
-       488975D0             mov      qword ptr [rbp-30H], rsi
-       488955B8             mov      bword ptr [rbp-48H], rdx
-       48894DC0             mov      qword ptr [rbp-40H], rcx
-       498BD8               mov      rbx, r8
-       4D8BF1               mov      r14, r9
+       push     rbp
+       push     r15
+       push     r14
+       push     r13
+       push     r12
+       push     rbx
+       sub      rsp, 56
+       vzeroupper
+       lea      rbp, [rsp+60H]
+       mov      r12, rcx
+       mov      r13, rdi
+       lea      rdi, [rbp-60H]
+       mov      ecx, 6
+       xor      rax, rax
+       rep stosd
+       mov      rcx, r12
+       mov      rdi, r13
+       mov      bword ptr [rbp-38H], rdi
+       mov      qword ptr [rbp-30H], rsi
+       mov      bword ptr [rbp-48H], rdx
+       mov      qword ptr [rbp-40H], rcx
+       mov      rbx, r8
+       mov      r14, r9
 
 G_M39728_IG02:
-       48BF9850B03C407F0000 mov      rdi, 0x7F403CB05098
-       BE04000000           mov      esi, 4
-       E887191C79           call     CORINFO_HELP_GETSHARED_NONGCSTATIC_BASE
-       837DD000             cmp      dword ptr [rbp-30H], 0
-       7719                 ja       SHORT G_M39728_IG04
-       33C0                 xor      eax, eax
-       8903                 mov      dword ptr [rbx], eax
-       418906               mov      dword ptr [r14], eax
+       cmp      dword ptr [rbp-30H], 0
+       ja       SHORT G_M39728_IG04
+       xor      eax, eax
+       mov      dword ptr [rbx], eax
+       mov      dword ptr [r14], eax
 
 G_M39728_IG03:
-       C5F877               vzeroupper
-       488D65D8             lea      rsp, [rbp-28H]
-       5B                   pop      rbx
-       415C                 pop      r12
-       415D                 pop      r13
-       415E                 pop      r14
-       415F                 pop      r15
-       5D                   pop      rbp
-       C3                   ret
+       vzeroupper
+       lea      rsp, [rbp-28H]
+       pop      rbx
+       pop      r12
+       pop      r13
+       pop      r14
+       pop      r15
+       pop      rbp
+       ret
 
 G_M39728_IG04:
-       33C0                 xor      rax, rax
-       837DD000             cmp      dword ptr [rbp-30H], 0
-       7404                 je       SHORT G_M39728_IG05
-       488B45C8             mov      rax, bword ptr [rbp-38H]
+       xor      rdi, rdi
+       cmp      dword ptr [rbp-30H], 0
+       je       SHORT G_M39728_IG05
+       mov      rdi, bword ptr [rbp-38H]
 
 G_M39728_IG05:
-       488945B0             mov      bword ptr [rbp-50H], rax
-       488BF8               mov      rdi, rax
-       33C0                 xor      rax, rax
-       837DC000             cmp      dword ptr [rbp-40H], 0
-       7404                 je       SHORT G_M39728_IG06
-       488B45B8             mov      rax, bword ptr [rbp-48H]
+       mov      bword ptr [rbp-50H], rdi
+       mov      r15, rdi
+       xor      rdi, rdi
+       cmp      dword ptr [rbp-40H], 0
+       je       SHORT G_M39728_IG06
+       mov      rdi, bword ptr [rbp-48H]
 
 G_M39728_IG06:
-       488945A8             mov      bword ptr [rbp-58H], rax
-       488BF0               mov      rsi, rax
-       48B8D00A0024407F0000 mov      rax, 0x7F4024000AD0
-       488B00               mov      rax, gword ptr [rax]
-       488945A0             mov      gword ptr [rbp-60H], rax
-       4885C0               test     rax, rax
-       740A                 je       SHORT G_M39728_IG07
-       488B45A0             mov      rax, gword ptr [rbp-60H]
-       83780800             cmp      dword ptr [rax+8], 0
-       7504                 jne      SHORT G_M39728_IG08
+       mov      bword ptr [rbp-58H], rdi
+       mov      r12, rdi
+       mov      rdi, 0xD1FFAB1E
+       mov      esi, 4
+       call     CORINFO_HELP_GETSHARED_NONGCSTATIC_BASE
+       mov      rax, 0xD1FFAB1E
+       mov      rax, gword ptr [rax]
+       mov      gword ptr [rbp-60H], rax
+       test     rax, rax
+       je       SHORT G_M39728_IG07
+       mov      rax, gword ptr [rbp-60H]
+       cmp      dword ptr [rax+8], 0
+       jne      SHORT G_M39728_IG08
 
 G_M39728_IG07:
-       33C9                 xor      rcx, rcx
-       EB16                 jmp      SHORT G_M39728_IG09
+       xor      rdi, rdi
+       jmp      SHORT G_M39728_IG09
 
 G_M39728_IG08:
-       488B4DA0             mov      rcx, gword ptr [rbp-60H]
-       83790800             cmp      dword ptr [rcx+8], 0
-       0F8663040000         jbe      G_M39728_IG29
-       488B45A0             mov      rax, gword ptr [rbp-60H]
-       488D4810             lea      rcx, bword ptr [rax+16]
+       mov      rdi, gword ptr [rbp-60H]
+       cmp      dword ptr [rdi+8], 0
+       jbe      G_M39728_IG28
+       mov      rax, gword ptr [rbp-60H]
+       lea      rdi, bword ptr [rax+16]
 
 G_M39728_IG09:
-       448B45D0             mov      r8d, dword ptr [rbp-30H]
-       448B4DC0             mov      r9d, dword ptr [rbp-40H]
-       4181F8FDFFFF5F       cmp      r8d, 0x5FFFFFFD
-       7F2C                 jg       SHORT G_M39728_IG11
-       4181F8FDFFFF5F       cmp      r8d, 0x5FFFFFFD
-       0F8735040000         ja       G_M39728_IG28
+       mov      esi, dword ptr [rbp-30H]
+       mov      ecx, dword ptr [rbp-40H]
+       cmp      esi, 0xD1FFAB1E
+       jg       SHORT G_M39728_IG11
+       cmp      esi, 0xD1FFAB1E
+       ja       G_M39728_IG27
 
 G_M39728_IG10:
-       418D4002             lea      eax, [r8+2]
-       BA56555555           mov      edx, 0x55555556
-       F7EA                 imul     edx:eax, edx
-       8BC2                 mov      eax, edx
-       C1E81F               shr      eax, 31
-       03D0                 add      edx, eax
-       C1E202               shl      edx, 2
-       413BD1               cmp      edx, r9d
-       7F05                 jg       SHORT G_M39728_IG11
-       418BC0               mov      eax, r8d
-       EB08                 jmp      SHORT G_M39728_IG12
+       lea      eax, [rsi+2]
+       mov      edx, 0xD1FFAB1E
+       imul     edx:eax, edx
+       mov      eax, edx
+       shr      eax, 31
+       add      edx, eax
+       shl      edx, 2
+       cmp      edx, ecx
+       jg       SHORT G_M39728_IG11
+       mov      eax, esi
+       jmp      SHORT G_M39728_IG12
 
 G_M39728_IG11:
-       41C1F902             sar      r9d, 2
-       438D0449             lea      eax, [r9+2*r9]
+       sar      ecx, 2
+       lea      eax, [rcx+2*rcx]
 
 G_M39728_IG12:
-       488BD7               mov      rdx, rdi
-       4C8BCE               mov      r9, rsi
-       4D63C0               movsxd   r8, r8d
-       4C03C2               add      r8, rdx
-       4C63D0               movsxd   r10, eax
-       4C03D2               add      r10, rdx
-       83F810               cmp      eax, 16
-       0F8C09020000         jl       G_M39728_IG18
-       498D42E0             lea      rax, [r10-32]
-       483BC7               cmp      rax, rdi
-       0F8207010000         jb       G_M39728_IG15
-       48BAB80A0024407F0000 mov      rdx, 0x7F4024000AB8
-       4C8B0A               mov      r9, gword ptr [rdx]
-       C4C17D104108         vmovupd  ymm0, ymmword ptr[r9+8]
-       BA00FCC00F           mov      edx, 0xFC0FC00
-       C5F96ECA             vmovd    xmm1, edx
-       C4E27D58C9           vpbroadcastd ymm1, ymm1
-       BAF0033F00           mov      edx, 0x3F03F0
-       C5F96ED2             vmovd    xmm2, edx
-       C4E27D58D2           vpbroadcastd ymm2, ymm2
-       BA40000004           mov      edx, 0x4000040
-       C5F96EDA             vmovd    xmm3, edx
-       C4E27D58DB           vpbroadcastd ymm3, ymm3
-       BA10000001           mov      edx, 0x1000010
-       C5F96EE2             vmovd    xmm4, edx
-       C4E27D58E4           vpbroadcastd ymm4, ymm4
-       BA33000000           mov      edx, 51
-       C5F96EEA             vmovd    xmm5, edx
-       C4E27D78ED           vpbroadcastb ymm5, ymm5
-       BA19000000           mov      edx, 25
-       C5F96EF2             vmovd    xmm6, edx
-       C4E27D78F6           vpbroadcastb ymm6, ymm6
-       48BAC00A0024407F0000 mov      rdx, 0x7F4024000AC0
-       488B12               mov      rdx, gword ptr [rdx]
-       C5FD107A08           vmovupd  ymm7, ymmword ptr[rdx+8]
-       4C8BCE               mov      r9, rsi
-       C57E6F07             vmovdqu  ymm8, ymmword ptr[rdi]
-       48BAB00A0024407F0000 mov      rdx, 0x7F4024000AB0
-       488B12               mov      rdx, gword ptr [rdx]
-       C57D104A08           vmovupd  ymm9, ymmword ptr[rdx+8]
-       C4423536C0           vpermd   ymm8, ymm9, ymm8
-       488D57FC             lea      rdx, [rdi-4]
+       mov      rdx, r15
+       mov      rcx, r12
+       movsxd   rsi, esi
+       add      rsi, rdx
+       movsxd   r8, eax
+       add      r8, rdx
+       cmp      eax, 16
+       jl       G_M39728_IG17
+       lea      rax, [r8-32]
+       cmp      rax, r15
+       jb       G_M39728_IG15
+       mov      rdx, 0xD1FFAB1E
+       mov      rcx, gword ptr [rdx]
+       vmovupd  ymm0, ymmword ptr[rcx+8]
+       mov      edx, 0xD1FFAB1E
+       vmovd    xmm1, edx
+       vpbroadcastd ymm1, ymm1
+       mov      edx, 0xD1FFAB1E
+       vmovd    xmm2, edx
+       vpbroadcastd ymm2, ymm2
+       mov      edx, 0xD1FFAB1E
+       vmovd    xmm3, edx
+       vpbroadcastd ymm3, ymm3
+       mov      edx, 0xD1FFAB1E
+       vmovd    xmm4, edx
+       vpbroadcastd ymm4, ymm4
+       mov      edx, 51
+       vmovd    xmm5, edx
+       vpbroadcastb ymm5, ymm5
+       mov      edx, 25
+       vmovd    xmm6, edx
+       vpbroadcastb ymm6, ymm6
+       mov      rdx, 0xD1FFAB1E
+       mov      rdx, gword ptr [rdx]
+       vmovupd  ymm7, ymmword ptr[rdx+8]
+       mov      rcx, r12
+       vmovdqu  ymm8, ymmword ptr[r15]
+       mov      rdx, 0xD1FFAB1E
+       mov      rdx, gword ptr [rdx]
+       vmovupd  ymm9, ymmword ptr[rdx+8]
+       vpermd   ymm8, ymm9, ymm8
+       lea      rdx, [r15-4]
 
 G_M39728_IG13:
-       C4623D00C0           vpshufb  ymm8, ymm8, ymm0
-       C53DDBC9             vpand    ymm9, ymm8, ymm1
-       C53DDBC2             vpand    ymm8, ymm8, ymm2
-       C535E4CB             vpmulhuw ymm9, ymm9, ymm3
-       C53DD5C4             vpmullw  ymm8, ymm8, ymm4
-       C44135EBC0           vpor     ymm8, ymm9, ymm8
-       C53DD8CD             vpsubusb ymm9, ymm8, ymm5
-       C53D64D6             vpcmpgtb ymm10, ymm8, ymm6
-       C44135F8CA           vpsubb   ymm9, ymm9, ymm10
-       C4424500C9           vpshufb  ymm9, ymm7, ymm9
-       C4413DFCC1           vpaddb   ymm8, ymm8, ymm9
-       C4417E7F01           vmovdqu  ymmword ptr[r9], ymm8
-       4883C218             add      rdx, 24
-       4983C120             add      r9, 32
-       483BD0               cmp      rdx, rax
-       770D                 ja       SHORT G_M39728_IG14
-       C57E6F02             vmovdqu  ymm8, ymmword ptr[rdx]
-       EBB7                 jmp      SHORT G_M39728_IG13
+       vpshufb  ymm8, ymm8, ymm0
+       vpand    ymm9, ymm8, ymm1
+       vpand    ymm8, ymm8, ymm2
+       vpmulhuw ymm9, ymm9, ymm3
+       vpmullw  ymm8, ymm8, ymm4
+       vpor     ymm8, ymm9, ymm8
+       vpsubusb ymm9, ymm8, ymm5
+       vpcmpgtb ymm10, ymm8, ymm6
+       vpsubb   ymm9, ymm9, ymm10
+       vpshufb  ymm9, ymm7, ymm9
+       vpaddb   ymm8, ymm8, ymm9
+       vmovdqu  ymmword ptr[rcx], ymm8
+       add      rdx, 24
+       add      rcx, 32
+       cmp      rdx, rax
+       ja       SHORT G_M39728_IG14
+       vmovdqu  ymm8, ymmword ptr[rdx]
+       jmp      SHORT G_M39728_IG13
 
 G_M39728_IG14:
-       4883C204             add      rdx, 4
-       493BD0               cmp      rdx, r8
-       0F846B020000         je       G_M39728_IG22
+       add      rdx, 4
+       cmp      rdx, rsi
+       je       G_M39728_IG21
 
 G_M39728_IG15:
-       498D42F0             lea      rax, [r10-16]
-       483BC2               cmp      rax, rdx
-       0F82E8000000         jb       G_M39728_IG18
-       49BBA00A0024407F0000 mov      r11, 0x7F4024000AA0
-       4D8B1B               mov      r11, gword ptr [r11]
-       C4C179104308         vmovupd  xmm0, xmmword ptr [r11+8]
-       41BB00FCC00F         mov      r11d, 0xFC0FC00
-       C4C1796ECB           vmovd    xmm1, r11d
-       C4E27958C9           vpbroadcastd xmm1, xmm1
-       41BBF0033F00         mov      r11d, 0x3F03F0
-       C4C1796ED3           vmovd    xmm2, r11d
-       C4E27958D2           vpbroadcastd xmm2, xmm2
-       41BB40000004         mov      r11d, 0x4000040
-       C4C1796EDB           vmovd    xmm3, r11d
-       C4E27958DB           vpbroadcastd xmm3, xmm3
-       41BB10000001         mov      r11d, 0x1000010
-       C4C1796EE3           vmovd    xmm4, r11d
-       C4E27958E4           vpbroadcastd xmm4, xmm4
-       41BB33000000         mov      r11d, 51
-       C4C1796EEB           vmovd    xmm5, r11d
-       C4E27978ED           vpbroadcastb xmm5, xmm5
-       41BB19000000         mov      r11d, 25
-       C4C1796EF3           vmovd    xmm6, r11d
-       C4E27978F6           vpbroadcastb xmm6, xmm6
-       49BBA80A0024407F0000 mov      r11, 0x7F4024000AA8
-       4D8B1B               mov      r11, gword ptr [r11]
-       C4C179107B08         vmovupd  xmm7, xmmword ptr [r11+8]
-       483BD0               cmp      rdx, rax
-       7754                 ja       SHORT G_M39728_IG17
+       lea      rax, [r8-16]
+       cmp      rax, rdx
+       jb       G_M39728_IG17
+       mov      r9, 0xD1FFAB1E
+       mov      r9, gword ptr [r9]
+       vmovupd  xmm0, xmmword ptr [r9+8]
+       mov      r9d, 0xD1FFAB1E
+       vmovd    xmm1, r9d
+       vpbroadcastd xmm1, xmm1
+       mov      r9d, 0xD1FFAB1E
+       vmovd    xmm2, r9d
+       vpbroadcastd xmm2, xmm2
+       mov      r9d, 0xD1FFAB1E
+       vmovd    xmm3, r9d
+       vpbroadcastd xmm3, xmm3
+       mov      r9d, 0xD1FFAB1E
+       vmovd    xmm4, r9d
+       vpbroadcastd xmm4, xmm4
+       mov      r9d, 51
+       vmovd    xmm5, r9d
+       vpbroadcastb xmm5, xmm5
+       mov      r9d, 25
+       vmovd    xmm6, r9d
+       vpbroadcastb xmm6, xmm6
+       mov      r9, 0xD1FFAB1E
+       mov      r9, gword ptr [r9]
+       vmovupd  xmm7, xmmword ptr [r9+8]
 
 G_M39728_IG16:
-       C57A6F02             vmovdqu  xmm8, xmmword ptr [rdx]
-       C4623900C0           vpshufb  xmm8, xmm8, xmm0
-       C539DBC9             vpand    xmm9, xmm8, xmm1
-       C539DBC2             vpand    xmm8, xmm8, xmm2
-       C531E4CB             vpmulhuw xmm9, xmm9, xmm3
-       C539D5C4             vpmullw  xmm8, xmm8, xmm4
-       C44131EBC0           vpor     xmm8, xmm9, xmm8
-       C539D8CD             vpsubusb xmm9, xmm8, xmm5
-       C53964D6             vpcmpgtb xmm10, xmm8, xmm6
-       C44131F8CA           vpsubb   xmm9, xmm9, xmm10
-       C4424100C9           vpshufb  xmm9, xmm7, xmm9
-       C44139FCC1           vpaddb   xmm8, xmm8, xmm9
-       C4417A7F01           vmovdqu  xmmword ptr [r9], xmm8
-       4883C20C             add      rdx, 12
-       4983C110             add      r9, 16
-       483BD0               cmp      rdx, rax
-       76B9                 jbe      SHORT G_M39728_IG16
+       vmovdqu  xmm8, xmmword ptr [rdx]
+       vpshufb  xmm8, xmm8, xmm0
+       vpand    xmm9, xmm8, xmm1
+       vpand    xmm8, xmm8, xmm2
+       vpmulhuw xmm9, xmm9, xmm3
+       vpmullw  xmm8, xmm8, xmm4
+       vpor     xmm8, xmm9, xmm8
+       vpsubusb xmm9, xmm8, xmm5
+       vpcmpgtb xmm10, xmm8, xmm6
+       vpsubb   xmm9, xmm9, xmm10
+       vpshufb  xmm9, xmm7, xmm9
+       vpaddb   xmm8, xmm8, xmm9
+       vmovdqu  xmmword ptr [rcx], xmm8
+       add      rdx, 12
+       add      rcx, 16
+       cmp      rdx, rax
+       jbe      SHORT G_M39728_IG16
+       cmp      rdx, rsi
+       je       G_M39728_IG21
 
 G_M39728_IG17:
-       493BD0               cmp      rdx, r8
-       0F8476010000         je       G_M39728_IG22
+       add      r8, -2
+       cmp      rdx, r8
+       jae      G_M39728_IG19
 
 G_M39728_IG18:
-       4983C2FE             add      r10, -2
-       493BD2               cmp      rdx, r10
-       0F838B000000         jae      G_M39728_IG20
+       movzx    rax, byte  ptr [rdx]
+       mov      eax, eax
+       movzx    r9, byte  ptr [rdx+1]
+       mov      r9d, r9d
+       movzx    r10, byte  ptr [rdx+2]
+       mov      r10d, r10d
+       shl      rax, 16
+       shl      r9, 8
+       or       rax, r9
+       or       rax, r10
+       mov      r9, rax
+       shr      r9, 18
+       movzx    r9, byte  ptr [rdi+r9]
+       mov      r9d, r9d
+       mov      r10, rax
+       shr      r10, 12
+       and      r10, 63
+       movzx    r10, byte  ptr [rdi+r10]
+       mov      r10d, r10d
+       mov      r11, rax
+       shr      r11, 6
+       and      r11, 63
+       movzx    r11, byte  ptr [rdi+r11]
+       mov      r11d, r11d
+       and      rax, 63
+       movzx    rax, byte  ptr [rdi+rax]
+       mov      eax, eax
+       shl      r10d, 8
+       or       r9d, r10d
+       shl      r11d, 16
+       or       r9d, r11d
+       shl      eax, 24
+       or       eax, r9d
+       mov      dword ptr [rcx], eax
+       add      rdx, 3
+       add      rcx, 4
+       cmp      rdx, r8
+       jb       G_M39728_IG18
 
 G_M39728_IG19:
-       0FB602               movzx    rax, byte  ptr [rdx]
-       8BC0                 mov      eax, eax
-       440FB65A01           movzx    r11, byte  ptr [rdx+1]
-       458BDB               mov      r11d, r11d
-       440FB67A02           movzx    r15, byte  ptr [rdx+2]
-       458BFF               mov      r15d, r15d
-       48C1E010             shl      rax, 16
-       49C1E308             shl      r11, 8
-       490BC3               or       rax, r11
-       490BC7               or       rax, r15
-       4C8BD8               mov      r11, rax
-       49C1EB12             shr      r11, 18
-       460FB61C19           movzx    r11, byte  ptr [rcx+r11]
-       458BDB               mov      r11d, r11d
-       4C8BF8               mov      r15, rax
-       49C1EF0C             shr      r15, 12
-       4983E73F             and      r15, 63
-       460FB63C39           movzx    r15, byte  ptr [rcx+r15]
-       458BFF               mov      r15d, r15d
-       4C8BE0               mov      r12, rax
-       49C1EC06             shr      r12, 6
-       4983E43F             and      r12, 63
-       460FB62421           movzx    r12, byte  ptr [rcx+r12]
-       458BE4               mov      r12d, r12d
-       4883E03F             and      rax, 63
-       0FB60401             movzx    rax, byte  ptr [rcx+rax]
-       8BC0                 mov      eax, eax
-       49C1E708             shl      r15, 8
-       4D0BDF               or       r11, r15
-       49C1E410             shl      r12, 16
-       4D0BDC               or       r11, r12
-       48C1E018             shl      rax, 24
-       490BC3               or       rax, r11
-       498901               mov      qword ptr [r9], rax
-       4883C203             add      rdx, 3
-       4983C104             add      r9, 4
-       493BD2               cmp      rdx, r10
-       0F8275FFFFFF         jb       G_M39728_IG19
+       add      r8, 2
+       cmp      r8, rsi
+       jne      G_M39728_IG23
+       cmp      byte  ptr [rbp+10H], 0
+       je       G_M39728_IG25
+       lea      rax, [rdx+1]
+       cmp      rax, rsi
+       jne      SHORT G_M39728_IG20
+       movzx    rsi, byte  ptr [rdx]
+       mov      eax, esi
+       shl      rax, 8
+       mov      rsi, rax
+       shr      rsi, 10
+       movzx    rsi, byte  ptr [rdi+rsi]
+       mov      esi, esi
+       shr      rax, 4
+       and      rax, 63
+       movzx    rdi, byte  ptr [rdi+rax]
+       mov      eax, edi
+       shl      eax, 8
+       or       esi, eax
+       or       esi, 0xD1FFAB1E
+       mov      eax, esi
+       or       eax, 0xD1FFAB1E
+       mov      dword ptr [rcx], eax
+       inc      rdx
+       add      rcx, 4
+       jmp      SHORT G_M39728_IG21
 
 G_M39728_IG20:
-       4983C202             add      r10, 2
-       4D3BD0               cmp      r10, r8
-       0F85F6000000         jne      G_M39728_IG24
-       807D1000             cmp      byte  ptr [rbp+10H], 0
-       0F8414010000         je       G_M39728_IG26
-       488D4201             lea      rax, [rdx+1]
-       493BC0               cmp      rax, r8
-       754B                 jne      SHORT G_M39728_IG21
-       440FB602             movzx    r8, byte  ptr [rdx]
-       418BC0               mov      eax, r8d
-       48C1E008             shl      rax, 8
-       4C8BC0               mov      r8, rax
-       49C1E80A             shr      r8, 10
-       460FB60401           movzx    r8, byte  ptr [rcx+r8]
-       458BC0               mov      r8d, r8d
-       48C1E804             shr      rax, 4
-       4883E03F             and      rax, 63
-       0FB60C01             movzx    rcx, byte  ptr [rcx+rax]
-       8BC1                 mov      eax, ecx
-       48C1E008             shl      rax, 8
-       4C0BC0               or       r8, rax
-       4981C800003D00       or       r8, 0x3D0000
-       498BC0               mov      rax, r8
-       480D0000003D         or       rax, 0x3D000000
-       498901               mov      qword ptr [r9], rax
-       48FFC2               inc      rdx
-       4983C104             add      r9, 4
-       EB73                 jmp      SHORT G_M39728_IG22
+       lea      rax, [rdx+2]
+       cmp      rax, rsi
+       jne      SHORT G_M39728_IG21
+       movzx    rax, byte  ptr [rdx]
+       mov      eax, eax
+       movzx    rsi, byte  ptr [rdx+1]
+       mov      esi, esi
+       shl      rax, 16
+       shl      rsi, 8
+       or       rax, rsi
+       mov      rsi, rax
+       shr      rsi, 18
+       movzx    rsi, byte  ptr [rdi+rsi]
+       mov      esi, esi
+       mov      r8, rax
+       shr      r8, 12
+       and      r8, 63
+       movzx    r8, byte  ptr [rdi+r8]
+       mov      r8d, r8d
+       shr      rax, 6
+       and      rax, 63
+       movzx    rax, byte  ptr [rdi+rax]
+       mov      eax, eax
+       shl      r8d, 8
+       or       esi, r8d
+       shl      eax, 16
+       or       esi, eax
+       mov      eax, esi
+       or       eax, 0xD1FFAB1E
+       mov      dword ptr [rcx], eax
+       add      rdx, 2
+       add      rcx, 4
 
 G_M39728_IG21:
-       488D4202             lea      rax, [rdx+2]
-       493BC0               cmp      rax, r8
-       756A                 jne      SHORT G_M39728_IG22
-       0FB602               movzx    rax, byte  ptr [rdx]
-       8BC0                 mov      eax, eax
-       440FB64201           movzx    r8, byte  ptr [rdx+1]
-       458BC0               mov      r8d, r8d
-       48C1E010             shl      rax, 16
-       49C1E008             shl      r8, 8
-       490BC0               or       rax, r8
-       4C8BC0               mov      r8, rax
-       49C1E812             shr      r8, 18
-       460FB60401           movzx    r8, byte  ptr [rcx+r8]
-       458BC0               mov      r8d, r8d
-       4C8BD0               mov      r10, rax
-       49C1EA0C             shr      r10, 12
-       4983E23F             and      r10, 63
-       460FB61411           movzx    r10, byte  ptr [rcx+r10]
-       458BD2               mov      r10d, r10d
-       48C1E806             shr      rax, 6
-       4883E03F             and      rax, 63
-       0FB60401             movzx    rax, byte  ptr [rcx+rax]
-       8BC0                 mov      eax, eax
-       49C1E208             shl      r10, 8
-       4D0BC2               or       r8, r10
-       48C1E010             shl      rax, 16
-       4C0BC0               or       r8, rax
-       498BC0               mov      rax, r8
-       480D0000003D         or       rax, 0x3D000000
-       498901               mov      qword ptr [r9], rax
-       4883C202             add      rdx, 2
-       4983C104             add      r9, 4
+       mov      rax, rdx
+       sub      rax, r15
+       mov      dword ptr [rbx], eax
+       mov      rax, rcx
+       sub      rax, r12
+       mov      dword ptr [r14], eax
+       xor      eax, eax
 
 G_M39728_IG22:
-       488BC2               mov      rax, rdx
-       482BC7               sub      rax, rdi
-       8903                 mov      dword ptr [rbx], eax
-       498BC1               mov      rax, r9
-       482BC6               sub      rax, rsi
-       418906               mov      dword ptr [r14], eax
-       33C0                 xor      eax, eax
+       vzeroupper
+       lea      rsp, [rbp-28H]
+       pop      rbx
+       pop      r12
+       pop      r13
+       pop      r14
+       pop      r15
+       pop      rbp
+       ret
 
 G_M39728_IG23:
-       C5F877               vzeroupper
-       488D65D8             lea      rsp, [rbp-28H]
-       5B                   pop      rbx
-       415C                 pop      r12
-       415D                 pop      r13
-       415E                 pop      r14
-       415F                 pop      r15
-       5D                   pop      rbp
-       C3                   ret
+       mov      rax, rdx
+       sub      rax, r15
+       mov      dword ptr [rbx], eax
+       mov      rax, rcx
+       sub      rax, r12
+       mov      dword ptr [r14], eax
+       mov      eax, 1
 
 G_M39728_IG24:
-       488BC2               mov      rax, rdx
-       482BC7               sub      rax, rdi
-       8903                 mov      dword ptr [rbx], eax
-       498BC1               mov      rax, r9
-       482BC6               sub      rax, rsi
-       418906               mov      dword ptr [r14], eax
-       B801000000           mov      eax, 1
+       vzeroupper
+       lea      rsp, [rbp-28H]
+       pop      rbx
+       pop      r12
+       pop      r13
+       pop      r14
+       pop      r15
+       pop      rbp
+       ret
 
 G_M39728_IG25:
-       C5F877               vzeroupper
-       488D65D8             lea      rsp, [rbp-28H]
-       5B                   pop      rbx
-       415C                 pop      r12
-       415D                 pop      r13
-       415E                 pop      r14
-       415F                 pop      r15
-       5D                   pop      rbp
-       C3                   ret
+       sub      rdx, r15
+       mov      eax, edx
+       mov      dword ptr [rbx], eax
+       sub      rcx, r12
+       mov      eax, ecx
+       mov      dword ptr [r14], eax
+       mov      eax, 2
 
 G_M39728_IG26:
-       482BD7               sub      rdx, rdi
-       8BC2                 mov      eax, edx
-       8903                 mov      dword ptr [rbx], eax
-       4C2BCE               sub      r9, rsi
-       418BC1               mov      eax, r9d
-       418906               mov      dword ptr [r14], eax
-       B802000000           mov      eax, 2
+       vzeroupper
+       lea      rsp, [rbp-28H]
+       pop      rbx
+       pop      r12
+       pop      r13
+       pop      r14
+       pop      r15
+       pop      rbp
+       ret
 
 G_M39728_IG27:
-       C5F877               vzeroupper
-       488D65D8             lea      rsp, [rbp-28H]
-       5B                   pop      rbx
-       415C                 pop      r12
-       415D                 pop      r13
-       415E                 pop      r14
-       415F                 pop      r15
-       5D                   pop      rbp
-       C3                   ret
+       xor      edi, edi
+       call     ThrowHelper:ThrowArgumentOutOfRangeException(int)
+       int3
 
 G_M39728_IG28:
-       33FF                 xor      edi, edi
-       E8A9D6FFFF           call     ThrowHelper:ThrowArgumentOutOfRangeException(int)
-       CC                   int3
+       call     CORINFO_HELP_RNGCHKFAIL
+       int3
 
-G_M39728_IG29:
-       E89B211379           call     CORINFO_HELP_RNGCHKFAIL
-       CC                   int3
-
-; Total bytes of code 1302, prolog size 69 for method Base64_1:EncodeToUtf8(struct,struct,byref,byref,bool):int
+; Total bytes of code 1269, prolog size 69 for method Base64_1:EncodeToUtf8(struct,struct,byref,byref,bool):int
 ; ============================================================
