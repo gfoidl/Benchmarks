@@ -24,22 +24,16 @@ namespace Base64Benchmarks
             rnd.NextBytes(_data);
         }
         //---------------------------------------------------------------------
-        //[Benchmark(Baseline = true)]
+        [Benchmark(Baseline = true)]
         public OperationStatus PR34529_Base()
         {
             return Base64_Baseline.EncodeToUtf8(_data, _base64, out int _, out int _);
         }
         //---------------------------------------------------------------------
-        [Benchmark(Baseline = true)]
-        public OperationStatus PR34529_Pointers_GetPinnableReference()
+        [Benchmark]
+        public OperationStatus PR34529_Pointers()
         {
             return Base64_1.EncodeToUtf8(_data, _base64, out int _, out int _);
-        }
-        //---------------------------------------------------------------------
-        [Benchmark]
-        public OperationStatus PR34529_Pointers_Reference()
-        {
-            return Base64_2.EncodeToUtf8(_data, _base64, out int _, out int _);
         }
     }
 }

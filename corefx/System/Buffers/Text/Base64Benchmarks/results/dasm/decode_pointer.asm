@@ -10,7 +10,7 @@
 ;  V02 arg2         [V02,T22] (  7,  4.50)   byref  ->  rbx
 ;  V03 arg3         [V03,T23] (  7,  4.50)   byref  ->  r14
 ;  V04 arg4         [V04,T79] (  3,  1.50)    bool  ->  [rbp+0x10]
-;  V05 loc0         [V05,T30] (  9,  4.50)    long  ->  r12
+;  V05 loc0         [V05,T31] (  9,  4.50)    long  ->  r12
 ;  V06 loc1         [V06    ] (  1,  0.50)   byref  ->  [rbp-0x50]   must-init pinned
 ;  V07 loc2         [V07,T32] (  8,  4   )    long  ->  r13
 ;  V08 loc3         [V08    ] (  1,  0.50)   byref  ->  [rbp-0x58]   must-init pinned
@@ -18,25 +18,25 @@
 ;  V10 loc5         [V10    ] (  4,  2   )     ref  ->  [rbp-0x60]   must-init pinned class-hnd
 ;  V11 loc6         [V11,T48] (  7,  3.50)     int  ->  rsi
 ;  V12 loc7         [V12,T49] (  6,  3   )     int  ->  [rbp-0x64]
-;  V13 loc8         [V13,T31] (  9,  4.50)     int  ->  registers
+;  V13 loc8         [V13,T30] ( 10,  5   )     int  ->  registers
 ;  V14 loc9         [V14,T80] (  3,  1.50)     int  ->   r9
 ;  V15 loc10        [V15,T00] ( 24, 36.50)    long  ->  r10         ld-addr-op
 ;  V16 loc11        [V16,T01] ( 28, 31.50)    long  ->  r11         ld-addr-op
 ;  V17 loc12        [V17,T33] (  8,  4   )    long  ->  [rbp-0x70]
-;  V18 loc13        [V18,T24] (  6,  6.50)    long  ->  rdx
-;  V19 loc14        [V19,T81] (  3,  1.50)    bool  ->  [rbp-0x74]
-;  V20 loc15        [V20,T84] (  2,  1   )     int  ->  rdx
-;  V21 loc16        [V21,T85] (  2,  1   )     int  ->  rcx
+;  V18 loc13        [V18,T24] (  6,  6.50)    long  ->  registers
+;  V19 loc14        [V19,T81] (  3,  1.50)     int  ->  [rbp-0x74]
+;  V20 loc15        [V20,T84] (  2,  1   )     int  ->  rax
+;  V21 loc16        [V21,T85] (  2,  1   )     int  ->  rdx
 ;  V22 loc17        [V22,T68] (  4,  2   )     int  ->   r8
-;  V23 loc18        [V23,T82] (  3,  1.50)     int  ->  rax
-;  V24 loc19        [V24,T08] ( 20, 10   )     int  ->  rdx
-;  V25 loc20        [V25,T69] (  4,  2   )     int  ->  rcx
-;  V26 loc21        [V26,T70] (  4,  2   )    long  ->  rcx
+;  V23 loc18        [V23,T82] (  3,  1.50)     int  ->  rcx
+;  V24 loc19        [V24,T08] ( 20, 10   )     int  ->  rax
+;  V25 loc20        [V25,T69] (  4,  2   )     int  ->  rdx
+;  V26 loc21        [V26,T70] (  4,  2   )    long  ->  rdx
 ;  V27 loc22        [V27,T27] (  6,  6   )    long  ->   r8
-;  V28 loc23        [V28,T03] (  5, 20   )     int  ->  rcx
+;  V28 loc23        [V28,T03] (  5, 20   )     int  ->  rax
 ;  V29 loc24        [V29,T71] (  4,  2   )     int  ->   r8
 ;  V30 loc25        [V30,T86] (  2,  1   )     int  ->  rdi
-;  V31 loc26        [V31,T72] (  4,  2   )     int  ->  rax
+;  V31 loc26        [V31,T72] (  4,  2   )     int  ->  rdi
 ;# V32 OutArgs      [V32    ] (  1,  1   )  lclBlk ( 0) [rsp+0x00]   "OutgoingArgSpace"
 ;  V33 tmp1         [V33,T50] (  3,  3   )     ref  ->  rax         class-hnd "dup spill"
 ;  V34 tmp2         [V34,T83] (  3,  1.50)     int  ->  rdx
@@ -91,14 +91,14 @@
 ;  V83 tmp51        [V83,T93] (  2,  1   )  simd16  ->  mm5         "Inline return value spill temp"
 ;  V84 tmp52        [V84,T94] (  2,  1   )  simd16  ->  mm5         "Inline stloc first use temp"
 ;* V85 tmp53        [V85    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
-;  V86 tmp54        [V86,T15] (  2,  8   )    long  ->   r9         "Inline stloc first use temp"
-;  V87 tmp55        [V87,T16] (  2,  8   )    long  ->  r15         "Inline stloc first use temp"
-;  V88 tmp56        [V88,T17] (  2,  8   )    long  ->   r8         "Inline stloc first use temp"
-;  V89 tmp57        [V89,T18] (  2,  8   )    long  ->  rcx         "Inline stloc first use temp"
-;  V90 tmp58        [V90,T02] (  6, 24   )     int  ->  r15         "Inline stloc first use temp"
-;  V91 tmp59        [V91,T06] (  2, 16   )     int  ->   r9         "impAppendStmt"
-;  V92 tmp60        [V92,T05] (  4, 16   )     int  ->   r8         "Inline stloc first use temp"
-;  V93 tmp61        [V93,T19] (  2,  8   )     int  ->  rcx         "Inline stloc first use temp"
+;  V86 tmp54        [V86,T15] (  2,  8   )    long  ->  r15         "Inline stloc first use temp"
+;  V87 tmp55        [V87,T16] (  2,  8   )    long  ->   r8         "Inline stloc first use temp"
+;  V88 tmp56        [V88,T17] (  2,  8   )    long  ->  rcx         "Inline stloc first use temp"
+;  V89 tmp57        [V89,T18] (  2,  8   )    long  ->  rax         "Inline stloc first use temp"
+;  V90 tmp58        [V90,T02] (  6, 24   )     int  ->   r8         "Inline stloc first use temp"
+;  V91 tmp59        [V91,T06] (  2, 16   )     int  ->  r15         "impAppendStmt"
+;  V92 tmp60        [V92,T05] (  4, 16   )     int  ->  rcx         "Inline stloc first use temp"
+;  V93 tmp61        [V93,T19] (  2,  8   )     int  ->  rax         "Inline stloc first use temp"
 ;* V94 tmp62        [V94    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
 ;* V95 tmp63        [V95    ] (  0,  0   )    long  ->  zero-ref    "Inlining Arg"
 ;  V96 tmp64        [V96,T73] (  2,  2   )     int  ->  rax         "Single return block return value"
@@ -339,18 +339,21 @@ G_M25062_IG13:
        je       G_M25062_IG25
 
 G_M25062_IG14:
-       cmp      ecx, r9d
-       jl       SHORT G_M25062_IG17
-       xor      r8d, r8d
        cmp      byte  ptr [rbp+10H], 0
        jne      SHORT G_M25062_IG15
-       mov      edx, esi
+       xor      edx, edx
        jmp      SHORT G_M25062_IG16
 
 G_M25062_IG15:
-       lea      edx, [rsi-4]
+       mov      edx, 4
 
 G_M25062_IG16:
+       mov      r8d, edx
+       cmp      ecx, r9d
+       jl       SHORT G_M25062_IG17
+       mov      dword ptr [rbp-74H], r8d
+       mov      edx, esi
+       sub      edx, r8d
        jmp      SHORT G_M25062_IG18
 
 G_M25062_IG17:
@@ -359,133 +362,135 @@ G_M25062_IG17:
        mov      dword ptr [rbp-64H], ecx
        mov      eax, edx
        imul     edx:eax, ecx
-       mov      r8d, edx
-       shr      r8d, 31
-       add      edx, r8d
+       mov      eax, edx
+       shr      eax, 31
+       add      edx, eax
        shl      edx, 2
-       mov      dword ptr [rbp-74H], 1
+       mov      dword ptr [rbp-74H], r8d
        mov      rax, qword ptr [rbp-70H]
        mov      ecx, dword ptr [rbp-64H]
-       mov      r8d, dword ptr [rbp-74H]
 
 G_M25062_IG18:
-       movsxd   rdx, edx
-       add      rdx, r12
-       cmp      r10, rdx
+       movsxd   r9, edx
+       add      r9, r12
+       cmp      r10, r9
+       mov      qword ptr [rbp-70H], rax
        mov      dword ptr [rbp-64H], ecx
-       mov      dword ptr [rbp-74H], r8d
        jae      SHORT G_M25062_IG20
 
 G_M25062_IG19:
-       movzx    r9, byte  ptr [r10]
-       mov      r9d, r9d
-       movzx    r15, byte  ptr [r10+1]
+       movzx    r15, byte  ptr [r10]
        mov      r15d, r15d
-       movzx    r8, byte  ptr [r10+2]
+       movzx    r8, byte  ptr [r10+1]
        mov      r8d, r8d
-       movzx    rcx, byte  ptr [r10+3]
+       movzx    rcx, byte  ptr [r10+2]
        mov      ecx, ecx
-       movsx    r9, byte  ptr [rdi+r9]
+       movzx    rax, byte  ptr [r10+3]
+       mov      eax, eax
        movsx    r15, byte  ptr [rdi+r15]
        movsx    r8, byte  ptr [rdi+r8]
        movsx    rcx, byte  ptr [rdi+rcx]
-       shl      r15d, 12
-       shl      r8d, 6
-       or       r15d, r8d
-       shl      r9d, 18
-       or       r9d, ecx
-       mov      ecx, r9d
-       or       ecx, r15d
-       test     ecx, ecx
+       movsx    rax, byte  ptr [rdi+rax]
+       shl      r8d, 12
+       shl      ecx, 6
+       or       r8d, ecx
+       shl      r15d, 18
+       or       r15d, eax
+       mov      eax, r15d
+       or       eax, r8d
+       test     eax, eax
        jl       G_M25062_IG32
-       mov      r8d, ecx
-       sar      r8d, 16
-       mov      byte  ptr [r11], r8b
-       mov      r8d, ecx
-       sar      r8d, 8
-       mov      byte  ptr [r11+1], r8b
-       mov      byte  ptr [r11+2], cl
+       mov      ecx, eax
+       sar      ecx, 16
+       mov      byte  ptr [r11], cl
+       mov      ecx, eax
+       sar      ecx, 8
+       mov      byte  ptr [r11+1], cl
+       mov      byte  ptr [r11+2], al
        add      r10, 4
        add      r11, 3
-       cmp      r10, rdx
+       cmp      r10, r9
        jb       SHORT G_M25062_IG19
 
 G_M25062_IG20:
-       cmp      dword ptr [rbp-74H], 0
+       mov      eax, esi
+       sub      eax, dword ptr [rbp-74H]
+       cmp      eax, edx
        jne      G_M25062_IG28
-       cmp      r10, rax
+       mov      rcx, qword ptr [rbp-70H]
+       cmp      r10, rcx
        jne      SHORT G_M25062_IG21
        cmp      byte  ptr [rbp+10H], 0
        je       G_M25062_IG30
        jmp      G_M25062_IG32
 
 G_M25062_IG21:
-       movzx    rdx, byte  ptr [rax-4]
-       movzx    rcx, byte  ptr [rax-3]
-       movzx    r8, byte  ptr [rax-2]
-       movzx    rax, byte  ptr [rax-1]
+       movzx    rax, byte  ptr [rcx-4]
+       movzx    rdx, byte  ptr [rcx-3]
+       movzx    r8, byte  ptr [rcx-2]
+       movzx    rcx, byte  ptr [rcx-1]
+       mov      eax, eax
+       movsx    rax, byte  ptr [rdi+rax]
        mov      edx, edx
        movsx    rdx, byte  ptr [rdi+rdx]
-       mov      ecx, ecx
-       movsx    rcx, byte  ptr [rdi+rcx]
-       shl      edx, 18
-       shl      ecx, 12
-       or       edx, ecx
-       mov      ecx, dword ptr [rbp-64H]
-       movsxd   rcx, ecx
-       add      rcx, r13
-       cmp      eax, 61
+       shl      eax, 18
+       shl      edx, 12
+       or       eax, edx
+       mov      edx, dword ptr [rbp-64H]
+       movsxd   rdx, edx
+       add      rdx, r13
+       cmp      ecx, 61
        je       SHORT G_M25062_IG22
        mov      r8d, r8d
        movsx    r8, byte  ptr [rdi+r8]
-       mov      eax, eax
-       movsx    rdi, byte  ptr [rdi+rax]
+       mov      ecx, ecx
+       movsx    rdi, byte  ptr [rdi+rcx]
        shl      r8d, 6
-       or       edx, edi
-       or       edx, r8d
-       test     edx, edx
+       or       eax, edi
+       or       eax, r8d
+       test     eax, eax
        jl       G_M25062_IG32
-       lea      rax, [r11+3]
-       cmp      rax, rcx
+       lea      rdi, [r11+3]
+       cmp      rdi, rdx
        ja       G_M25062_IG28
-       mov      ecx, edx
-       sar      ecx, 16
-       mov      byte  ptr [r11], cl
-       mov      eax, edx
-       sar      eax, 8
-       mov      byte  ptr [r11+1], al
-       mov      byte  ptr [r11+2], dl
+       mov      edx, eax
+       sar      edx, 16
+       mov      byte  ptr [r11], dl
+       mov      edi, eax
+       sar      edi, 8
+       mov      byte  ptr [r11+1], dil
+       mov      byte  ptr [r11+2], al
        add      r11, 3
        jmp      SHORT G_M25062_IG24
 
 G_M25062_IG22:
        cmp      r8d, 61
        je       SHORT G_M25062_IG23
-       mov      eax, r8d
-       movsx    rax, byte  ptr [rdi+rax]
-       shl      eax, 6
-       or       edx, eax
-       test     edx, edx
+       mov      ecx, r8d
+       movsx    rdi, byte  ptr [rdi+rcx]
+       shl      edi, 6
+       or       eax, edi
+       test     eax, eax
        jl       G_M25062_IG32
-       lea      rax, [r11+2]
-       cmp      rax, rcx
+       lea      rdi, [r11+2]
+       cmp      rdi, rdx
        ja       SHORT G_M25062_IG28
-       mov      ecx, edx
-       sar      ecx, 16
-       mov      byte  ptr [r11], cl
-       sar      edx, 8
-       mov      byte  ptr [r11+1], dl
+       mov      edx, eax
+       sar      edx, 16
+       mov      byte  ptr [r11], dl
+       sar      eax, 8
+       mov      byte  ptr [r11+1], al
        add      r11, 2
        jmp      SHORT G_M25062_IG24
 
 G_M25062_IG23:
-       test     edx, edx
+       test     eax, eax
        jl       G_M25062_IG32
-       lea      rax, [r11+1]
-       cmp      rax, rcx
+       lea      rdi, [r11+1]
+       cmp      rdi, rdx
        ja       SHORT G_M25062_IG28
-       sar      edx, 16
-       mov      byte  ptr [r11], dl
+       sar      eax, 16
+       mov      byte  ptr [r11], al
        inc      r11
 
 G_M25062_IG24:
@@ -591,5 +596,5 @@ G_M25062_IG35:
        call     CORINFO_HELP_RNGCHKFAIL
        int3
 
-; Total bytes of code 1488, prolog size 72 for method Base64_1:DecodeFromUtf8(struct,struct,byref,byref,bool):int
+; Total bytes of code 1490, prolog size 72 for method Base64_1:DecodeFromUtf8(struct,struct,byref,byref,bool):int
 ; ============================================================
