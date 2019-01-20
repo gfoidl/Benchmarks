@@ -16,47 +16,26 @@ namespace ObjectPool
             benchs.Default();
             benchs.Default();
 
-            benchs.New_wo_ObjectWrapper();
-            benchs.New_wo_ObjectWrapper();
-
-            benchs.New_with_ObjectWrapper();
-            benchs.New_with_ObjectWrapper();
-
-            benchs.New_with_ObjectWrapper_no_Interface();
-            benchs.New_with_ObjectWrapper_no_Interface();
+            benchs.PR977_Base();
+            benchs.PR977_Base();
 #endif
         }
         //---------------------------------------------------------------------
-        private readonly DefaultObjectPool0<object>  _pool0;
-        private readonly DefaultObjectPool00<object> _pool00;
-        private readonly DefaultObjectPool1<object>  _pool1;
-        private readonly DefaultObjectPool2<object>  _pool2;
+        private readonly DefaultObjectPool0<object> _pool0;
+        private readonly DefaultObjectPool1<object> _pool1;
         //---------------------------------------------------------------------
         public EmptyPoolBenchmarks()
         {
             var policy = new DefaultPooledObjectPolicy<object>();
 
-            _pool0  = new DefaultObjectPool0<object>(policy);
-            _pool00 = new DefaultObjectPool00<object>(policy);
-            _pool1  = new DefaultObjectPool1<object>(policy);
-            _pool2  = new DefaultObjectPool2<object>(new DefaultPooledObjectPolicy2<object>());
+            _pool0 = new DefaultObjectPool0<object>(policy);
+            _pool1 = new DefaultObjectPool1<object>(policy);
         }
         //---------------------------------------------------------------------
         [Benchmark(Baseline = true)]
-        public void Default() => this.Core(_pool0);
-        //---------------------------------------------------------------------
-        //[Benchmark]
-        public void New_wo_ObjectWrapper() => this.Core(_pool00);
+        public object Default() => _pool0.Get();
         //---------------------------------------------------------------------
         [Benchmark]
-        public void New_with_ObjectWrapper() => this.Core(_pool1);
-        //---------------------------------------------------------------------
-        //[Benchmark]
-        public void New_with_ObjectWrapper_no_Interface() => this.Core(_pool2);
-        //---------------------------------------------------------------------
-        private void Core(ObjectPool<object> pool)
-        {
-            object obj = pool.Get();
-        }
+        public void PR977_Base() => _pool1.Get();
     }
 }
