@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Microsoft.Extensions.ObjectPool
 {
-    public class DefaultObjectPool1<T> : ObjectPool<T> where T : class
+    public class DefaultObjectPool2<T> : ObjectPool<T> where T : class
     {
         private protected readonly ObjectWrapper[] _items;
         private protected readonly IPooledObjectPolicy<T> _policy;
@@ -18,12 +18,12 @@ namespace Microsoft.Extensions.ObjectPool
         // This class was introduced in 2.1 to avoid the interface call where possible
         private protected readonly PooledObjectPolicy<T> _fastPolicy;
 
-        public DefaultObjectPool1(IPooledObjectPolicy<T> policy)
+        public DefaultObjectPool2(IPooledObjectPolicy<T> policy)
             : this(policy, Environment.ProcessorCount * 2)
         {
         }
 
-        public DefaultObjectPool1(IPooledObjectPolicy<T> policy, int maximumRetained)
+        public DefaultObjectPool2(IPooledObjectPolicy<T> policy, int maximumRetained)
         {
             _policy = policy ?? throw new ArgumentNullException(nameof(policy));
             _fastPolicy = policy as PooledObjectPolicy<T>;
@@ -45,26 +45,20 @@ namespace Microsoft.Extensions.ObjectPool
             var item = _firstItem;
             if (item == null || Interlocked.CompareExchange(ref _firstItem, null, item) != item)
             {
-                item = GetViaScan();
+                var items = _items;
+                for (var i = 0; i < items.Length; i++)
+                {
+                    item = items[i].Element;
+                    if (item != null && Interlocked.CompareExchange(ref items[i].Element, null, item) == item)
+                    {
+                        return item;
+                    }
+                }
+
+                item = Create();
             }
 
             return item;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private T GetViaScan()
-        {
-            var items = _items;
-            for (var i = 0; i < items.Length; i++)
-            {
-                var item = items[i].Element;
-                if (item != null && Interlocked.CompareExchange(ref items[i].Element, null, item) == item)
-                {
-                    return item;
-                }
-            }
-
-            return Create();
         }
 
         // Non-inline to improve its code quality as uncommon path
@@ -77,17 +71,11 @@ namespace Microsoft.Extensions.ObjectPool
             {
                 if (_firstItem != null || Interlocked.CompareExchange(ref _firstItem, obj, null) != null)
                 {
-                    ReturnViaScan(obj);
+                    var items = _items;
+                    for (var i = 0; i < items.Length && Interlocked.CompareExchange(ref items[i].Element, obj, null) != null; ++i)
+                    {
+                    }
                 }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ReturnViaScan(T obj)
-        {
-            var items = _items;
-            for (var i = 0; i < items.Length && Interlocked.CompareExchange(ref items[i].Element, obj, null) != null; ++i)
-            {
             }
         }
 
