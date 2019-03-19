@@ -8,92 +8,94 @@ using System.Threading;
 
 namespace Microsoft.Extensions.ObjectPool
 {
-	public class DefaultObjectPool1<T> : ObjectPool<T> where T : class
-	{
-		private readonly ObjectWrapper[] _items;
-		private readonly IPooledObjectPolicy<T> _policy;
-		private readonly bool _isDefaultPolicy;
-		private T _firstItem;
+    public class DefaultObjectPool1<T> : ObjectPool<T> where T : class
+    {
+        private protected readonly ObjectWrapper[] _items;
+        private protected readonly IPooledObjectPolicy<T> _policy;
+        private protected readonly bool _isDefaultPolicy;
+        private protected T _firstItem;
 
-		public DefaultObjectPool1(IPooledObjectPolicy<T> policy)
-			: this(policy, Environment.ProcessorCount * 2)
-		{
-		}
+        // This class was introduced in 2.1 to avoid the interface call where possible
+        private protected readonly PooledObjectPolicy<T> _fastPolicy;
 
-		public DefaultObjectPool1(IPooledObjectPolicy<T> policy, int maximumRetained)
-		{
-			_policy = policy ?? throw new ArgumentNullException(nameof(policy));
-			_isDefaultPolicy = IsDefaultPolicy();
+        public DefaultObjectPool1(IPooledObjectPolicy<T> policy)
+            : this(policy, Environment.ProcessorCount * 2)
+        {
+        }
 
-			// -1 due to _firstItem
-			_items = new ObjectWrapper[maximumRetained - 1];
+        public DefaultObjectPool1(IPooledObjectPolicy<T> policy, int maximumRetained)
+        {
+            _policy = policy ?? throw new ArgumentNullException(nameof(policy));
+            _fastPolicy = policy as PooledObjectPolicy<T>;
+            _isDefaultPolicy = IsDefaultPolicy();
 
-			bool IsDefaultPolicy()
-			{
-				var type = policy.GetType();
+            // -1 due to _firstItem
+            _items = new ObjectWrapper[maximumRetained - 1];
 
-				return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(DefaultPooledObjectPolicy<>);
-			}
-		}
+            bool IsDefaultPolicy()
+            {
+                var type = policy.GetType();
 
-		public override T Get()
-		{
-			T item = _firstItem;
+                return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(DefaultPooledObjectPolicy<>);
+            }
+        }
 
-			if (item == null || Interlocked.CompareExchange(ref _firstItem, null, item) != item)
-			{
-				item = this.GetViaScan();
-			}
+        public override T Get()
+        {
+            var item = _firstItem;
+            if (item == null || Interlocked.CompareExchange(ref _firstItem, null, item) != item)
+            {
+                item = GetViaScan();
+            }
 
-			return item;
-		}
+            return item;
+        }
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private T GetViaScan()
-		{
-			ObjectWrapper[] items = _items;
-			T item = null;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private T GetViaScan()
+        {
+            var items = _items;
+            for (var i = 0; i < items.Length; i++)
+            {
+                var item = items[i].Element;
+                if (item != null && Interlocked.CompareExchange(ref items[i].Element, null, item) == item)
+                {
+                    return item;
+                }
+            }
 
-			for (int i = 0; i < items.Length; ++i)
-			{
-				item = items[i];
+            return Create();
+        }
 
-				if (item != null && Interlocked.CompareExchange(ref items[i].Element, null, item) == item)
-					break;
-			}
+        // Non-inline to improve its code quality as uncommon path
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private T Create() => _fastPolicy?.Create() ?? _policy.Create();
 
-			return item ?? _policy.Create();
-		}
+        public override void Return(T obj)
+        {
+            if (_isDefaultPolicy || (_fastPolicy?.Return(obj) ?? _policy.Return(obj)))
+            {
+                if (_firstItem != null || Interlocked.CompareExchange(ref _firstItem, obj, null) != null)
+                {
+                    ReturnViaScan(obj);
+                }
+            }
+        }
 
-		public override void Return(T obj)
-		{
-			if (_isDefaultPolicy || _policy.Return(obj))
-			{
-				if (_firstItem != null || Interlocked.CompareExchange(ref _firstItem, obj, null) != null)
-				{
-					this.ReturnViaScan(obj);
-				}
-			}
-		}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ReturnViaScan(T obj)
+        {
+            var items = _items;
+            for (var i = 0; i < items.Length && Interlocked.CompareExchange(ref items[i].Element, obj, null) != null; ++i)
+            {
+            }
+        }
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void ReturnViaScan(T obj)
-		{
-			ObjectWrapper[] items = _items;
-
-			for (int i = 0; i < items.Length && Interlocked.CompareExchange(ref items[i].Element, obj, null) != null; ++i)
-			{ }
-		}
-
-		[DebuggerDisplay("{Element}")]
-		private struct ObjectWrapper
-		{
-			public T Element;
-
-			public ObjectWrapper(T item) => Element = item;
-
-			public static implicit operator ObjectWrapper(T item) => new ObjectWrapper(item);
-			public static implicit operator T(ObjectWrapper wrapper) => wrapper.Element;
-		}
-	}
+        // PERF: the struct wrapper avoids array-covariance-checks from the runtime when assigning to elements of the array.
+        [DebuggerDisplay("{Element}")]
+        private protected struct ObjectWrapper
+        {
+            public T Element;
+        }
+    }
 }
