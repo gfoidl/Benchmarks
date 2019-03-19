@@ -6,37 +6,32 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-
-#if BIT64
-using nuint = System.UInt64;
-#else
-using nuint = System.UInt32;
-#endif
+//using Internal.Runtime.CompilerServices;
 
 namespace System.Buffers.Text
 {
     // AVX2 version based on https://github.com/aklomp/base64/tree/e516d769a2a432c08404f1981e73b431566057be/lib/arch/avx2
     // SSSE3 version based on https://github.com/aklomp/base64/tree/e516d769a2a432c08404f1981e73b431566057be/lib/arch/ssse3
 
-    public static partial class Base64_1
+    public static partial class Base64_PR_34529
     {
         /// <summary>
         /// Decode the span of UTF-8 encoded text represented as base 64 into binary data.
         /// If the input is not a multiple of 4, it will decode as much as it can, to the closest multiple of 4.
-        ///
+        /// </summary>
         /// <param name="utf8">The input span which contains UTF-8 encoded text in base 64 that needs to be decoded.</param>
         /// <param name="bytes">The output span which contains the result of the operation, i.e. the decoded binary data.</param>
         /// <param name="bytesConsumed">The number of input bytes consumed during the operation. This can be used to slice the input for subsequent calls, if necessary.</param>
         /// <param name="bytesWritten">The number of bytes written into the output span. This can be used to slice the output for subsequent calls, if necessary.</param>
-        /// <param name="isFinalBlock">True (default) when the input span contains the entire data to decode. 
+        /// <param name="isFinalBlock">True (default) when the input span contains the entire data to decode.
         /// Set to false only if it is known that the input span contains partial data with more data to follow.</param>
         /// <returns>It returns the OperationStatus enum values:
         /// - Done - on successful processing of the entire input span
         /// - DestinationTooSmall - if there is not enough space in the output span to fit the decoded input
         /// - NeedMoreData - only if isFinalBlock is false and the input is not a multiple of 4, otherwise the partial input would be considered as InvalidData
         /// - InvalidData - if the input contains bytes outside of the expected base 64 range, or if it contains invalid/more than two padding characters,
-        ///   or if the input is incomplete (i.e. not a multiple of 4) and isFinalBlock is true.</returns>
-        /// </summary> 
+        ///   or if the input is incomplete (i.e. not a multiple of 4) and isFinalBlock is true.
+        /// </returns>
         public static unsafe OperationStatus DecodeFromUtf8(ReadOnlySpan<byte> utf8, Span<byte> bytes, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true)
         {
             if (utf8.IsEmpty)
@@ -49,9 +44,6 @@ namespace System.Buffers.Text
             fixed (byte* srcBytes = &MemoryMarshal.GetReference(utf8))
             fixed (byte* destBytes = &MemoryMarshal.GetReference(bytes))
             {
-                // PERF: needs to be initialized here, for good codegen
-                ref sbyte decodingMap = ref s_decodingMap[0];
-
                 int srcLength = utf8.Length & ~0x3;  // only decode input up to the closest multiple of 4.
                 int destLength = bytes.Length;
                 int maxSrcLength = srcLength;
@@ -66,8 +58,8 @@ namespace System.Buffers.Text
 
                 byte* src = srcBytes;
                 byte* dest = destBytes;
-                byte* srcEnd = srcBytes + (nuint)srcLength;
-                byte* srcMax = srcBytes + (nuint)maxSrcLength;
+                byte* srcEnd = srcBytes + (uint)srcLength;
+                byte* srcMax = srcBytes + (uint)maxSrcLength;
 
                 if (maxSrcLength >= 24)
                 {
@@ -105,7 +97,8 @@ namespace System.Buffers.Text
                     maxSrcLength = (destLength / 3) * 4;
                 }
 
-                srcMax = srcBytes + (nuint)maxSrcLength;
+                ref sbyte decodingMap = ref MemoryMarshal.GetReference(s_decodingMap);
+                srcMax = srcBytes + (uint)maxSrcLength;
 
                 while (src < srcMax)
                 {
@@ -147,7 +140,7 @@ namespace System.Buffers.Text
 
                 i0 |= i1;
 
-                byte* destMax = destBytes + (nuint)destLength;
+                byte* destMax = destBytes + (uint)destLength;
 
                 if (t3 != EncodingPad)
                 {
@@ -200,7 +193,7 @@ namespace System.Buffers.Text
                 if (srcLength != utf8.Length)
                     goto InvalidDataExit;
 
-                DoneExit:
+            DoneExit:
                 bytesConsumed = (int)(src - srcBytes);
                 bytesWritten = (int)(dest - destBytes);
                 return OperationStatus.Done;
@@ -244,17 +237,17 @@ namespace System.Buffers.Text
         /// Decode the span of UTF-8 encoded text in base 64 (in-place) into binary data.
         /// The decoded binary output is smaller than the text data contained in the input (the operation deflates the data).
         /// If the input is not a multiple of 4, it will not decode any.
-        ///
+        /// </summary>
         /// <param name="buffer">The input span which contains the base 64 text data that needs to be decoded.</param>
         /// <param name="bytesWritten">The number of bytes written into the buffer.</param>
         /// <returns>It returns the OperationStatus enum values:
         /// - Done - on successful processing of the entire input span
-        /// - InvalidData - if the input contains bytes outside of the expected base 64 range, or if it contains invalid/more than two padding characters, 
+        /// - InvalidData - if the input contains bytes outside of the expected base 64 range, or if it contains invalid/more than two padding characters,
         ///   or if the input is incomplete (i.e. not a multiple of 4).
         /// It does not return DestinationTooSmall since that is not possible for base 64 decoding.
-        /// It does not return NeedMoreData since this method tramples the data in the buffer and 
-        /// hence can only be called once with all the data in the buffer.</returns>
-        /// </summary> 
+        /// It does not return NeedMoreData since this method tramples the data in the buffer and
+        /// hence can only be called once with all the data in the buffer.
+        /// </returns>
         public static unsafe OperationStatus DecodeFromUtf8InPlace(Span<byte> buffer, out int bytesWritten)
         {
             if (buffer.IsEmpty)
@@ -275,7 +268,7 @@ namespace System.Buffers.Text
                 if (bufferLength == 0)
                     goto DoneExit;
 
-                ref sbyte decodingMap = ref s_decodingMap[0];
+                ref sbyte decodingMap = ref MemoryMarshal.GetReference(s_decodingMap);
 
                 while (sourceIndex < bufferLength - 4)
                 {
@@ -354,14 +347,14 @@ namespace System.Buffers.Text
         private static unsafe void Avx2Decode(ref byte* srcBytes, ref byte* destBytes, byte* srcEnd, int sourceLength, int destLength, byte* srcStart, byte* destStart)
         {
             // The JIT won't hoist these "constants", so help it
-            Vector256<sbyte> lutHi = s_avxDecodeLutHi;
-            Vector256<sbyte> lutLo = s_avxDecodeLutLo;
-            Vector256<sbyte> lutShift = s_avxDecodeLutShift;
+            Vector256<sbyte> lutHi = ReadVector<Vector256<sbyte>>(s_avxDecodeLutHi);
+            Vector256<sbyte> lutLo = ReadVector<Vector256<sbyte>>(s_avxDecodeLutLo);
+            Vector256<sbyte> lutShift = ReadVector<Vector256<sbyte>>(s_avxDecodeLutShift);
             Vector256<sbyte> mask2F = s_avxDecodeMask2F;
             Vector256<sbyte> shuffleConstant0 = Vector256.Create(0x01400140).AsSByte();
             Vector256<short> shuffleConstant1 = Vector256.Create(0x00011000).AsInt16();
-            Vector256<sbyte> shuffleVec = s_avxDecodeShuffleVec;
-            Vector256<int> permuteVec = s_avxDecodePermuteVec;
+            Vector256<sbyte> shuffleVec = ReadVector<Vector256<sbyte>>(s_avxDecodeShuffleVec);
+            Vector256<int> permuteVec = ReadVector<Vector256<sbyte>>(s_avxDecodePermuteVec).AsInt32();
 
             byte* src = srcBytes;
             byte* dest = destBytes;
@@ -407,13 +400,13 @@ namespace System.Buffers.Text
         private static unsafe void Ssse3Decode(ref byte* srcBytes, ref byte* destBytes, byte* srcEnd, int sourceLength, int destLength, byte* srcStart, byte* destStart)
         {
             // The JIT won't hoist these "constants", so help it
-            Vector128<sbyte> lutHi = s_sseDecodeLutHi;
-            Vector128<sbyte> lutLo = s_sseDecodeLutLo;
-            Vector128<sbyte> lutShift = s_sseDecodeLutShift;
+            Vector128<sbyte> lutHi = ReadVector<Vector128<sbyte>>(s_sseDecodeLutHi);
+            Vector128<sbyte> lutLo = ReadVector<Vector128<sbyte>>(s_sseDecodeLutLo);
+            Vector128<sbyte> lutShift = ReadVector<Vector128<sbyte>>(s_sseDecodeLutShift);
             Vector128<sbyte> mask2F = s_sseDecodeMask2F;
             Vector128<sbyte> shuffleConstant0 = Vector128.Create(0x01400140).AsSByte();
             Vector128<short> shuffleConstant1 = Vector128.Create(0x00011000).AsInt16();
-            Vector128<sbyte> shuffleVec = s_sseDecodeShuffleVec;
+            Vector128<sbyte> shuffleVec = ReadVector<Vector128<sbyte>>(s_sseDecodeShuffleVec);
 
             byte* src = srcBytes;
             byte* dest = destBytes;
@@ -456,10 +449,10 @@ namespace System.Buffers.Text
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe int Decode(byte* encodedBytes, ref sbyte decodingMap)
         {
-            nuint t0 = encodedBytes[0];
-            nuint t1 = encodedBytes[1];
-            nuint t2 = encodedBytes[2];
-            nuint t3 = encodedBytes[3];
+            uint t0 = encodedBytes[0];
+            uint t1 = encodedBytes[1];
+            uint t2 = encodedBytes[2];
+            uint t3 = encodedBytes[3];
 
             int i0 = Unsafe.Add(ref decodingMap, (IntPtr)t0);
             int i1 = Unsafe.Add(ref decodingMap, (IntPtr)t1);
@@ -486,7 +479,7 @@ namespace System.Buffers.Text
         }
 
         // Pre-computing this table using a custom string(s_characters) and GenerateDecodingMapAndVerify (found in tests)
-        private static readonly sbyte[] s_decodingMap = {
+        private static ReadOnlySpan<sbyte> s_decodingMap => new sbyte[] {
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,         //62 is placed at index 43 (for +), 63 at index 47 (for /)
@@ -505,37 +498,37 @@ namespace System.Buffers.Text
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         };
 
-        private static readonly Vector128<sbyte> s_sseDecodeShuffleVec = Ssse3.IsSupported ? Vector128.Create(
+        private static ReadOnlySpan<sbyte> s_sseDecodeShuffleVec => new sbyte[] {
             2, 1, 0, 6,
             5, 4, 10, 9,
             8, 14, 13, 12,
             -1, -1, -1, -1
-        ) : default;
+        };
 
-        private static readonly Vector128<sbyte> s_sseDecodeLutLo = Sse3.IsSupported ? Vector128.Create(
+        private static ReadOnlySpan<sbyte> s_sseDecodeLutLo => new sbyte[] {
             0x15, 0x11, 0x11, 0x11,
             0x11, 0x11, 0x11, 0x11,
             0x11, 0x11, 0x13, 0x1A,
             0x1B, 0x1B, 0x1B, 0x1A
-        ) : default;
+        };
 
-        private static readonly Vector128<sbyte> s_sseDecodeLutHi = Sse3.IsSupported ? Vector128.Create(
+        private static ReadOnlySpan<sbyte> s_sseDecodeLutHi => new sbyte[] {
             0x10, 0x10, 0x01, 0x02,
             0x04, 0x08, 0x04, 0x08,
             0x10, 0x10, 0x10, 0x10,
             0x10, 0x10, 0x10, 0x10
-        ) : default;
+        };
 
-        private static readonly Vector128<sbyte> s_sseDecodeLutShift = Sse3.IsSupported ? Vector128.Create(
+        private static ReadOnlySpan<sbyte> s_sseDecodeLutShift => new sbyte[] {
             0, 16, 19, 4,
             -65, -65, -71, -71,
             0, 0, 0, 0,
             0, 0, 0, 0
-        ) : default;
+        };
 
         private static readonly Vector128<sbyte> s_sseDecodeMask2F = Sse3.IsSupported ? Vector128.Create((sbyte)0x2F) : default;    // ASCII: /
 
-        private static readonly Vector256<sbyte> s_avxDecodeShuffleVec = Avx2.IsSupported ? Vector256.Create(
+        private static ReadOnlySpan<sbyte> s_avxDecodeShuffleVec => new sbyte[] {
             2, 1, 0, 6,
             5, 4, 10, 9,
             8, 14, 13, 12,
@@ -544,12 +537,22 @@ namespace System.Buffers.Text
             5, 4, 10, 9,
             8, 14, 13, 12,
             -1, -1, -1, -1
-        ) : default;
+        };
 
-        private static readonly Vector256<int> s_avxDecodePermuteVec = Avx2.IsSupported ? Vector256.Create(0, 1, 2, 4, 5, 6, -1, -1) : default;
+        private static ReadOnlySpan<sbyte> s_avxDecodePermuteVec => new sbyte[] {
+            0, 0, 0, 0,
+            1, 0, 0, 0,
+            2, 0, 0, 0,
+            4, 0, 0, 0,
+            5, 0, 0, 0,
+            6, 0, 0, 0,
+            -1, -1, -1, -1,
+            -1, -1, -1, -1
+        };
+
         private static readonly Vector256<sbyte> s_avxDecodeMask2F = Avx2.IsSupported ? Vector256.Create((sbyte)0x2F) : default;        // ASCII: /
 
-        private static readonly Vector256<sbyte> s_avxDecodeLutLo = Avx2.IsSupported ? Vector256.Create(
+        private static ReadOnlySpan<sbyte> s_avxDecodeLutLo => new sbyte[] {
             0x15, 0x11, 0x11, 0x11,
             0x11, 0x11, 0x11, 0x11,
             0x11, 0x11, 0x13, 0x1A,
@@ -558,9 +561,9 @@ namespace System.Buffers.Text
             0x11, 0x11, 0x11, 0x11,
             0x11, 0x11, 0x13, 0x1A,
             0x1B, 0x1B, 0x1B, 0x1A
-        ) : default;
+        };
 
-        private static readonly Vector256<sbyte> s_avxDecodeLutHi = Avx2.IsSupported ? Vector256.Create(
+        private static ReadOnlySpan<sbyte> s_avxDecodeLutHi => new sbyte[] {
             0x10, 0x10, 0x01, 0x02,
             0x04, 0x08, 0x04, 0x08,
             0x10, 0x10, 0x10, 0x10,
@@ -569,9 +572,9 @@ namespace System.Buffers.Text
             0x04, 0x08, 0x04, 0x08,
             0x10, 0x10, 0x10, 0x10,
             0x10, 0x10, 0x10, 0x10
-        ) : default;
+        };
 
-        private static readonly Vector256<sbyte> s_avxDecodeLutShift = Avx2.IsSupported ? Vector256.Create(
+        private static ReadOnlySpan<sbyte> s_avxDecodeLutShift => new sbyte[] {
             0, 16, 19, 4,
             -65, -65, -71, -71,
             0, 0, 0, 0,
@@ -580,6 +583,6 @@ namespace System.Buffers.Text
             -65, -65, -71, -71,
             0, 0, 0, 0,
             0, 0, 0, 0
-        ) : default;
+        };
     }
 }

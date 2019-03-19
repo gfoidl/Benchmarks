@@ -4,11 +4,19 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+//using Internal.Runtime.CompilerServices;
 
 namespace System.Buffers.Text
 {
-    public static partial class Base64_1
+    public static partial class Base64_PR_34529
     {
+        private static TVector ReadVector<TVector>(ReadOnlySpan<sbyte> data)
+        {
+            ref sbyte tmp = ref MemoryMarshal.GetReference(data);
+            return Unsafe.As<sbyte, TVector>(ref tmp);
+        }
+
         [Conditional("DEBUG")]
         private static unsafe void AssertRead<TVector>(byte* src, byte* srcStart, int srcLength)
         {
@@ -19,7 +27,7 @@ namespace System.Buffers.Text
             if (readEnd > srcEnd)
             {
                 int srcIndex = (int)(src - srcStart);
-                throw new InvalidOperationException($"Read for {typeof(TVector)} is not within safe bounds. srcIndex: {srcIndex}, srcLength: {srcLength}");
+                Debug.Fail($"Read for {typeof(TVector)} is not within safe bounds. srcIndex: {srcIndex}, srcLength: {srcLength}");
             }
         }
 
@@ -33,7 +41,7 @@ namespace System.Buffers.Text
             if (writeEnd > destEnd)
             {
                 int destIndex = (int)(dest - destStart);
-                throw new InvalidOperationException($"Write for {typeof(TVector)} is not within safe bounds. destIndex: {destIndex}, destLength: {destLength}");
+                Debug.Fail($"Write for {typeof(TVector)} is not within safe bounds. destIndex: {destIndex}, destLength: {destLength}");
             }
         }
     }

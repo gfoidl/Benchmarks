@@ -6,12 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-
-#if BIT64
-using nuint = System.UInt64;
-#else
-using nuint = System.UInt32;
-#endif
+//using Internal.Runtime.CompilerServices;
 
 namespace System.Buffers.Text
 {
@@ -21,23 +16,23 @@ namespace System.Buffers.Text
     /// <summary>
     /// Convert between binary data and UTF-8 encoded text that is represented in base 64.
     /// </summary>
-    public static partial class Base64_1
+    public static partial class Base64_PR_34529
     {
         /// <summary>
         /// Encode the span of binary data into UTF-8 encoded text represented as base 64.
-        ///
+        /// </summary> 
         /// <param name="bytes">The input span which contains binary data that needs to be encoded.</param>
         /// <param name="utf8">The output span which contains the result of the operation, i.e. the UTF-8 encoded text in base 64.</param>
         /// <param name="bytesConsumed">The number of input bytes consumed during the operation. This can be used to slice the input for subsequent calls, if necessary.</param>
         /// <param name="bytesWritten">The number of bytes written into the output span. This can be used to slice the output for subsequent calls, if necessary.</param>
-        /// <param name="isFinalBlock">True (default) when the input span contains the entire data to encode. 
+        /// <param name="isFinalBlock">True (default) when the input span contains the entire data to encode.
         /// Set to false only if it is known that the input span contains partial data with more data to follow.</param>
         /// <returns>It returns the OperationStatus enum values:
         /// - Done - on successful processing of the entire input span
         /// - DestinationTooSmall - if there is not enough space in the output span to fit the encoded input
         /// - NeedMoreData - only if isFinalBlock is false, otherwise the output is padded if the input is not a multiple of 3
-        /// It does not return InvalidData since that is not possible for base 64 encoding.</returns>
-        /// </summary> 
+        /// It does not return InvalidData since that is not possible for base 64 encoding.
+        /// </returns>
         public static unsafe OperationStatus EncodeToUtf8(ReadOnlySpan<byte> bytes, Span<byte> utf8, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true)
         {
             if (bytes.IsEmpty)
@@ -50,9 +45,6 @@ namespace System.Buffers.Text
             fixed (byte* srcBytes = &MemoryMarshal.GetReference(bytes))
             fixed (byte* destBytes = &MemoryMarshal.GetReference(utf8))
             {
-                // PERF: needs to be initialized here, for good codegen
-                ref byte encodingMap = ref s_encodingMap[0];
-
                 int srcLength = bytes.Length;
                 int destLength = utf8.Length;
                 int maxSrcLength;
@@ -68,8 +60,8 @@ namespace System.Buffers.Text
 
                 byte* src = srcBytes;
                 byte* dest = destBytes;
-                byte* srcEnd = srcBytes + (nuint)srcLength;
-                byte* srcMax = srcBytes + (nuint)maxSrcLength;
+                byte* srcEnd = srcBytes + (uint)srcLength;
+                byte* srcMax = srcBytes + (uint)maxSrcLength;
 
                 if (maxSrcLength >= 16)
                 {
@@ -92,6 +84,7 @@ namespace System.Buffers.Text
                     }
                 }
 
+                ref byte encodingMap = ref MemoryMarshal.GetReference(s_encodingMap);
                 uint result = 0;
 
                 srcMax -= 2;
@@ -157,20 +150,20 @@ namespace System.Buffers.Text
         }
 
         /// <summary>
-        /// Encode the span of binary data (in-place) into UTF-8 encoded text represented as base 64. 
+        /// Encode the span of binary data (in-place) into UTF-8 encoded text represented as base 64.
         /// The encoded text output is larger than the binary data contained in the input (the operation inflates the data).
-        ///
-        /// <param name="buffer">The input span which contains binary data that needs to be encoded. 
+        /// </summary>
+        /// <param name="buffer">The input span which contains binary data that needs to be encoded.
         /// It needs to be large enough to fit the result of the operation.</param>
-        /// <param name="dataLength">The amount of binary data contained within the buffer that needs to be encoded 
+        /// <param name="dataLength">The amount of binary data contained within the buffer that needs to be encoded
         /// (and needs to be smaller than the buffer length).</param>
         /// <param name="bytesWritten">The number of bytes written into the buffer.</param>
         /// <returns>It returns the OperationStatus enum values:
         /// - Done - on successful processing of the entire buffer
         /// - DestinationTooSmall - if there is not enough space in the buffer beyond dataLength to fit the result of encoding the input
         /// It does not return NeedMoreData since this method tramples the data in the buffer and hence can only be called once with all the data in the buffer.
-        /// It does not return InvalidData since that is not possible for base 64 encoding.</returns>
-        /// </summary> 
+        /// It does not return InvalidData since that is not possible for base 64 encoding.
+        /// </returns>
         public static unsafe OperationStatus EncodeToUtf8InPlace(Span<byte> buffer, int dataLength, out int bytesWritten)
         {
             if (buffer.IsEmpty)
@@ -187,12 +180,10 @@ namespace System.Buffers.Text
 
                 int leftover = dataLength - (dataLength / 3) * 3; // how many bytes after packs of 3
 
-
-                // PERF: use nuint to avoid the sign-extensions
-                nuint destinationIndex = (nuint)(encodedLength - 4);
-                nuint sourceIndex = (nuint)(dataLength - leftover);
+                uint destinationIndex = (uint)(encodedLength - 4);
+                uint sourceIndex = (uint)(dataLength - leftover);
                 uint result = 0;
-                ref byte encodingMap = ref s_encodingMap[0];
+                ref byte encodingMap = ref MemoryMarshal.GetReference(s_encodingMap);
 
                 // encode last pack to avoid conditional in the main loop
                 if (leftover != 0)
@@ -232,14 +223,14 @@ namespace System.Buffers.Text
         private static unsafe void Avx2Encode(ref byte* srcBytes, ref byte* destBytes, byte* srcEnd, int sourceLength, int destLength, byte* srcStart, byte* destStart)
         {
             // The JIT won't hoist these "constants", so help it
-            Vector256<sbyte> shuffleVec = s_avxEncodeShuffleVec;
+            Vector256<sbyte> shuffleVec = ReadVector<Vector256<sbyte>>(s_avxEncodeShuffleVec);
             Vector256<sbyte> shuffleConstant0 = Vector256.Create(0x0fc0fc00).AsSByte();
             Vector256<sbyte> shuffleConstant2 = Vector256.Create(0x003f03f0).AsSByte();
             Vector256<ushort> shuffleConstant1 = Vector256.Create(0x04000040).AsUInt16();
             Vector256<short> shuffleConstant3 = Vector256.Create(0x01000010).AsInt16();
             Vector256<byte> translationContant0 = Vector256.Create((byte)51);
             Vector256<sbyte> translationContant1 = Vector256.Create((sbyte)25);
-            Vector256<sbyte> lut = s_avxEncodeLut;
+            Vector256<sbyte> lut = ReadVector<Vector256<sbyte>>(s_avxEncodeLut);
 
             byte* src = srcBytes;
             byte* dest = destBytes;
@@ -249,7 +240,7 @@ namespace System.Buffers.Text
             Vector256<sbyte> str = Avx.LoadVector256(src).AsSByte();
 
             // shift by 4 bytes, as required by Reshuffle
-            str = Avx2.PermuteVar8x32(str.AsInt32(), s_avxEncodePermuteVec).AsSByte();
+            str = Avx2.PermuteVar8x32(str.AsInt32(), ReadVector<Vector256<sbyte>>(s_avxEncodePermuteVec).AsInt32()).AsSByte();
 
             // Next loads are done at src-4, as required by Reshuffle, so shift it once
             src -= 4;
@@ -292,14 +283,14 @@ namespace System.Buffers.Text
         private static unsafe void Ssse3Encode(ref byte* srcBytes, ref byte* destBytes, byte* srcEnd, int sourceLength, int destLength, byte* srcStart, byte* destStart)
         {
             // The JIT won't hoist these "constants", so help it
-            Vector128<sbyte> shuffleVec = s_sseEncodeShuffleVec;
+            Vector128<sbyte> shuffleVec = ReadVector<Vector128<sbyte>>(s_sseEncodeShuffleVec);
             Vector128<sbyte> shuffleConstant0 = Vector128.Create(0x0fc0fc00).AsSByte();
             Vector128<sbyte> shuffleConstant2 = Vector128.Create(0x003f03f0).AsSByte();
             Vector128<ushort> shuffleConstant1 = Vector128.Create(0x04000040).AsUInt16();
             Vector128<short> shuffleConstant3 = Vector128.Create(0x01000010).AsInt16();
             Vector128<byte> translationContant0 = Vector128.Create((byte)51);
             Vector128<sbyte> translationContant1 = Vector128.Create((sbyte)25);
-            Vector128<sbyte> lut = s_sseEncodeLut;
+            Vector128<sbyte> lut = ReadVector<Vector128<sbyte>>(s_sseEncodeLut);
 
             byte* src = srcBytes;
             byte* dest = destBytes;
@@ -339,46 +330,46 @@ namespace System.Buffers.Text
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe uint Encode(byte* threeBytes, ref byte encodingMap)
         {
-            nuint t0 = threeBytes[0];
-            nuint t1 = threeBytes[1];
-            nuint t2 = threeBytes[2];
+            uint t0 = threeBytes[0];
+            uint t1 = threeBytes[1];
+            uint t2 = threeBytes[2];
 
-            nuint i = (t0 << 16) | (t1 << 8) | t2;
+            uint i = (t0 << 16) | (t1 << 8) | t2;
 
-            nuint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 18));
-            nuint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 12) & 0x3F));
-            nuint i2 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 6) & 0x3F));
-            nuint i3 = Unsafe.Add(ref encodingMap, (IntPtr)(i & 0x3F));
+            uint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 18));
+            uint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 12) & 0x3F));
+            uint i2 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 6) & 0x3F));
+            uint i3 = Unsafe.Add(ref encodingMap, (IntPtr)(i & 0x3F));
 
-            return (uint)(i0 | (i1 << 8) | (i2 << 16) | (i3 << 24));
+            return i0 | (i1 << 8) | (i2 << 16) | (i3 << 24);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe uint EncodeAndPadOne(byte* twoBytes, ref byte encodingMap)
         {
-            nuint t0 = twoBytes[0];
-            nuint t1 = twoBytes[1];
+            uint t0 = twoBytes[0];
+            uint t1 = twoBytes[1];
 
-            nuint i = (t0 << 16) | (t1 << 8);
+            uint i = (t0 << 16) | (t1 << 8);
 
-            nuint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 18));
-            nuint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 12) & 0x3F));
-            nuint i2 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 6) & 0x3F));
+            uint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 18));
+            uint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 12) & 0x3F));
+            uint i2 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 6) & 0x3F));
 
-            return (uint)(i0 | (i1 << 8) | (i2 << 16) | (EncodingPad << 24));
+            return i0 | (i1 << 8) | (i2 << 16) | (EncodingPad << 24);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe uint EncodeAndPadTwo(byte* oneByte, ref byte encodingMap)
         {
-            nuint t0 = oneByte[0];
+            uint t0 = oneByte[0];
 
-            nuint i = t0 << 8;
+            uint i = t0 << 8;
 
-            nuint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 10));
-            nuint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 4) & 0x3F));
+            uint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 10));
+            uint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 4) & 0x3F));
 
-            return (uint)(i0 | (i1 << 8) | (EncodingPad << 16) | (EncodingPad << 24));
+            return i0 | (i1 << 8) | (EncodingPad << 16) | (EncodingPad << 24);
         }
 
         private const uint EncodingPad = '='; // '=', for padding
@@ -386,7 +377,7 @@ namespace System.Buffers.Text
         private const int MaximumEncodeLength = (int.MaxValue / 4) * 3; // 1610612733
 
         // Pre-computing this table using a custom string(s_characters) and GenerateEncodingMapAndVerify (found in tests)
-        private static readonly byte[] s_encodingMap = {
+        private static ReadOnlySpan<byte> s_encodingMap => new byte[] {
             65, 66, 67, 68, 69, 70, 71, 72,         //A..H
             73, 74, 75, 76, 77, 78, 79, 80,         //I..P
             81, 82, 83, 84, 85, 86, 87, 88,         //Q..X
@@ -397,23 +388,32 @@ namespace System.Buffers.Text
             52, 53, 54, 55, 56, 57, 43, 47          //4..9, +, /
         };
 
-        private static readonly Vector128<sbyte> s_sseEncodeShuffleVec = Ssse3.IsSupported ? Vector128.Create(
+        private static ReadOnlySpan<sbyte> s_sseEncodeShuffleVec => new sbyte[] {
             1, 0, 2, 1,
             4, 3, 5, 4,
             7, 6, 8, 7,
             10, 9, 11, 10
-        ) : default;
+        };
 
-        private static readonly Vector128<sbyte> s_sseEncodeLut = Ssse3.IsSupported ? Vector128.Create(
+        private static ReadOnlySpan<sbyte> s_sseEncodeLut => new sbyte[] {
             65, 71, -4, -4,
             -4, -4, -4, -4,
             -4, -4, -4, -4,
             -19, -16, 0, 0
-        ) : default;
+        };
 
-        private static readonly Vector256<int> s_avxEncodePermuteVec = Avx2.IsSupported ? Vector256.Create(0, 0, 1, 2, 3, 4, 5, 6) : default;
+        private static ReadOnlySpan<sbyte> s_avxEncodePermuteVec => new sbyte[] {
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            1, 0, 0, 0,
+            2, 0, 0, 0,
+            3, 0, 0, 0,
+            4, 0, 0, 0,
+            5, 0, 0, 0,
+            6, 0, 0, 0
+        };
 
-        private static readonly Vector256<sbyte> s_avxEncodeShuffleVec = Avx2.IsSupported ? Vector256.Create(
+        private static ReadOnlySpan<sbyte> s_avxEncodeShuffleVec => new sbyte[] {
             5, 4, 6, 5,
             8, 7, 9, 8,
             11, 10, 12, 11,
@@ -422,9 +422,9 @@ namespace System.Buffers.Text
             4, 3, 5, 4,
             7, 6, 8, 7,
             10, 9, 11, 10
-        ) : default;
+        };
 
-        private static readonly Vector256<sbyte> s_avxEncodeLut = Avx2.IsSupported ? Vector256.Create(
+        private static ReadOnlySpan<sbyte> s_avxEncodeLut => new sbyte[] {
             65, 71, -4, -4,
             -4, -4, -4, -4,
             -4, -4, -4, -4,
@@ -433,6 +433,6 @@ namespace System.Buffers.Text
             -4, -4, -4, -4,
             -4, -4, -4, -4,
             -19, -16, 0, 0
-        ) : default;
+        };
     }
 }

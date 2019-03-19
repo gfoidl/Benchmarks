@@ -9,16 +9,16 @@ namespace Base64Benchmarks
         {
             var bench1 = new EncodeUtf8Benchmark();
             bench1.GlobalSetup();
-            var status1 = bench1.PR34529_Base();
-            var status2 = bench1.PR34529_Pointers();
+            var status1 = bench1.Base();
+            var status2 = bench1.PR_34529();
 
             Console.WriteLine(status1);
             Console.WriteLine(status2);
 
             var bench2 = new DecodeUtf8Benchmark();
             bench2.GlobalSetup();
-            status1 = bench2.PR34529_Base();
-            status2 = bench2.PR34529_Pointers();
+            status1 = bench2.Base();
+            status2 = bench2.PR_34529();
 
             Console.WriteLine(status1);
             Console.WriteLine(status2);

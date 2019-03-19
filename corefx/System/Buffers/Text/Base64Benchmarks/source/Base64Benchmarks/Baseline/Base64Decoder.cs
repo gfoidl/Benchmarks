@@ -4,20 +4,16 @@
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
+//using Internal.Runtime.CompilerServices;
 
 namespace System.Buffers.Text
 {
-    // AVX2 version based on https://github.com/aklomp/base64/tree/e516d769a2a432c08404f1981e73b431566057be/lib/arch/avx2
-    // SSSE3 version based on https://github.com/aklomp/base64/tree/e516d769a2a432c08404f1981e73b431566057be/lib/arch/ssse3
-
     public static partial class Base64_Baseline
     {
         /// <summary>
         /// Decode the span of UTF-8 encoded text represented as base 64 into binary data.
         /// If the input is not a multiple of 4, it will decode as much as it can, to the closest multiple of 4.
-        ///
+        /// </summary>
         /// <param name="utf8">The input span which contains UTF-8 encoded text in base 64 that needs to be decoded.</param>
         /// <param name="bytes">The output span which contains the result of the operation, i.e. the decoded binary data.</param>
         /// <param name="bytesConsumed">The number of input bytes consumed during the operation. This can be used to slice the input for subsequent calls, if necessary.</param>
@@ -29,52 +25,30 @@ namespace System.Buffers.Text
         /// - DestinationTooSmall - if there is not enough space in the output span to fit the decoded input
         /// - NeedMoreData - only if isFinalBlock is false and the input is not a multiple of 4, otherwise the partial input would be considered as InvalidData
         /// - InvalidData - if the input contains bytes outside of the expected base 64 range, or if it contains invalid/more than two padding characters,
-        ///   or if the input is incomplete (i.e. not a multiple of 4) and isFinalBlock is true.</returns>
-        /// </summary> 
+        ///   or if the input is incomplete (i.e. not a multiple of 4) and isFinalBlock is true.
+        /// </returns>
         public static OperationStatus DecodeFromUtf8(ReadOnlySpan<byte> utf8, Span<byte> bytes, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true)
         {
-            // PERF: use uint to avoid the sign-extensions
-            uint sourceIndex = 0;
-            uint destIndex = 0;
-
-            if (utf8.IsEmpty)
-                goto DoneExit;
-
             ref byte srcBytes = ref MemoryMarshal.GetReference(utf8);
             ref byte destBytes = ref MemoryMarshal.GetReference(bytes);
 
             int srcLength = utf8.Length & ~0x3;  // only decode input up to the closest multiple of 4.
             int destLength = bytes.Length;
-            int maxSrcLength = srcLength;
-            int decodedLength = GetMaxDecodedFromUtf8Length(srcLength);
 
-            // max. 2 padding chars
-            if (destLength < decodedLength - 2)
-            {
-                // For overflow see comment below
-                maxSrcLength = destLength / 3 * 4;
-            }
+            int sourceIndex = 0;
+            int destIndex = 0;
 
-            if (Avx2.IsSupported && maxSrcLength >= 45)
-            {
-                Avx2Decode(ref srcBytes, ref destBytes, maxSrcLength, destLength, ref sourceIndex, ref destIndex);
+            if (utf8.Length == 0)
+                goto DoneExit;
 
-                if (sourceIndex == srcLength)
-                    goto DoneExit;
-            }
-            else if (Ssse3.IsSupported && maxSrcLength >= 24)
-            {
-                Ssse3Decode(ref srcBytes, ref destBytes, maxSrcLength, destLength, ref sourceIndex, ref destIndex);
-
-                if (sourceIndex == srcLength)
-                    goto DoneExit;
-            }
+            ref sbyte decodingMap = ref s_decodingMap[0];
 
             // Last bytes could have padding characters, so process them separately and treat them as valid only if isFinalBlock is true
             // if isFinalBlock is false, padding characters are considered invalid
             int skipLastChunk = isFinalBlock ? 4 : 0;
 
-            if (destLength >= decodedLength)
+            int maxSrcLength = 0;
+            if (destLength >= GetMaxDecodedFromUtf8Length(srcLength))
             {
                 maxSrcLength = srcLength - skipLastChunk;
             }
@@ -85,58 +59,47 @@ namespace System.Buffers.Text
                 maxSrcLength = (destLength / 3) * 4;
             }
 
-            ref sbyte decodingMap = ref s_decodingMap[0];
-
-            // In order to elide the movsxd in the loop
-            if (sourceIndex < maxSrcLength)
+            while (sourceIndex < maxSrcLength)
             {
-                do
-                {
-                    int result = Decode(ref Unsafe.Add(ref srcBytes, (IntPtr)sourceIndex), ref decodingMap);
-
-                    if (result < 0)
-                        goto InvalidDataExit;
-
-                    WriteThreeLowOrderBytes(ref Unsafe.Add(ref destBytes, (IntPtr)destIndex), result);
-                    destIndex += 3;
-                    sourceIndex += 4;
-                }
-                while (sourceIndex < (uint)maxSrcLength);
+                int result = Decode(ref Unsafe.Add(ref srcBytes, sourceIndex), ref decodingMap);
+                if (result < 0)
+                    goto InvalidExit;
+                WriteThreeLowOrderBytes(ref Unsafe.Add(ref destBytes, destIndex), result);
+                destIndex += 3;
+                sourceIndex += 4;
             }
 
             if (maxSrcLength != srcLength - skipLastChunk)
-                goto DestinationTooSmallExit;
+                goto DestinationSmallExit;
 
             // If input is less than 4 bytes, srcLength == sourceIndex == 0
             // If input is not a multiple of 4, sourceIndex == srcLength != 0
             if (sourceIndex == srcLength)
             {
                 if (isFinalBlock)
-                    goto InvalidDataExit;
-                goto NeedMoreDataExit;
+                    goto InvalidExit;
+                goto NeedMoreExit;
             }
 
             // if isFinalBlock is false, we will never reach this point
 
-            // Handle last four bytes. There are 0, 1, 2 padding chars.
-            uint t0, t1, t2, t3;
-            t0 = Unsafe.Add(ref srcBytes, (IntPtr)(uint)(srcLength - 4));
-            t1 = Unsafe.Add(ref srcBytes, (IntPtr)(uint)(srcLength - 3));
-            t2 = Unsafe.Add(ref srcBytes, (IntPtr)(uint)(srcLength - 2));
-            t3 = Unsafe.Add(ref srcBytes, (IntPtr)(uint)(srcLength - 1));
+            int i0 = Unsafe.Add(ref srcBytes, srcLength - 4);
+            int i1 = Unsafe.Add(ref srcBytes, srcLength - 3);
+            int i2 = Unsafe.Add(ref srcBytes, srcLength - 2);
+            int i3 = Unsafe.Add(ref srcBytes, srcLength - 1);
 
-            int i0 = Unsafe.Add(ref decodingMap, (IntPtr)t0);
-            int i1 = Unsafe.Add(ref decodingMap, (IntPtr)t1);
+            i0 = Unsafe.Add(ref decodingMap, i0);
+            i1 = Unsafe.Add(ref decodingMap, i1);
 
             i0 <<= 18;
             i1 <<= 12;
 
             i0 |= i1;
 
-            if (t3 != EncodingPad)
+            if (i3 != EncodingPad)
             {
-                int i2 = Unsafe.Add(ref decodingMap, (IntPtr)t2);
-                int i3 = Unsafe.Add(ref decodingMap, (IntPtr)t3);
+                i2 = Unsafe.Add(ref decodingMap, i2);
+                i3 = Unsafe.Add(ref decodingMap, i3);
 
                 i2 <<= 6;
 
@@ -144,67 +107,63 @@ namespace System.Buffers.Text
                 i0 |= i2;
 
                 if (i0 < 0)
-                    goto InvalidDataExit;
+                    goto InvalidExit;
                 if (destIndex > destLength - 3)
-                    goto DestinationTooSmallExit;
-
-                WriteThreeLowOrderBytes(ref Unsafe.Add(ref destBytes, (IntPtr)destIndex), i0);
+                    goto DestinationSmallExit;
+                WriteThreeLowOrderBytes(ref Unsafe.Add(ref destBytes, destIndex), i0);
                 destIndex += 3;
             }
-            else if (t2 != EncodingPad)
+            else if (i2 != EncodingPad)
             {
-                int i2 = Unsafe.Add(ref decodingMap, (IntPtr)t2);
+                i2 = Unsafe.Add(ref decodingMap, i2);
 
                 i2 <<= 6;
 
                 i0 |= i2;
 
                 if (i0 < 0)
-                    goto InvalidDataExit;
+                    goto InvalidExit;
                 if (destIndex > destLength - 2)
-                    goto DestinationTooSmallExit;
-
-                Unsafe.Add(ref destBytes, (IntPtr)destIndex) = (byte)(i0 >> 16);
-                Unsafe.Add(ref destBytes, (IntPtr)(destIndex + 1)) = (byte)(i0 >> 8);
+                    goto DestinationSmallExit;
+                Unsafe.Add(ref destBytes, destIndex) = (byte)(i0 >> 16);
+                Unsafe.Add(ref destBytes, destIndex + 1) = (byte)(i0 >> 8);
                 destIndex += 2;
             }
             else
             {
                 if (i0 < 0)
-                    goto InvalidDataExit;
+                    goto InvalidExit;
                 if (destIndex > destLength - 1)
-                    goto DestinationTooSmallExit;
-
-                Unsafe.Add(ref destBytes, (IntPtr)destIndex) = (byte)(i0 >> 16);
+                    goto DestinationSmallExit;
+                Unsafe.Add(ref destBytes, destIndex) = (byte)(i0 >> 16);
                 destIndex += 1;
             }
 
             sourceIndex += 4;
 
             if (srcLength != utf8.Length)
-                goto InvalidDataExit;
+                goto InvalidExit;
 
             DoneExit:
-            bytesConsumed = (int)sourceIndex;
-            bytesWritten = (int)destIndex;
+            bytesConsumed = sourceIndex;
+            bytesWritten = destIndex;
             return OperationStatus.Done;
 
-        DestinationTooSmallExit:
+        DestinationSmallExit:
             if (srcLength != utf8.Length && isFinalBlock)
-                goto InvalidDataExit; // if input is not a multiple of 4, and there is no more data, return invalid data instead
-
-            bytesConsumed = (int)sourceIndex;
-            bytesWritten = (int)destIndex;
+                goto InvalidExit; // if input is not a multiple of 4, and there is no more data, return invalid data instead
+            bytesConsumed = sourceIndex;
+            bytesWritten = destIndex;
             return OperationStatus.DestinationTooSmall;
 
-        NeedMoreDataExit:
-            bytesConsumed = (int)sourceIndex;
-            bytesWritten = (int)destIndex;
+        NeedMoreExit:
+            bytesConsumed = sourceIndex;
+            bytesWritten = destIndex;
             return OperationStatus.NeedMoreData;
 
-        InvalidDataExit:
-            bytesConsumed = (int)sourceIndex;
-            bytesWritten = (int)destIndex;
+        InvalidExit:
+            bytesConsumed = sourceIndex;
+            bytesWritten = destIndex;
             return OperationStatus.InvalidData;
         }
 
@@ -227,7 +186,7 @@ namespace System.Buffers.Text
         /// Decode the span of UTF-8 encoded text in base 64 (in-place) into binary data.
         /// The decoded binary output is smaller than the text data contained in the input (the operation deflates the data).
         /// If the input is not a multiple of 4, it will not decode any.
-        ///
+        /// </summary>
         /// <param name="buffer">The input span which contains the base 64 text data that needs to be decoded.</param>
         /// <param name="bytesWritten">The number of bytes written into the buffer.</param>
         /// <returns>It returns the OperationStatus enum values:
@@ -236,13 +195,13 @@ namespace System.Buffers.Text
         ///   or if the input is incomplete (i.e. not a multiple of 4).
         /// It does not return DestinationTooSmall since that is not possible for base 64 decoding.
         /// It does not return NeedMoreData since this method tramples the data in the buffer and 
-        /// hence can only be called once with all the data in the buffer.</returns>
-        /// </summary> 
+        /// hence can only be called once with all the data in the buffer.
+        /// </returns>
         public static OperationStatus DecodeFromUtf8InPlace(Span<byte> buffer, out int bytesWritten)
         {
             int bufferLength = buffer.Length;
-            uint sourceIndex = 0;
-            uint destIndex = 0;
+            int sourceIndex = 0;
+            int destIndex = 0;
 
             // only decode input if it is a multiple of 4
             if (bufferLength != ((bufferLength >> 2) * 4))
@@ -256,33 +215,31 @@ namespace System.Buffers.Text
 
             while (sourceIndex < bufferLength - 4)
             {
-                int result = Decode(ref Unsafe.Add(ref bufferBytes, (IntPtr)sourceIndex), ref decodingMap);
+                int result = Decode(ref Unsafe.Add(ref bufferBytes, sourceIndex), ref decodingMap);
                 if (result < 0)
                     goto InvalidExit;
-                WriteThreeLowOrderBytes(ref Unsafe.Add(ref bufferBytes, (IntPtr)destIndex), result);
+                WriteThreeLowOrderBytes(ref Unsafe.Add(ref bufferBytes, destIndex), result);
                 destIndex += 3;
                 sourceIndex += 4;
             }
 
-            uint t0, t1, t2, t3;
-            uint n = (uint)(bufferLength - 4);
-            t0 = Unsafe.Add(ref bufferBytes, (IntPtr)n);
-            t1 = Unsafe.Add(ref bufferBytes, (IntPtr)(n + 1));
-            t2 = Unsafe.Add(ref bufferBytes, (IntPtr)(n + 2));
-            t3 = Unsafe.Add(ref bufferBytes, (IntPtr)(n + 3));
+            int i0 = Unsafe.Add(ref bufferBytes, bufferLength - 4);
+            int i1 = Unsafe.Add(ref bufferBytes, bufferLength - 3);
+            int i2 = Unsafe.Add(ref bufferBytes, bufferLength - 2);
+            int i3 = Unsafe.Add(ref bufferBytes, bufferLength - 1);
 
-            int i0 = Unsafe.Add(ref decodingMap, (IntPtr)t0);
-            int i1 = Unsafe.Add(ref decodingMap, (IntPtr)t1);
+            i0 = Unsafe.Add(ref decodingMap, i0);
+            i1 = Unsafe.Add(ref decodingMap, i1);
 
             i0 <<= 18;
             i1 <<= 12;
 
             i0 |= i1;
 
-            if (t3 != EncodingPad)
+            if (i3 != EncodingPad)
             {
-                int i2 = Unsafe.Add(ref decodingMap, (IntPtr)t2);
-                int i3 = Unsafe.Add(ref decodingMap, (IntPtr)t3);
+                i2 = Unsafe.Add(ref decodingMap, i2);
+                i3 = Unsafe.Add(ref decodingMap, i3);
 
                 i2 <<= 6;
 
@@ -291,13 +248,12 @@ namespace System.Buffers.Text
 
                 if (i0 < 0)
                     goto InvalidExit;
-
-                WriteThreeLowOrderBytes(ref Unsafe.Add(ref bufferBytes, (IntPtr)destIndex), i0);
+                WriteThreeLowOrderBytes(ref Unsafe.Add(ref bufferBytes, destIndex), i0);
                 destIndex += 3;
             }
-            else if (t2 != EncodingPad)
+            else if (i2 != EncodingPad)
             {
-                int i2 = Unsafe.Add(ref decodingMap, (IntPtr)t2);
+                i2 = Unsafe.Add(ref decodingMap, i2);
 
                 i2 <<= 6;
 
@@ -305,160 +261,39 @@ namespace System.Buffers.Text
 
                 if (i0 < 0)
                     goto InvalidExit;
-
-                Unsafe.Add(ref bufferBytes, (IntPtr)destIndex) = (byte)(i0 >> 16);
-                Unsafe.Add(ref bufferBytes, (IntPtr)(destIndex + 1)) = (byte)(i0 >> 8);
+                Unsafe.Add(ref bufferBytes, destIndex) = (byte)(i0 >> 16);
+                Unsafe.Add(ref bufferBytes, destIndex + 1) = (byte)(i0 >> 8);
                 destIndex += 2;
             }
             else
             {
                 if (i0 < 0)
                     goto InvalidExit;
-
-                Unsafe.Add(ref bufferBytes, (IntPtr)destIndex) = (byte)(i0 >> 16);
+                Unsafe.Add(ref bufferBytes, destIndex) = (byte)(i0 >> 16);
                 destIndex += 1;
             }
 
         DoneExit:
-            bytesWritten = (int)destIndex;
+            bytesWritten = destIndex;
             return OperationStatus.Done;
 
         InvalidExit:
-            bytesWritten = (int)destIndex;
+            bytesWritten = destIndex;
             return OperationStatus.InvalidData;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Avx2Decode(ref byte src, ref byte destBytes, int sourceLength, int destLength, ref uint sourceIndex, ref uint destIndex)
-        {
-            ref byte srcStart = ref src;
-            ref byte destStart = ref destBytes;
-            ref byte simdSrcEnd = ref Unsafe.Add(ref src, (IntPtr)((uint)sourceLength - 45 + 1));
-
-            // The JIT won't hoist these "constants", so help him
-            Vector256<sbyte> lutHi = s_avxDecodeLutHi;
-            Vector256<sbyte> lutLo = s_avxDecodeLutLo;
-            Vector256<sbyte> lutShift = s_avxDecodeLutShift;
-            Vector256<sbyte> mask2F = s_avxDecodeMask2F;
-            Vector256<sbyte> shuffleConstant0 = Vector256.Create(0x01400140).AsSByte();
-            Vector256<short> shuffleConstant1 = Vector256.Create(0x00011000).AsInt16();
-            Vector256<sbyte> shuffleVec = s_avxDecodeShuffleVec;
-            Vector256<int> permuteVec = s_avxDecodePermuteVec;
-
-            //while (remaining >= 45)
-            do
-            {
-                AssertRead<Vector256<sbyte>>(ref src, ref srcStart, sourceLength);
-                Vector256<sbyte> str = Unsafe.As<byte, Vector256<sbyte>>(ref src);
-
-                Vector256<sbyte> hiNibbles = Avx2.And(Avx2.ShiftRightLogical(str.AsInt32(), 4).AsSByte(), mask2F);
-                Vector256<sbyte> loNibbles = Avx2.And(str, mask2F);
-                Vector256<sbyte> hi = Avx2.Shuffle(lutHi, hiNibbles);
-                Vector256<sbyte> lo = Avx2.Shuffle(lutLo, loNibbles);
-                Vector256<sbyte> zero = Vector256<sbyte>.Zero;
-
-                // https://github.com/dotnet/coreclr/issues/21247
-                if (Avx2.MoveMask(Avx2.CompareGreaterThan(Avx2.And(lo, hi), zero)) != 0)
-                    break;
-
-                Vector256<sbyte> eq2F = Avx2.CompareEqual(str, mask2F);
-                Vector256<sbyte> shift = Avx2.Shuffle(lutShift, Avx2.Add(eq2F, hiNibbles));
-                str = Avx2.Add(str, shift);
-
-                Vector256<short> merge_ab_and_bc = Avx2.MultiplyAddAdjacent(str.AsByte(), shuffleConstant0);
-                Vector256<int> @out = Avx2.MultiplyAddAdjacent(merge_ab_and_bc, shuffleConstant1);
-                @out = Avx2.Shuffle(@out.AsSByte(), shuffleVec).AsInt32();
-                str = Avx2.PermuteVar8x32(@out, permuteVec).AsSByte();
-
-                AssertWrite<Vector256<sbyte>>(ref destBytes, ref destStart, destLength);
-                // As has better CQ than WriteUnaligned
-                // https://github.com/dotnet/coreclr/issues/21132
-                Unsafe.As<byte, Vector256<sbyte>>(ref destBytes) = str;
-
-                src = ref Unsafe.Add(ref src, 32);
-                destBytes = ref Unsafe.Add(ref destBytes, 24);
-            }
-            while (Unsafe.IsAddressLessThan(ref src, ref simdSrcEnd));
-
-            // Cast to ulong to avoid the overflow-check. Codegen for x86 is still good.
-            sourceIndex = (uint)(ulong)Unsafe.ByteOffset(ref srcStart, ref src);
-            destIndex = (uint)(ulong)Unsafe.ByteOffset(ref destStart, ref destBytes);
-
-            src = ref srcStart;
-            destBytes = ref destStart;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Ssse3Decode(ref byte src, ref byte destBytes, int sourceLength, int destLength, ref uint sourceIndex, ref uint destIndex)
-        {
-            ref byte srcStart = ref src;
-            ref byte destStart = ref destBytes;
-            ref byte simdSrcEnd = ref Unsafe.Add(ref src, (IntPtr)((uint)sourceLength - 24 + 1));
-
-            // The JIT won't hoist these "constants", so help him
-            Vector128<sbyte> lutHi = s_sseDecodeLutHi;
-            Vector128<sbyte> lutLo = s_sseDecodeLutLo;
-            Vector128<sbyte> lutShift = s_sseDecodeLutShift;
-            Vector128<sbyte> mask2F = s_sseDecodeMask2F;
-            Vector128<sbyte> shuffleConstant0 = Vector128.Create(0x01400140).AsSByte();
-            Vector128<short> shuffleConstant1 = Vector128.Create(0x00011000).AsInt16();
-            Vector128<sbyte> shuffleVec = s_sseDecodeShuffleVec;
-
-            //while (remaining >= 24)
-            do
-            {
-                AssertRead<Vector128<sbyte>>(ref src, ref srcStart, sourceLength);
-                Vector128<sbyte> str = Unsafe.As<byte, Vector128<sbyte>>(ref src);
-
-                Vector128<sbyte> hiNibbles = Sse2.And(Sse2.ShiftRightLogical(str.AsInt32(), 4).AsSByte(), mask2F);
-                Vector128<sbyte> loNibbles = Sse2.And(str, mask2F);
-                Vector128<sbyte> hi = Ssse3.Shuffle(lutHi, hiNibbles);
-                Vector128<sbyte> lo = Ssse3.Shuffle(lutLo, loNibbles);
-                Vector128<sbyte> zero = Vector128<sbyte>.Zero;
-
-                if (Sse2.MoveMask(Sse2.CompareGreaterThan(Sse2.And(lo, hi), zero)) != 0)
-                    break;
-
-                Vector128<sbyte> eq2F = Sse2.CompareEqual(str, mask2F);
-                Vector128<sbyte> shift = Ssse3.Shuffle(lutShift, Sse2.Add(eq2F, hiNibbles));
-                str = Sse2.Add(str, shift);
-
-                Vector128<short> merge_ab_and_bc = Ssse3.MultiplyAddAdjacent(str.AsByte(), shuffleConstant0);
-                Vector128<int> @out = Sse2.MultiplyAddAdjacent(merge_ab_and_bc, shuffleConstant1);
-                str = Ssse3.Shuffle(@out.AsSByte(), shuffleVec);
-
-                AssertWrite<Vector128<sbyte>>(ref destBytes, ref destStart, destLength);
-                // As has better CQ than WriteUnaligned
-                // https://github.com/dotnet/coreclr/issues/21132
-                Unsafe.As<byte, Vector128<sbyte>>(ref destBytes) = str;
-
-                src = ref Unsafe.Add(ref src, 16);
-                destBytes = ref Unsafe.Add(ref destBytes, 12);
-            }
-            while (Unsafe.IsAddressLessThan(ref src, ref simdSrcEnd));
-
-            // Cast to ulong to avoid the overflow-check. Codegen for x86 is still good.
-            sourceIndex = (uint)(ulong)Unsafe.ByteOffset(ref srcStart, ref src);
-            destIndex = (uint)(ulong)Unsafe.ByteOffset(ref destStart, ref destBytes);
-
-            src = ref srcStart;
-            destBytes = ref destStart;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int Decode(ref byte encodedBytes, ref sbyte decodingMap)
         {
-            uint t0, t1, t2, t3;
+            int i0 = encodedBytes;
+            int i1 = Unsafe.Add(ref encodedBytes, 1);
+            int i2 = Unsafe.Add(ref encodedBytes, 2);
+            int i3 = Unsafe.Add(ref encodedBytes, 3);
 
-            t0 = encodedBytes;
-            t1 = Unsafe.Add(ref encodedBytes, 1);
-            t2 = Unsafe.Add(ref encodedBytes, 2);
-            t3 = Unsafe.Add(ref encodedBytes, 3);
-
-            int i0 = Unsafe.Add(ref decodingMap, (IntPtr)t0);
-            int i1 = Unsafe.Add(ref decodingMap, (IntPtr)t1);
-            int i2 = Unsafe.Add(ref decodingMap, (IntPtr)t2);
-            int i3 = Unsafe.Add(ref decodingMap, (IntPtr)t3);
+            i0 = Unsafe.Add(ref decodingMap, i0);
+            i1 = Unsafe.Add(ref decodingMap, i1);
+            i2 = Unsafe.Add(ref decodingMap, i2);
+            i3 = Unsafe.Add(ref decodingMap, i3);
 
             i0 <<= 18;
             i1 <<= 12;
@@ -498,18 +333,5 @@ namespace System.Buffers.Text
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         };
-
-        private static readonly Vector128<sbyte> s_sseDecodeShuffleVec;
-        private static readonly Vector128<sbyte> s_sseDecodeLutLo;
-        private static readonly Vector128<sbyte> s_sseDecodeLutHi;
-        private static readonly Vector128<sbyte> s_sseDecodeLutShift;
-        private static readonly Vector128<sbyte> s_sseDecodeMask2F;
-
-        private static readonly Vector256<sbyte> s_avxDecodeShuffleVec;
-        private static readonly Vector256<int> s_avxDecodePermuteVec;
-        private static readonly Vector256<sbyte> s_avxDecodeLutLo;
-        private static readonly Vector256<sbyte> s_avxDecodeLutHi;
-        private static readonly Vector256<sbyte> s_avxDecodeLutShift;
-        private static readonly Vector256<sbyte> s_avxDecodeMask2F;
     }
 }
