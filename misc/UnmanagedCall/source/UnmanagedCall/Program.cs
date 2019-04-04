@@ -1,7 +1,10 @@
 ﻿using System;
-using BenchmarkDotNet.Running;
 using UnmanagedCall.Benchmarks;
 using UnmanagedCall.DllImport;
+
+#if !DEBUG
+using BenchmarkDotNet.Running;
+#endif
 
 namespace UnmanagedCall
 {
@@ -16,6 +19,7 @@ namespace UnmanagedCall
             emptyBench.LoadLibrary();
             emptyBench.LoadLibraryWOSecurityCheck();
             emptyBench.CallI();
+            emptyBench.CallITail();
 
             var intBench = new AddIntegerBenchmark();
             Console.WriteLine(intBench.DllImport());
@@ -23,6 +27,7 @@ namespace UnmanagedCall
             Console.WriteLine(intBench.LoadLibrary());
             Console.WriteLine(intBench.LoadLibraryWOSecurityCheck());
             Console.WriteLine(intBench.CallI());
+            Console.WriteLine(intBench.CallITail());
 
             Console.WriteLine();
 
@@ -32,6 +37,7 @@ namespace UnmanagedCall
             Console.WriteLine(doubleBench.LoadLibrary());
             Console.WriteLine(doubleBench.LoadLibraryWOSecurityCheck());
             Console.WriteLine(doubleBench.CallI());
+            Console.WriteLine(doubleBench.CallITail());
 
             Console.WriteLine();
 
@@ -44,6 +50,7 @@ namespace UnmanagedCall
                 Console.WriteLine(vecSumBench.LoadLibrary());
                 Console.WriteLine(vecSumBench.LoadLibraryWOSecurityCheck());
                 Console.WriteLine(vecSumBench.CallI());
+                Console.WriteLine(vecSumBench.CallITail());
             }
             finally
             {

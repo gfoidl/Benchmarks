@@ -51,7 +51,6 @@ namespace UnmanagedCall.Load
         {
             Ldsfld(new FieldRef(typeof(Calli), nameof(s_emptyPtr)));
             Calli(new StandAloneMethodSig(CallingConvention.Cdecl, typeof(void)));
-
         }
     }
 }

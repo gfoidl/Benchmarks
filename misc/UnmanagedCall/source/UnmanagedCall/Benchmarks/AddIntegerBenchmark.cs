@@ -33,5 +33,8 @@ namespace UnmanagedCall.Benchmarks
         //---------------------------------------------------------------------
         [Benchmark]
         public int CallI() => Calli.Add(_a, _b);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public int CallITail() => CalliTail.Add(_a, _b);
     }
 }

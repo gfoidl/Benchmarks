@@ -9,10 +9,11 @@ Frequency=2742185 Hz, Resolution=364.6727 ns, Timer=TSC
 
 
 ```
-|                     Method |      Mean |     Error |    StdDev | Ratio | RatioSD |
-|--------------------------- |----------:|----------:|----------:|------:|--------:|
-|                  DllImport |  7.775 ns | 0.2000 ns | 0.3450 ns |  1.00 |    0.00 |
-|   DllImportWOSecurityCheck |  7.528 ns | 0.1921 ns | 0.4711 ns |  0.99 |    0.05 |
-|                LoadLibrary | 15.027 ns | 0.3352 ns | 0.5317 ns |  1.93 |    0.09 |
-| LoadLibraryWOSecurityCheck | 14.281 ns | 0.1246 ns | 0.1165 ns |  1.77 |    0.06 |
-|                      CallI |  6.887 ns | 0.1017 ns | 0.0849 ns |  0.85 |    0.03 |
+|                     Method |      Mean |     Error |    StdDev |    Median | Ratio | RatioSD |
+|--------------------------- |----------:|----------:|----------:|----------:|------:|--------:|
+|                  DllImport |  7.145 ns | 0.1868 ns | 0.4722 ns |  6.962 ns |  1.00 |    0.00 |
+|   DllImportWOSecurityCheck |  7.072 ns | 0.1862 ns | 0.4279 ns |  6.947 ns |  0.99 |    0.05 |
+|                LoadLibrary | 19.207 ns | 0.4235 ns | 0.8839 ns | 19.197 ns |  2.68 |    0.16 |
+| LoadLibraryWOSecurityCheck | 16.774 ns | 0.3700 ns | 0.5650 ns | 16.748 ns |  2.28 |    0.18 |
+|                      CallI |  6.994 ns | 0.1776 ns | 0.1574 ns |  6.950 ns |  0.92 |    0.11 |
+|                  CallITail |  7.073 ns | 0.1798 ns | 0.3421 ns |  6.921 ns |  0.98 |    0.07 |

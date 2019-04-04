@@ -54,5 +54,8 @@ namespace UnmanagedCall.Benchmarks
         //---------------------------------------------------------------------
         [Benchmark]
         public double CallI() => Calli.VecSum(_vec, _n);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public double CallITail() => CalliTail.VecSum(_vec, _n);
     }
 }
