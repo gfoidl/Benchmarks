@@ -4,7 +4,12 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
+using InlineIL;
+using static InlineIL.IL.Emit;
+
+#if !DEBUG
 using BenchmarkDotNet.Running;
+#endif
 
 namespace CallTimes
 {
@@ -16,11 +21,17 @@ namespace CallTimes
             benchmarks.Direct();
             benchmarks.Interface();
             benchmarks.Abstract();
+            benchmarks.AbstractSealedBase();
             benchmarks.AbstractSealed();
             benchmarks.Delegate();
             benchmarks.Expression();
             benchmarks.IlGenSimple();
             benchmarks.IlGen();
+            benchmarks.IlCall();
+            benchmarks.IlCalli();
+#if !DEBUG
+            benchmarks.IlCalliTail();
+#endif
 #if !DEBUG
             BenchmarkRunner.Run<Benchmarks>();
 #endif
@@ -29,14 +40,15 @@ namespace CallTimes
     //-------------------------------------------------------------------------
     public class Benchmarks
     {
-        private readonly Foo    _direct         = new Foo();
-        private readonly IFoo   _interface      = new Foo();
-        private readonly Base   _abstract       = new Foo();
-        private readonly Base   _abstractSealed = new FooSealed();
-        private readonly Action _action;
-        private readonly Action _expression;
-        private readonly Action _ilGenSimple;
-        private readonly Action _ilGen;
+        private readonly Foo       _direct             = new Foo();
+        private readonly IFoo      _interface          = new Foo();
+        private readonly Base      _abstract           = new Foo();
+        private readonly Base      _abstractSealedBase = new FooSealed();
+        private readonly FooSealed _abstractSealed     = new FooSealed();
+        private readonly Action    _action;
+        private readonly Action    _expression;
+        private readonly Action    _ilGenSimple;
+        private readonly Action    _ilGen;
         //---------------------------------------------------------------------
         public Benchmarks()
         {
@@ -100,6 +112,10 @@ namespace CallTimes
         //---------------------------------------------------------------------
         [Benchmark]
         [MethodImpl(MethodImplOptions.NoInlining)]
+        public void AbstractSealedBase() => _abstractSealedBase.Do();
+        //---------------------------------------------------------------------
+        [Benchmark]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public void AbstractSealed() => _abstractSealed.Do();
         //---------------------------------------------------------------------
         [Benchmark]
@@ -117,6 +133,38 @@ namespace CallTimes
         [Benchmark]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void IlGen() => _ilGen();
+        //---------------------------------------------------------------------
+        [Benchmark]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void IlCall()
+        {
+            Ldarg_0();
+            Ldfld(new FieldRef(new TypeRef(typeof(Benchmarks)), nameof(_direct)));
+            Call(new MethodRef(new TypeRef(typeof(Foo)), nameof(Foo.Do)));
+        }
+        //---------------------------------------------------------------------
+        [Benchmark]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void IlCalli()
+        {
+            Ldarg_0();
+            Ldfld(new FieldRef(new TypeRef(typeof(Benchmarks)), nameof(_direct)));
+            Ldftn(new MethodRef(new TypeRef(typeof(Foo)), nameof(Foo.Do)));
+            Calli(new StandAloneMethodSig(CallingConventions.HasThis, typeof(void)));
+        }
+        //---------------------------------------------------------------------
+#if !DEBUG // https://github.com/ltrzesniewski/InlineIL.Fody/issues/7
+        [Benchmark]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void IlCalliTail()
+        {
+            Ldarg_0();
+            Ldfld(new FieldRef(new TypeRef(typeof(Benchmarks)), nameof(_direct)));
+            Ldftn(new MethodRef(new TypeRef(typeof(Foo)), nameof(Foo.Do)));
+            Tail();
+            Calli(new StandAloneMethodSig(CallingConventions.HasThis, typeof(void)));
+        }
+#endif
     }
     //-------------------------------------------------------------------------
     public interface IFoo
@@ -131,11 +179,17 @@ namespace CallTimes
     //---------------------------------------------------------------------
     public class Foo : Base
     {
-        public override void Do() { }
+        private static int s_id;
+        private int _id = ++s_id;
+
+        public override void Do() => _id++;
     }
     //---------------------------------------------------------------------
     public sealed class FooSealed : Base
     {
-        public override void Do() { }
+        private static int s_id;
+        private int _id = ++s_id;
+
+        public override void Do() => _id++;
     }
 }
