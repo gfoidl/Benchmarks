@@ -51,5 +51,8 @@ namespace UnmanagedCall.Benchmarks
         //---------------------------------------------------------------------
         [Benchmark]
         public double LoadLibraryWOSecurityCheck() => NativeMethodsWOSecurityCheck.vec_sum(_vec, _n);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public double CallI() => Calli.VecSum(_vec, _n);
     }
 }

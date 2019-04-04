@@ -23,12 +23,15 @@ namespace UnmanagedCall.Benchmarks
         public double DllImport() => NativeDllImport.add_d(_a, _b);
         //---------------------------------------------------------------------
         [Benchmark]
-        public double DllImportWOSecurityCheck() => NativeDllImportWOSecurityCheck.add_d(3, 4);
+        public double DllImportWOSecurityCheck() => NativeDllImportWOSecurityCheck.add_d(_a, _b);
         //---------------------------------------------------------------------
         [Benchmark]
-        public double LoadLibrary() => NativeMethods.add_d(3, 4);
+        public double LoadLibrary() => NativeMethods.add_d(_a, _b);
         //---------------------------------------------------------------------
         [Benchmark]
-        public double LoadLibraryWOSecurityCheck() => NativeMethodsWOSecurityCheck.add_d(3, 4);
+        public double LoadLibraryWOSecurityCheck() => NativeMethodsWOSecurityCheck.add_d(_a, _b);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public double CallI() => Calli.Add(_a, _b);
     }
 }

@@ -42,14 +42,14 @@ namespace UnmanagedCall.Load
                 return Windows.LoadLibrary(Path.Combine(AppContext.BaseDirectory, _libraryName));
             else
             {
-                const int RTLD_LAZY = 1;
+                const int RTLD_LAZY   = 1;
                 const int RTLD_GLOBAL = 8;
 
                 return Linux.dlopen(_libraryName, RTLD_GLOBAL + RTLD_LAZY);
             }
         }
         //---------------------------------------------------------------------
-        private static IntPtr LoadSymbol(string symbolName)
+        internal static IntPtr LoadSymbol(string symbolName)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return Windows.GetProcAddress(_handle, symbolName);

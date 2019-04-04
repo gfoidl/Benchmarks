@@ -15,12 +15,14 @@ namespace UnmanagedCall
             emptyBench.DllImportWOSecurityCheck();
             emptyBench.LoadLibrary();
             emptyBench.LoadLibraryWOSecurityCheck();
+            emptyBench.CallI();
 
             var intBench = new AddIntegerBenchmark();
             Console.WriteLine(intBench.DllImport());
             Console.WriteLine(intBench.DllImportWOSecurityCheck());
             Console.WriteLine(intBench.LoadLibrary());
             Console.WriteLine(intBench.LoadLibraryWOSecurityCheck());
+            Console.WriteLine(intBench.CallI());
 
             Console.WriteLine();
 
@@ -29,6 +31,7 @@ namespace UnmanagedCall
             Console.WriteLine(doubleBench.DllImportWOSecurityCheck());
             Console.WriteLine(doubleBench.LoadLibrary());
             Console.WriteLine(doubleBench.LoadLibraryWOSecurityCheck());
+            Console.WriteLine(doubleBench.CallI());
 
             Console.WriteLine();
 
@@ -40,6 +43,7 @@ namespace UnmanagedCall
                 Console.WriteLine(vecSumBench.DllImportWOSecurityCheck());
                 Console.WriteLine(vecSumBench.LoadLibrary());
                 Console.WriteLine(vecSumBench.LoadLibraryWOSecurityCheck());
+                Console.WriteLine(vecSumBench.CallI());
             }
             finally
             {

@@ -26,5 +26,8 @@ namespace UnmanagedCall.Benchmarks
         //---------------------------------------------------------------------
         [Benchmark]
         public void LoadLibraryWOSecurityCheck() => NativeMethodsWOSecurityCheck.empty();
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public void CallI() => Calli.Empty();
     }
 }
