@@ -99,20 +99,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             // [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             //  ^^^^^^^^ ^^         ^^^^^^ ^^^^         ^^^^ ^         ^^^^^^^ ^^^^^^^^
 
-            ReadOnlySpan<sbyte> shuffleData = new sbyte[16]
-            {
-                //1, 0,  2, 1,  3,  2,  4,  3,
-                //9, 8, 10, 9, 11, 10, 12, 11
-
-                // Reversed order as in ASP.NET Core Kestrel
-                //12, 11, 11, 10, 10, 9, 9, 8,
-                // 4,  3,  3,  2,  2, 1, 1, 0
-
-                0, 1, 1,  2,  2,  3,  3,  4,
-                8, 9, 9, 10, 10, 11, 11, 12,
-            };
-
-            Vector128<sbyte> shuffleVec = ReadVector<sbyte, sbyte>(shuffleData);
+            Vector128<sbyte> shuffleVec = ReadVector<sbyte, sbyte>(s_shuffleData);
             Vector128<sbyte> vec = Ssse3.Shuffle(input, shuffleVec);
 
             Print(input, nameof(input));
@@ -122,21 +109,9 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [aaaaa000|00000000|00ccccc0|00000000|00000000|00000000|00000000|00000000]
             // output: [000aaaaa|00000000|000ccccc|00000000|00000000|00000000|00000000|00000000]
-            ReadOnlySpan<byte> maskACData = new byte[16]
-            {
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x00, 0xF8,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x00, 0xF8
-            };
-            Vector128<sbyte> maskAC = ReadVector<byte, sbyte>(maskACData);
+            Vector128<sbyte> maskAC = ReadVector<byte, sbyte>(s_maskACData);
             Vector128<sbyte> maskedAC = Sse2.And(vec, maskAC);
-            ReadOnlySpan<byte> facACData = new byte[16]
-            {
-                0x00, 0x80, 0x00, 0x20,
-                0x00, 0x80, 0x00, 0x20,
-                0x00, 0x80, 0x00, 0x20,
-                0x00, 0x80, 0x00, 0x20
-            };
-            Vector128<ushort> facAC = ReadVector<byte, ushort>(facACData);
+            Vector128<ushort> facAC = ReadVector<byte, ushort>(s_facACData);
             Vector128<sbyte> indexAC = Sse2.MultiplyHigh(maskedAC.AsUInt16(), facAC).AsSByte();
             Print(indexAC, nameof(indexAC));
 
@@ -144,21 +119,9 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [00000bbb|bb000000|0000000d|dddd0000|00000000|00000000|00000000|00000000]
             // output: [00000000|000bbbbb|00000000|000ddddd|00000000|00000000|00000000|00000000]
-            ReadOnlySpan<byte> maskBDData = new byte[16]
-            {
-                0x00, 0x00, 0x00, 0x00, 0xF0, 0x01, 0xC0, 0x07,
-                0x00, 0x00, 0x00, 0x00, 0xF0, 0x01, 0xC0, 0x07
-            };
-            Vector128<sbyte> maskBD = ReadVector<byte, sbyte>(maskBDData);
+            Vector128<sbyte> maskBD = ReadVector<byte, sbyte>(s_maskBDData);
             Vector128<sbyte> maskedBD = Sse2.And(vec, maskBD);
-            ReadOnlySpan<byte> facBDData = new byte[16]
-            {
-                0x00, 0x10, 0x00, 0x04,
-                0x00, 0x10, 0x00, 0x04,
-                0x00, 0x10, 0x00, 0x04,
-                0x00, 0x10, 0x00, 0x04
-            };
-            Vector128<ushort> facBD = ReadVector<byte, ushort>(facBDData);
+            Vector128<ushort> facBD = ReadVector<byte, ushort>(s_facBDData);
             Vector128<sbyte> indexBD = Sse2.MultiplyHigh(maskedBD.AsUInt16(), facBD).AsSByte();
             Print(indexBD, nameof(indexBD));
 
@@ -166,21 +129,9 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [00000000|00000000|00000000|00000000|0000eeee|e0000000|000000gg|ggg00000]
             // output: [00000000|00000000|00000000|00000000|000eeeee|00000000|000ggggg|00000000]
-            ReadOnlySpan<byte> maskEGData = new byte[16]
-            {
-                0xE0, 0x03, 0x80, 0x0F, 0x00, 0x00, 0x00, 0x00,
-                0xE0, 0x03, 0x80, 0x0F, 0x00, 0x00, 0x00, 0x00
-            };
-            Vector128<sbyte> maskEG = ReadVector<byte, sbyte>(maskEGData);
+            Vector128<sbyte> maskEG = ReadVector<byte, sbyte>(s_maskEGData);
             Vector128<sbyte> maskedEG = Sse2.And(vec, maskEG);
-            ReadOnlySpan<byte> facEGData = new byte[16]
-            {
-                0x08, 0x00, 0x02, 0x00,
-                0x08, 0x00, 0x02, 0x00,
-                0x08, 0x00, 0x02, 0x00,
-                0x08, 0x00, 0x02, 0x00
-            };
-            Vector128<short> facEG = ReadVector<byte, short>(facEGData);
+            Vector128<short> facEG = ReadVector<byte, short>(s_facEGData);
             Vector128<sbyte> indexEG = Sse2.MultiplyLow(maskedEG.AsInt16(), facEG).AsSByte();
             Print(indexEG, nameof(indexEG));
 
@@ -188,18 +139,8 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [00000000|00000000|00000000|00000000|00000000|0fffff00|00000000|000hhhhh]
             // output: [00000000|00000000|00000000|00000000|00000000|000fffff|00000000|000hhhhh]
-            ReadOnlySpan<byte> maskHData = new byte[16]
-            {
-                0x1F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x1F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-            };
-            ReadOnlySpan<byte> maskFData = new byte[16]
-            {
-                0x00,0x00,0x7C,0x00,0x00,0x00,0x00,0x00,
-                0x00,0x00,0x7C,0x00,0x00,0x00,0x00,0x00
-            };
-            Vector128<sbyte> maskH = ReadVector<byte, sbyte>(maskHData);
-            Vector128<sbyte> maskF = ReadVector<byte, sbyte>(maskFData);
+            Vector128<sbyte> maskH = ReadVector<byte, sbyte>(s_maskHData);
+            Vector128<sbyte> maskF = ReadVector<byte, sbyte>(s_maskFData);
             Vector128<sbyte> maskedH = Sse2.And(vec, maskH);
             Vector128<sbyte> maskedF = Sse2.And(vec, maskF);
             Vector128<sbyte> indexF = Sse2.ShiftRightLogical(maskedF.AsUInt64(), 2).AsSByte();
@@ -214,8 +155,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
 
             Print(indices, nameof(indices));
 
-            ReadOnlySpan<sbyte> reverseMaskData = new sbyte[16] { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0 };
-            Vector128<sbyte> reverseMask = ReadVector<sbyte, sbyte>(reverseMaskData);
+            Vector128<sbyte> reverseMask = ReadVector<sbyte, sbyte>(s_reverseMaskData);
             indices = Ssse3.Shuffle(indices, reverseMask);
             Print(indices, $"{nameof(indices)}-1");
 
@@ -225,15 +165,9 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Vector128<sbyte> Lookup(Vector128<sbyte> indices)
         {
-            const byte c0 = (byte)'0';
-            ReadOnlySpan<byte> shiftData = new byte[16] { c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0 };
-            ReadOnlySpan<byte> gt9Data = new byte[16] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 };
-            const byte c1 = (byte)('A' - '0' - 10);
-            ReadOnlySpan<byte> shiftAdjustmentData = new byte[16] { c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1 };
-
-            Vector128<sbyte> shift = ReadVector<byte, sbyte>(shiftData);
-            Vector128<sbyte> gt9 = Sse2.CompareGreaterThan(indices, ReadVector<byte, sbyte>(gt9Data));
-            Vector128<sbyte> shiftAdjustment = Sse2.And(gt9, ReadVector<byte, sbyte>(shiftAdjustmentData));
+            Vector128<sbyte> shift = ReadVector<byte, sbyte>(s_shiftData);
+            Vector128<sbyte> gt9 = Sse2.CompareGreaterThan(indices, ReadVector<byte, sbyte>(s_gt9Data));
+            Vector128<sbyte> shiftAdjustment = Sse2.And(gt9, ReadVector<byte, sbyte>(s_shiftAdjustmentData));
             shift = Sse2.Add(shift, shiftAdjustment);
 
             Vector128<sbyte> res = Sse2.Add(indices, shift);
@@ -279,5 +213,94 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             ref T r = ref MemoryMarshal.GetReference(span);
             return Unsafe.As<T, Vector128<TVector>>(ref r);
         }
+        //---------------------------------------------------------------------
+        private static ReadOnlySpan<sbyte> s_shuffleData => new sbyte[16]
+        {
+            // 1, 0,     2, 1,  3,  2,  4,  3,
+            // 9, 8, 10, 9, 11, 10, 12, 11
+
+            // Reversed order as in ASP.NET Core Kestrel
+            // 12, 11, 11, 10, 10, 9, 9, 8,
+            //  4,  3,  3,  2,  2, 1, 1, 0
+
+            0, 1, 1,  2,  2,  3,  3,  4,
+            8, 9, 9, 10, 10, 11, 11, 12,
+        };
+
+        private static ReadOnlySpan<byte> s_maskACData => new byte[16]
+        {
+            // 0x_F8_00_3E_00_00_00_00_00L
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x00, 0xF8,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x00, 0xF8
+        };
+
+        private static ReadOnlySpan<byte> s_facACData => new byte[16]
+        {
+            // c = 1 << (16 - 1);
+            // a = 1 << (16 - 3);
+            // facAC = (a << 16) | c;
+            0x00, 0x80, 0x00, 0x20,
+            0x00, 0x80, 0x00, 0x20,
+            0x00, 0x80, 0x00, 0x20,
+            0x00, 0x80, 0x00, 0x20
+        };
+
+        private static ReadOnlySpan<byte> s_maskBDData => new byte[16]
+        {
+            // 0x_07_C0_01_F0_00_00_00_00L
+            0x00, 0x00, 0x00, 0x00, 0xF0, 0x01, 0xC0, 0x07,
+            0x00, 0x00, 0x00, 0x00, 0xF0, 0x01, 0xC0, 0x07
+        };
+
+        private static ReadOnlySpan<byte> s_facBDData => new byte[16]
+        {
+            // d = 1 << (16 - 4);
+            // b = 1 << (16 - 6);
+            // facBD = (b << 16) | d;
+            0x00, 0x10, 0x00, 0x04,
+            0x00, 0x10, 0x00, 0x04,
+            0x00, 0x10, 0x00, 0x04,
+            0x00, 0x10, 0x00, 0x04
+        };
+
+        private static ReadOnlySpan<byte> s_maskEGData => new byte[16]
+        {
+            // 0x_00_00_00_00_0F_80_03_E0L
+            0xE0, 0x03, 0x80, 0x0F, 0x00, 0x00, 0x00, 0x00,
+            0xE0, 0x03, 0x80, 0x0F, 0x00, 0x00, 0x00, 0x00
+        };
+
+        private static ReadOnlySpan<byte> s_facEGData => new byte[16]
+        {
+            // g = 1 << 3;
+            // e = 1 << 1;
+            // facEG = (e << 16) | g;
+            0x08, 0x00, 0x02, 0x00,
+            0x08, 0x00, 0x02, 0x00,
+            0x08, 0x00, 0x02, 0x00,
+            0x08, 0x00, 0x02, 0x00
+        };
+
+        private static ReadOnlySpan<byte> s_maskHData => new byte[16]
+        {
+            // 0x_00_00_00_00_00_00_00_1FL
+            0x1F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x1F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        };
+
+        private static ReadOnlySpan<byte> s_maskFData => new byte[16]
+        {
+            // 0x_00_00_00_00_00_7C_00_00
+            0x00,0x00,0x7C,0x00,0x00,0x00,0x00,0x00,
+            0x00,0x00,0x7C,0x00,0x00,0x00,0x00,0x00
+        };
+
+        private static ReadOnlySpan<sbyte> s_reverseMaskData => new sbyte[16] { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0 };
+
+        private const byte c0 = (byte)'0';
+        private const byte c1 = (byte)('A' - '0' - 10);
+        private static ReadOnlySpan<byte> s_shiftData => new byte[16] { c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0 };
+        private static ReadOnlySpan<byte> s_gt9Data => new byte[16] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 };
+        private static ReadOnlySpan<byte> s_shiftAdjustmentData => new byte[16] { c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1 };
     }
 }
