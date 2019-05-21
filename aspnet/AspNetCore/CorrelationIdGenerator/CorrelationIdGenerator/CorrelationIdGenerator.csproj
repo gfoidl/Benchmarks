@@ -8,10 +8,6 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <DefineConstants>$(DefineConstants);MASK_VAR_B;ENC_VAR_B;STORE_VAR_B</DefineConstants>
-    </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" Version="0.11.5" />
     </ItemGroup>

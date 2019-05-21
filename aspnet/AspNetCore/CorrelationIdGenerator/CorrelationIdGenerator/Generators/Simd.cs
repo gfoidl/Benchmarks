@@ -62,57 +62,20 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             }
         }
 
-        private static void EcondeSeq(Span<char> buffer, long value)
-        {
-            Span<byte> tmp = stackalloc byte[]
-            {
-                (byte)((value >> 60) & 0x1F),
-                (byte)((value >> 55) & 0x1F),
-                (byte)((value >> 50) & 0x1F),
-                (byte)((value >> 45) & 0x1F),
-                (byte)((value >> 40) & 0x1F),
-                (byte)((value >> 35) & 0x1F),
-                (byte)((value >> 30) & 0x1F),
-                (byte)((value >> 25) & 0x1F),
-                (byte)((value >> 20) & 0x1F),
-                (byte)((value >> 15) & 0x1F),
-                (byte)((value >> 10) & 0x1F),
-                (byte)((value >> 5) & 0x1F),
-                (byte)(value & 0x1F),
-            };
-
-            for (int i = 0; i < tmp.Length; ++i)
-            {
-                byte val = tmp[i];
-                char shift = val < 10 ? '0' : (char)('A' - 10);
-                char r = (char)(val + shift);
-                buffer[i] = r;
-            }
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void EncodeSsse3(Span<char> buffer, long value)
         {
             PrintHeader();
             Print(value, nameof(value));
-#if MASK_VAR_A
-            Vector128<sbyte> indices = default;
-            indices = indices.WithElement(0, (sbyte)((value >> 60) & 0x1F));
-            indices = indices.WithElement(1, (sbyte)((value >> 55) & 0x1F));
-            indices = indices.WithElement(2, (sbyte)((value >> 50) & 0x1F));
-            indices = indices.WithElement(3, (sbyte)((value >> 45) & 0x1F));
-            indices = indices.WithElement(4, (sbyte)((value >> 40) & 0x1F));
-            indices = indices.WithElement(5, (sbyte)((value >> 35) & 0x1F));
-            indices = indices.WithElement(6, (sbyte)((value >> 30) & 0x1F));
-            indices = indices.WithElement(7, (sbyte)((value >> 25) & 0x1F));
-            indices = indices.WithElement(8, (sbyte)((value >> 20) & 0x1F));
-            indices = indices.WithElement(9, (sbyte)((value >> 15) & 0x1F));
-            indices = indices.WithElement(10, (sbyte)((value >> 10) & 0x1F));
-            indices = indices.WithElement(11, (sbyte)((value >> 5) & 0x1F));
-            indices = indices.WithElement(12, (sbyte)(value & 0x1F));
 
-            Print(indices, nameof(indices));
-#elif MASK_VAR_B
+            Vector128<sbyte> indices = GetIndices(value);
+            Vector128<sbyte> res = Lookup(indices);
+            Store(buffer, res);
+        }
+        //---------------------------------------------------------------------
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static Vector128<sbyte> GetIndices(long value)
+        {
             // input = [xxxxxxxE|EEEEDDDD|DCCCCCBB|BBBAAAAA]
             Vector128<sbyte> input = Vector128.Create(value, value >> 5 * 8).AsSByte();
 
@@ -213,21 +176,6 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             Print(indexH, nameof(indexH), insertEmpyLineAfter: true);
 
             // Merge indices
-
-            // Has a long dependency chain (RAW). Later code avoids this.
-            //Vector128<sbyte> indices = Sse2.Or(
-            //  indexA, Sse2.Or(
-            //      indexB, Sse2.Or(
-            //          indexC, Sse2.Or(
-            //              indexD, Sse2.Or(
-            //                  indexE, Sse2.Or(
-            //                      indexF, Sse2.Or(indexG, indexH)
-            //                  )
-            //              )
-            //          )
-            //      )
-            //  )
-            //);
             indexA = Sse2.Or(indexA, indexB);
             indexC = Sse2.Or(indexC, indexD);
             indexE = Sse2.Or(indexE, indexF);
@@ -243,34 +191,26 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             Vector128<sbyte> shiftBy3Mask = Unsafe.As<sbyte, Vector128<sbyte>>(ref MemoryMarshal.GetReference(shiftBy3MaskData));
             indices = Ssse3.Shuffle(indices, shiftBy3Mask);
             Print(indices, $"{nameof(indices)}-1");
-#endif
-#if ENC_VAR_A
-            Vector128<sbyte> less10 = Sse2.CompareLessThan(indices, Vector128.Create((sbyte)10));
-            Vector128<sbyte> range09 = Sse2.And(less10, Vector128.Create((sbyte)'0'));
-            Vector128<sbyte> rangeAZ = Sse2.AndNot(less10, Vector128.Create((sbyte)('A' - 10)));
-            Vector128<sbyte> shift = Sse2.Or(range09, rangeAZ);
-#elif ENC_VAR_B
+
+            return indices;
+        }
+        //---------------------------------------------------------------------
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static Vector128<sbyte> Lookup(Vector128<sbyte> indices)
+        {
             Vector128<sbyte> shift = Vector128.Create((sbyte)'0');
             Vector128<sbyte> gt9 = Sse2.CompareGreaterThan(indices, Vector128.Create((sbyte)9));
             Vector128<sbyte> shiftAdjustment = Sse2.And(gt9, Vector128.Create((sbyte)('A' - '0' - 10)));
             shift = Sse2.Add(shift, shiftAdjustment);
-#endif
+
             Vector128<sbyte> res = Sse2.Add(indices, shift);
-#if STORE_VAR_A
-            buffer[12] = (char)res.GetElement(12);
-            buffer[11] = (char)res.GetElement(11);
-            buffer[10] = (char)res.GetElement(10);
-            buffer[9] = (char)res.GetElement(9);
-            buffer[8] = (char)res.GetElement(8);
-            buffer[7] = (char)res.GetElement(7);
-            buffer[6] = (char)res.GetElement(6);
-            buffer[5] = (char)res.GetElement(5);
-            buffer[4] = (char)res.GetElement(4);
-            buffer[3] = (char)res.GetElement(3);
-            buffer[2] = (char)res.GetElement(2);
-            buffer[1] = (char)res.GetElement(1);
-            buffer[0] = (char)res.GetElement(0);
-#elif STORE_VAR_B
+
+            return res;
+        }
+        //---------------------------------------------------------------------
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void Store(Span<char> buffer, Vector128<sbyte> res)
+        {
             Print(res, nameof(res), insertEmptyLineBefore: true);
             Print(res, nameof(res), printAsScii: true);
 
@@ -296,7 +236,6 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
 
             short s = c1.AsInt16().GetElement(4);   // 4 = (Vector128<sbyte>.Count - sizeof(long)) / sizeof(short)
             Unsafe.WriteUnaligned(ref b, s);
-#endif
         }
         //---------------------------------------------------------------------
         [DebuggerStepThrough, Conditional("DEBUG")]
