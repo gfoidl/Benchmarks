@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>CorrelationIdGenerator_Benchmarks.GetNextIdBenchmarkWithCacheTrashing-20190521-055108</title>
+
+<style type="text/css">
+    table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+    td, th { padding: 6px 13px; border: 1px solid #ddd; }
+    tr { background-color: #fff; border-top: 1px solid #ccc; }
+    tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.11.5, OS=ubuntu 18.10
+Intel Xeon CPU 2.00GHz, 1 CPU, 2 logical cores and 1 physical core
+.NET Core SDK=3.0.100-preview6-012027
+  [Host]     : .NET Core 3.0.0-preview6-27720-08 (CoreCLR 3.0.19.27071, CoreFX 4.700.19.27011), 64bit RyuJIT
+  DefaultJob : .NET Core 3.0.0-preview6-27720-08 (CoreCLR 3.0.19.27071, CoreFX 4.700.19.27011), 64bit RyuJIT
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>   Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>Default</td><td>132.5 us</td><td>0.7602 us</td><td>0.6348 us</td><td>1.00</td><td>-</td><td>-</td><td>-</td><td>48 B</td>
+</tr><tr><td>Simd</td><td>116.0 us</td><td>0.5169 us</td><td>0.4582 us</td><td>0.88</td><td>-</td><td>-</td><td>-</td><td>48 B</td>
+</tr><tr><td>Simd_StaticInit</td><td>116.2 us</td><td>0.8551 us</td><td>0.7580 us</td><td>0.88</td><td>-</td><td>-</td><td>-</td><td>48 B</td>
+</tr><tr><td>Simd_ROSTrick</td><td>116.8 us</td><td>1.4949 us</td><td>1.3983 us</td><td>0.88</td><td>-</td><td>-</td><td>-</td><td>48 B</td>
+</tr></tbody></table>
+</body>
+</html>
