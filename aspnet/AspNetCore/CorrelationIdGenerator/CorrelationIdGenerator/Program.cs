@@ -13,9 +13,11 @@ namespace CorrelationIdGenerator_Benchmarks
         {
             long lastId = DateTime.UtcNow.Ticks;
             //long lastId = 0x_00_00_00_00_00_00_00_FF - 1;
+            //long lastId = 0x_00_00_00_00_00_00_FF_FF - 1;
             //long lastId = 0x_00_00_00_00_00_00_EE_FF - 1;
             //long lastId = 0x_00_00_00_00_FF_FF_FF_FF - 1;
             //long lastId = 0x_12_34_56_78_9A_BC_DE_FA - 1;
+            //long lastId = unchecked((long)(0x_FF_FF_FF_FF_FF_FF_FF_FF - 1));
             //long lastId = unchecked((long)(0x_AF_FF_FF_FF_FF_FF_FF_FF - 1));
             CorrelationIdGenerator.LastId = lastId;
             CorrelationIdGenerator1.LastId = lastId;
@@ -46,11 +48,11 @@ namespace CorrelationIdGenerator_Benchmarks
             Console.WriteLine(CorrelationIdGenerator.GetNextId());
 
             Console.WriteLine();
-            CorrelationIdGenerator5.EnablePrint = false;
+            gfoidl.Tools.Intrinsics.Printer.EnablePrint = false;
             Console.WriteLine(CorrelationIdGenerator5.GetNextId());
             Console.WriteLine(CorrelationIdGenerator5.GetNextId());
             Console.WriteLine(CorrelationIdGenerator5.GetNextId());
-            CorrelationIdGenerator5.EnablePrint = true;
+            gfoidl.Tools.Intrinsics.Printer.EnablePrint = true;
 
             if (id1 != id2 || id1 != id3 || id1 != id4 || id1 != id5 || id1 != id6) Environment.Exit(1);
 #if !DEBUG

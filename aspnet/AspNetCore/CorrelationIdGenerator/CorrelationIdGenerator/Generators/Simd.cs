@@ -83,22 +83,33 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             //
             // bytes 7, 6, 5 are next sequence / can be ignored
             //
-            // output should be
+            // output for Base32hex should be
             // [000hhhhh|000ggggg|000fffff|000eeeee|000ddddd|000ccccc|000bbbbb|000aaaaa]
             //
             // shuffling changes the order of bytes, so unpacking is easier: 1, 0, 2, 1, 3, 2, 4, 3
             // ^ marks the bits of interest
             // [efffffgg|ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd]
             //        ^^ ^^^^^^^^^    ^^^^ ^^^^^^     ^^^^^^ ^^^^^    ^^^^^^^^ ^^
+            //
+            // For ASP.NET Core Kestrel the order is reversed, to make it sortable lexicographically.
+            // So the output should be
+            // [000aaaaa|000bbbbb|000ccccc|000ddddd|000eeeee|000fffff|000ggggg|000hhhhh]
+            //
+            // shuffling to: 4, 3, 3, 2, 2, 1, 1, 0
+            // [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
+            //  ^^^^^^^^ ^^         ^^^^^^ ^^^^         ^^^^ ^         ^^^^^^^ ^^^^^^^^
 
-            ReadOnlySpan<sbyte> shuffleMask = new sbyte[]
+            ReadOnlySpan<sbyte> shuffleMask = new sbyte[16]
             {
                 //1, 0,  2, 1,  3,  2,  4,  3,
                 //9, 8, 10, 9, 11, 10, 12, 11
 
                 // Reversed order as in ASP.NET Core Kestrel
-                11, 12, 10, 11, 9, 10, 8, 9,
-                 3,  4,  2,  3, 1,  2, 0, 1
+                //12, 11, 11, 10, 10, 9, 9, 8,
+                // 4,  3,  3,  2,  2, 1, 1, 0
+
+                0, 1, 1,  2,  2,  3,  3,  4,
+                8, 9, 9, 10, 10, 11, 11, 12,
             };
 
             Vector128<sbyte> shuffleVec = Unsafe.As<sbyte, Vector128<sbyte>>(ref MemoryMarshal.GetReference(shuffleMask));
@@ -107,87 +118,60 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             Print(input, nameof(input));
             Print(vec, nameof(vec), insertEmpyLineAfter: true);
 
-            // [efffffgg|ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd]
-            // [00000000|000effff|fggggghh|hhhdddde|eeeeffff|fggbbccc|ccddddde|eeeaaaaa]
-            Vector128<long> shiftTmp = Sse2.ShiftRightLogical(vec.AsInt64(), 11);
-            Print(shiftTmp.AsSByte(), nameof(shiftTmp));
-            // [00000000|00000000|00000000|00000000|00000000|00000000|00000000|000aaaaa]
-            Vector128<long> maskVector = Vector128.Create(0x00_00_00_00_00_00_00_1FL);
-            Vector128<sbyte> indexA = Sse2.And(shiftTmp, maskVector).AsSByte();
+            // Index A+C
+            // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
+            // mask:   [aaaaa000|00000000|00ccccc0|00000000|00000000|00000000|00000000|00000000]
+            // output: [000aaaaa|00000000|000ccccc|00000000|00000000|00000000|00000000|00000000]
+            Vector128<sbyte> maskedAC = Sse2.And(vec, Vector128.Create(0x_F8_00_3E_00_00_00_00_00L).AsSByte());
+            const uint c = 1 << (16 - 1);
+            const uint a = 1 << (16 - 3);
+            const uint facAC = (a << 16) | c;
+            Vector128<sbyte> indexAC = Sse2.MultiplyHigh(maskedAC.AsUInt16(), Vector128.Create(facAC).AsUInt16()).AsSByte();
+            Print(indexAC, nameof(indexAC));
 
-            // [efffffgg|ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd]
-            // [ffffgggg|ghhhhhdd|ddeeeeef|ffffggbb|cccccddd|ddeeeeaa|aaabbbbb|cccccd00]
-            shiftTmp = Sse2.ShiftLeftLogical(vec.AsInt64(), 2);
-            Print(shiftTmp.AsSByte(), nameof(shiftTmp));
-            // [00000000|00000000|00000000|00000000|00000000|00000000|000bbbbb|00000000]
-            Vector128<sbyte> indexB = Sse2.And(shiftTmp, Sse2.ShiftLeftLogical(maskVector, 8)).AsSByte();
+            // Index B+D
+            // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
+            // mask:   [00000bbb|bb000000|0000000d|dddd0000|00000000|00000000|00000000|00000000]
+            // output: [00000000|000bbbbb|00000000|000ddddd|00000000|00000000|00000000|00000000]
+            Vector128<sbyte> maskedBD = Sse2.And(vec, Vector128.Create(0x_07_C0_01_F0_00_00_00_00L).AsSByte());
+            const uint d = 1 << (16 - 4);
+            const uint b = 1 << (16 - 6);
+            const uint facBD = (b << 16) | d;
+            Vector128<sbyte> indexBD = Sse2.MultiplyHigh(maskedBD.AsUInt16(), Vector128.Create(facBD).AsUInt16()).AsSByte();
+            Print(indexBD, nameof(indexBD));
 
-            // [efffffgg|ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd]
-            // [00000000|0efffffg|gggghhhh|hddddeee|eefffffg|gbbccccc|dddddeee|eaaaaabb]
-            shiftTmp = Sse2.ShiftRightLogical(vec.AsInt64(), 9);
-            Print(shiftTmp.AsSByte(), nameof(shiftTmp));
-            // [00000000|00000000|00000000|00000000|00000000|000ccccc|00000000|00000000]
-            Vector128<sbyte> indexC = Sse2.And(shiftTmp, Sse2.ShiftLeftLogical(maskVector, 16)).AsSByte();
+            // Index E+G
+            // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
+            // mask:   [00000000|00000000|00000000|00000000|0000eeee|e0000000|000000gg|ggg00000]
+            // output: [00000000|00000000|00000000|00000000|000eeeee|00000000|000ggggg|00000000]
+            Vector128<sbyte> maskedEG = Sse2.And(vec, Vector128.Create(0x_00_00_00_00_0F_80_03_E0L).AsSByte());
+            const uint g = 1 << 3;
+            const uint e = 1 << 1;
+            const uint facEG = (e << 16) | g;
+            Vector128<sbyte> indexEG = Sse2.MultiplyLow(maskedEG.AsInt16(), Vector128.Create(facEG).AsInt16()).AsSByte();
+            Print(indexEG, nameof(indexEG));
 
-            // [efffffgg|ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd]
-            // [ffgggggh|hhhhdddd|eeeeefff|ffggbbcc|cccddddd|eeeeaaaa|abbbbbcc|cccd0000]
-            shiftTmp = Sse2.ShiftLeftLogical(vec.AsInt64(), 4);
-            Print(shiftTmp.AsSByte(), nameof(shiftTmp));
-            // [00000000|00000000|00000000|00000000|000ddddd|00000000|00000000|00000000]
-            Vector128<sbyte> indexD = Sse2.And(shiftTmp, Sse2.ShiftLeftLogical(maskVector, 24)).AsSByte();
-
-            // [efffffgg|ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd]
-            // [0000000e|fffffggg|gghhhhhd|dddeeeee|fffffggb|bcccccdd|dddeeeea|aaaabbbb]
-            shiftTmp = Sse2.ShiftRightLogical(vec.AsInt64(), 7);
-            Print(shiftTmp.AsSByte(), nameof(shiftTmp));
-            // [00000000|00000000|00000000|000eeeee|00000000|00000000|00000000|00000000]
-            Vector128<sbyte> indexE = Sse2.And(shiftTmp, Sse2.ShiftLeftLogical(maskVector, 32)).AsSByte();
-
-            // [efffffgg|ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd]
-            // [ggggghhh|hhddddee|eeefffff|ggbbcccc|cdddddee|eeaaaaab|bbbbcccc|cd000000]
-            shiftTmp = Sse2.ShiftLeftLogical(vec.AsInt64(), 6);
-            Print(shiftTmp.AsSByte(), nameof(shiftTmp));
-            // [00000000|00000000|000fffff|00000000|00000000|00000000|00000000|00000000]
-            Vector128<sbyte> indexF = Sse2.And(shiftTmp, Sse2.ShiftLeftLogical(maskVector, 40)).AsSByte();
-
-            // [efffffgg|ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd]
-            // [00000eff|fffggggg|hhhhhddd|deeeeeff|fffggbbc|ccccdddd|deeeeaaa|aabbbbbc]
-            shiftTmp = Sse2.ShiftRightLogical(vec.AsInt64(), 5);
-            Print(shiftTmp.AsSByte(), nameof(shiftTmp));
-            // [00000000|000ggggg|00000000|00000000|00000000|00000000|00000000|00000000]
-            Vector128<sbyte> indexG = Sse2.And(shiftTmp, Sse2.ShiftLeftLogical(maskVector, 48)).AsSByte();
-
-            // [efffffgg|ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd]
-            // [ggghhhhh|ddddeeee|efffffgg|bbcccccd|ddddeeee|aaaaabbb|bbcccccd|00000000]
-            shiftTmp = Sse2.ShiftLeftLogical(vec.AsInt64(), 8);
-            Print(shiftTmp.AsSByte(), nameof(shiftTmp));
-            // [000hhhhh|00000000|00000000|00000000|00000000|00000000|00000000|00000000]
-            Vector128<sbyte> indexH = Sse2.And(shiftTmp, Sse2.ShiftLeftLogical(maskVector, 56)).AsSByte();
-
-            Print(indexA, nameof(indexA), insertEmptyLineBefore: true);
-            Print(indexB, nameof(indexB));
-            Print(indexC, nameof(indexC));
-            Print(indexD, nameof(indexD));
-            Print(indexE, nameof(indexE));
-            Print(indexF, nameof(indexF));
-            Print(indexG, nameof(indexG));
-            Print(indexH, nameof(indexH), insertEmpyLineAfter: true);
+            // Index F+H
+            // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
+            // mask:   [00000000|00000000|00000000|00000000|00000000|0fffff00|00000000|000hhhhh]
+            // output: [00000000|00000000|00000000|00000000|00000000|000fffff|00000000|000hhhhh]
+            Vector128<sbyte> maskedH = Sse2.And(vec, Vector128.Create(0x_00_00_00_00_00_00_00_1FL).AsSByte());
+            Vector128<sbyte> maskedF = Sse2.And(vec, Vector128.Create(0x_00_00_00_00_00_7C_00_00L).AsSByte());
+            Vector128<sbyte> indexF = Sse2.ShiftRightLogical(maskedF.AsUInt64(), 2).AsSByte();
+            Vector128<sbyte> indexFH = Sse2.Or(indexF, maskedH);
+            Print(indexFH, nameof(indexFH));
 
             // Merge indices
-            indexA = Sse2.Or(indexA, indexB);
-            indexC = Sse2.Or(indexC, indexD);
-            indexE = Sse2.Or(indexE, indexF);
-            indexG = Sse2.Or(indexG, indexH);
+            indexAC = Sse2.Or(indexAC, indexBD);
+            indexEG = Sse2.Or(indexEG, indexFH);
 
-            indexA = Sse2.Or(indexA, indexC);
-            indexE = Sse2.Or(indexE, indexG);
+            Vector128<sbyte> indices = Sse2.Or(indexAC, indexEG);
 
-            Vector128<sbyte> indices = Sse2.Or(indexA, indexE);
             Print(indices, nameof(indices));
 
-            ReadOnlySpan<sbyte> shiftBy3MaskData = new sbyte[] { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2 };
-            Vector128<sbyte> shiftBy3Mask = Unsafe.As<sbyte, Vector128<sbyte>>(ref MemoryMarshal.GetReference(shiftBy3MaskData));
-            indices = Ssse3.Shuffle(indices, shiftBy3Mask);
+            ReadOnlySpan<sbyte> reverseMaskData = new sbyte[16] { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0 };
+            Vector128<sbyte> reverseMask = Unsafe.As<sbyte, Vector128<sbyte>>(ref MemoryMarshal.GetReference(reverseMaskData));
+            indices = Ssse3.Shuffle(indices, reverseMask);
             Print(indices, $"{nameof(indices)}-1");
 
             return indices;
