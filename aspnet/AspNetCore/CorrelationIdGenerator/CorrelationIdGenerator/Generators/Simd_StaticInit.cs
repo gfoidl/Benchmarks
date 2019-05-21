@@ -11,7 +11,7 @@ using static gfoidl.Tools.Intrinsics.Printer;
 
 namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
 {
-    internal static class CorrelationIdGenerator5
+    internal static class CorrelationIdGenerator6
     {
         // Base32 encoding - in ascii sort order for easy text based sorting
         private static readonly char[] s_encode32Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUV".ToCharArray();
@@ -122,41 +122,33 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [aaaaa000|00000000|00ccccc0|00000000|00000000|00000000|00000000|00000000]
             // output: [000aaaaa|00000000|000ccccc|00000000|00000000|00000000|00000000|00000000]
-            Vector128<sbyte> maskedAC = Sse2.And(vec, Vector128.Create(0x_F8_00_3E_00_00_00_00_00L).AsSByte());
-            const uint c = 1 << (16 - 1);
-            const uint a = 1 << (16 - 3);
-            const uint facAC = (a << 16) | c;
-            Vector128<sbyte> indexAC = Sse2.MultiplyHigh(maskedAC.AsUInt16(), Vector128.Create(facAC).AsUInt16()).AsSByte();
+            Vector128<sbyte> maskedAC = Sse2.And(vec, s_maskVectorAC);
+            Vector128<sbyte> indexAC = Sse2.MultiplyHigh(maskedAC.AsUInt16(), s_facACVector).AsSByte();
             Print(indexAC, nameof(indexAC));
 
             // Index B+D
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [00000bbb|bb000000|0000000d|dddd0000|00000000|00000000|00000000|00000000]
             // output: [00000000|000bbbbb|00000000|000ddddd|00000000|00000000|00000000|00000000]
-            Vector128<sbyte> maskedBD = Sse2.And(vec, Vector128.Create(0x_07_C0_01_F0_00_00_00_00L).AsSByte());
-            const uint d = 1 << (16 - 4);
-            const uint b = 1 << (16 - 6);
-            const uint facBD = (b << 16) | d;
-            Vector128<sbyte> indexBD = Sse2.MultiplyHigh(maskedBD.AsUInt16(), Vector128.Create(facBD).AsUInt16()).AsSByte();
+            Vector128<sbyte> maskedBD = Sse2.And(vec, s_maskVectorBD);
+            Vector128<sbyte> indexBD = Sse2.MultiplyHigh(maskedBD.AsUInt16(), s_facBDVector).AsSByte();
             Print(indexBD, nameof(indexBD));
 
             // Index E+G
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [00000000|00000000|00000000|00000000|0000eeee|e0000000|000000gg|ggg00000]
             // output: [00000000|00000000|00000000|00000000|000eeeee|00000000|000ggggg|00000000]
-            Vector128<sbyte> maskedEG = Sse2.And(vec, Vector128.Create(0x_00_00_00_00_0F_80_03_E0L).AsSByte());
-            const uint g = 1 << 3;
-            const uint e = 1 << 1;
-            const uint facEG = (e << 16) | g;
-            Vector128<sbyte> indexEG = Sse2.MultiplyLow(maskedEG.AsInt16(), Vector128.Create(facEG).AsInt16()).AsSByte();
+            Vector128<sbyte> maskedEG = Sse2.And(vec, s_maskVectorEG);
+
+            Vector128<sbyte> indexEG = Sse2.MultiplyLow(maskedEG.AsInt16(), s_facEGVector).AsSByte();
             Print(indexEG, nameof(indexEG));
 
             // Index F+H
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [00000000|00000000|00000000|00000000|00000000|0fffff00|00000000|000hhhhh]
             // output: [00000000|00000000|00000000|00000000|00000000|000fffff|00000000|000hhhhh]
-            Vector128<sbyte> maskedH = Sse2.And(vec, Vector128.Create(0x_00_00_00_00_00_00_00_1FL).AsSByte());
-            Vector128<sbyte> maskedF = Sse2.And(vec, Vector128.Create(0x_00_00_00_00_00_7C_00_00L).AsSByte());
+            Vector128<sbyte> maskedH = Sse2.And(vec, s_maskVectorH);
+            Vector128<sbyte> maskedF = Sse2.And(vec, s_maskVectorF);
             Vector128<sbyte> indexF = Sse2.ShiftRightLogical(maskedF.AsUInt64(), 2).AsSByte();
             Vector128<sbyte> indexFH = Sse2.Or(indexF, maskedH);
             Print(indexFH, nameof(indexFH));
@@ -180,9 +172,9 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Vector128<sbyte> Lookup(Vector128<sbyte> indices)
         {
-            Vector128<sbyte> shift = Vector128.Create((sbyte)'0');
-            Vector128<sbyte> gt9 = Sse2.CompareGreaterThan(indices, Vector128.Create((sbyte)9));
-            Vector128<sbyte> shiftAdjustment = Sse2.And(gt9, Vector128.Create((sbyte)('A' - '0' - 10)));
+            Vector128<sbyte> shift = s_shift;
+            Vector128<sbyte> gt9 = Sse2.CompareGreaterThan(indices, s_gt9);
+            Vector128<sbyte> shiftAdjustment = Sse2.And(gt9, s_shiftAdjustment);
             shift = Sse2.Add(shift, shiftAdjustment);
 
             Vector128<sbyte> res = Sse2.Add(indices, shift);
@@ -219,5 +211,30 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             short s = c1.AsInt16().GetElement(4);   // 4 = (Vector128<sbyte>.Count - sizeof(long)) / sizeof(short)
             Unsafe.WriteUnaligned(ref b, s);
         }
+        //---------------------------------------------------------------------
+        private static readonly Vector128<sbyte> s_maskVectorAC = Vector128.Create(0x_F8_00_3E_00_00_00_00_00L).AsSByte();
+        private static readonly Vector128<sbyte> s_maskVectorBD = Vector128.Create(0x_07_C0_01_F0_00_00_00_00L).AsSByte();
+        private static readonly Vector128<sbyte> s_maskVectorEG = Vector128.Create(0x_00_00_00_00_0F_80_03_E0L).AsSByte();
+        private static readonly Vector128<sbyte> s_maskVectorH = Vector128.Create(0x_00_00_00_00_00_00_00_1FL).AsSByte();
+        private static readonly Vector128<sbyte> s_maskVectorF = Vector128.Create(0x_00_00_00_00_00_7C_00_00L).AsSByte();
+
+        private const uint c = 1 << (16 - 1);
+        private const uint a = 1 << (16 - 3);
+        private const uint facAC = (a << 16) | c;
+        private static readonly Vector128<ushort> s_facACVector = Vector128.Create(facAC).AsUInt16();
+
+        private const uint d = 1 << (16 - 4);
+        private const uint b = 1 << (16 - 6);
+        private const uint facBD = (b << 16) | d;
+        private static readonly Vector128<ushort> s_facBDVector = Vector128.Create(facBD).AsUInt16();
+
+        private const uint g = 1 << 3;
+        private const uint e = 1 << 1;
+        private const uint facEG = (e << 16) | g;
+        private static readonly Vector128<short> s_facEGVector = Vector128.Create(facEG).AsInt16();
+
+        private static readonly Vector128<sbyte> s_shift = Vector128.Create((sbyte)'0');
+        private static readonly Vector128<sbyte> s_gt9 = Vector128.Create((sbyte)9);
+        private static readonly Vector128<sbyte> s_shiftAdjustment = Vector128.Create((sbyte)('A' - '0' - 10));
     }
 }

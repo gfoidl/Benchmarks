@@ -11,7 +11,7 @@ using static gfoidl.Tools.Intrinsics.Printer;
 
 namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
 {
-    internal static class CorrelationIdGenerator5
+    internal static class CorrelationIdGenerator7
     {
         // Base32 encoding - in ascii sort order for easy text based sorting
         private static readonly char[] s_encode32Chars = "0123456789ABCDEFGHIJKLMNOPQRSTUV".ToCharArray();
@@ -112,7 +112,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
                 8, 9, 9, 10, 10, 11, 11, 12,
             };
 
-            Vector128<sbyte> shuffleVec = Unsafe.As<sbyte, Vector128<sbyte>>(ref MemoryMarshal.GetReference(shuffleData));
+            Vector128<sbyte> shuffleVec = ReadVector<sbyte, sbyte>(shuffleData);
             Vector128<sbyte> vec = Ssse3.Shuffle(input, shuffleVec);
 
             Print(input, nameof(input));
@@ -122,41 +122,86 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [aaaaa000|00000000|00ccccc0|00000000|00000000|00000000|00000000|00000000]
             // output: [000aaaaa|00000000|000ccccc|00000000|00000000|00000000|00000000|00000000]
-            Vector128<sbyte> maskedAC = Sse2.And(vec, Vector128.Create(0x_F8_00_3E_00_00_00_00_00L).AsSByte());
-            const uint c = 1 << (16 - 1);
-            const uint a = 1 << (16 - 3);
-            const uint facAC = (a << 16) | c;
-            Vector128<sbyte> indexAC = Sse2.MultiplyHigh(maskedAC.AsUInt16(), Vector128.Create(facAC).AsUInt16()).AsSByte();
+            ReadOnlySpan<byte> maskACData = new byte[16]
+            {
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x00, 0xF8,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x00, 0xF8
+            };
+            Vector128<sbyte> maskAC = ReadVector<byte, sbyte>(maskACData);
+            Vector128<sbyte> maskedAC = Sse2.And(vec, maskAC);
+            ReadOnlySpan<byte> facACData = new byte[16]
+            {
+                0x00, 0x80, 0x00, 0x20,
+                0x00, 0x80, 0x00, 0x20,
+                0x00, 0x80, 0x00, 0x20,
+                0x00, 0x80, 0x00, 0x20
+            };
+            Vector128<ushort> facAC = ReadVector<byte, ushort>(facACData);
+            Vector128<sbyte> indexAC = Sse2.MultiplyHigh(maskedAC.AsUInt16(), facAC).AsSByte();
             Print(indexAC, nameof(indexAC));
 
             // Index B+D
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [00000bbb|bb000000|0000000d|dddd0000|00000000|00000000|00000000|00000000]
             // output: [00000000|000bbbbb|00000000|000ddddd|00000000|00000000|00000000|00000000]
-            Vector128<sbyte> maskedBD = Sse2.And(vec, Vector128.Create(0x_07_C0_01_F0_00_00_00_00L).AsSByte());
-            const uint d = 1 << (16 - 4);
-            const uint b = 1 << (16 - 6);
-            const uint facBD = (b << 16) | d;
-            Vector128<sbyte> indexBD = Sse2.MultiplyHigh(maskedBD.AsUInt16(), Vector128.Create(facBD).AsUInt16()).AsSByte();
+            ReadOnlySpan<byte> maskBDData = new byte[16]
+            {
+                0x00, 0x00, 0x00, 0x00, 0xF0, 0x01, 0xC0, 0x07,
+                0x00, 0x00, 0x00, 0x00, 0xF0, 0x01, 0xC0, 0x07
+            };
+            Vector128<sbyte> maskBD = ReadVector<byte, sbyte>(maskBDData);
+            Vector128<sbyte> maskedBD = Sse2.And(vec, maskBD);
+            ReadOnlySpan<byte> facBDData = new byte[16]
+            {
+                0x00, 0x10, 0x00, 0x04,
+                0x00, 0x10, 0x00, 0x04,
+                0x00, 0x10, 0x00, 0x04,
+                0x00, 0x10, 0x00, 0x04
+            };
+            Vector128<ushort> facBD = ReadVector<byte, ushort>(facBDData);
+            Vector128<sbyte> indexBD = Sse2.MultiplyHigh(maskedBD.AsUInt16(), facBD).AsSByte();
             Print(indexBD, nameof(indexBD));
 
             // Index E+G
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [00000000|00000000|00000000|00000000|0000eeee|e0000000|000000gg|ggg00000]
             // output: [00000000|00000000|00000000|00000000|000eeeee|00000000|000ggggg|00000000]
-            Vector128<sbyte> maskedEG = Sse2.And(vec, Vector128.Create(0x_00_00_00_00_0F_80_03_E0L).AsSByte());
-            const uint g = 1 << 3;
-            const uint e = 1 << 1;
-            const uint facEG = (e << 16) | g;
-            Vector128<sbyte> indexEG = Sse2.MultiplyLow(maskedEG.AsInt16(), Vector128.Create(facEG).AsInt16()).AsSByte();
+            ReadOnlySpan<byte> maskEGData = new byte[16]
+            {
+                0xE0, 0x03, 0x80, 0x0F, 0x00, 0x00, 0x00, 0x00,
+                0xE0, 0x03, 0x80, 0x0F, 0x00, 0x00, 0x00, 0x00
+            };
+            Vector128<sbyte> maskEG = ReadVector<byte, sbyte>(maskEGData);
+            Vector128<sbyte> maskedEG = Sse2.And(vec, maskEG);
+            ReadOnlySpan<byte> facEGData = new byte[16]
+            {
+                0x08, 0x00, 0x02, 0x00,
+                0x08, 0x00, 0x02, 0x00,
+                0x08, 0x00, 0x02, 0x00,
+                0x08, 0x00, 0x02, 0x00
+            };
+            Vector128<short> facEG = ReadVector<byte, short>(facEGData);
+            Vector128<sbyte> indexEG = Sse2.MultiplyLow(maskedEG.AsInt16(), facEG).AsSByte();
             Print(indexEG, nameof(indexEG));
 
             // Index F+H
             // input:  [aaaaabbb|bbcccccd|bbcccccd|ddddeeee|ddddeeee|efffffgg|efffffgg|ggghhhhh]
             // mask:   [00000000|00000000|00000000|00000000|00000000|0fffff00|00000000|000hhhhh]
             // output: [00000000|00000000|00000000|00000000|00000000|000fffff|00000000|000hhhhh]
-            Vector128<sbyte> maskedH = Sse2.And(vec, Vector128.Create(0x_00_00_00_00_00_00_00_1FL).AsSByte());
-            Vector128<sbyte> maskedF = Sse2.And(vec, Vector128.Create(0x_00_00_00_00_00_7C_00_00L).AsSByte());
+            ReadOnlySpan<byte> maskHData = new byte[16]
+            {
+                0x1F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x1F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+            };
+            ReadOnlySpan<byte> maskFData = new byte[16]
+            {
+                0x00,0x00,0x7C,0x00,0x00,0x00,0x00,0x00,
+                0x00,0x00,0x7C,0x00,0x00,0x00,0x00,0x00
+            };
+            Vector128<sbyte> maskH = ReadVector<byte, sbyte>(maskHData);
+            Vector128<sbyte> maskF = ReadVector<byte, sbyte>(maskFData);
+            Vector128<sbyte> maskedH = Sse2.And(vec, maskH);
+            Vector128<sbyte> maskedF = Sse2.And(vec, maskF);
             Vector128<sbyte> indexF = Sse2.ShiftRightLogical(maskedF.AsUInt64(), 2).AsSByte();
             Vector128<sbyte> indexFH = Sse2.Or(indexF, maskedH);
             Print(indexFH, nameof(indexFH));
@@ -170,7 +215,7 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
             Print(indices, nameof(indices));
 
             ReadOnlySpan<sbyte> reverseMaskData = new sbyte[16] { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0 };
-            Vector128<sbyte> reverseMask = Unsafe.As<sbyte, Vector128<sbyte>>(ref MemoryMarshal.GetReference(reverseMaskData));
+            Vector128<sbyte> reverseMask = ReadVector<sbyte, sbyte>(reverseMaskData);
             indices = Ssse3.Shuffle(indices, reverseMask);
             Print(indices, $"{nameof(indices)}-1");
 
@@ -180,9 +225,15 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Vector128<sbyte> Lookup(Vector128<sbyte> indices)
         {
-            Vector128<sbyte> shift = Vector128.Create((sbyte)'0');
-            Vector128<sbyte> gt9 = Sse2.CompareGreaterThan(indices, Vector128.Create((sbyte)9));
-            Vector128<sbyte> shiftAdjustment = Sse2.And(gt9, Vector128.Create((sbyte)('A' - '0' - 10)));
+            const byte c0 = (byte)'0';
+            ReadOnlySpan<byte> shiftData = new byte[16] { c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0, c0 };
+            ReadOnlySpan<byte> gt9Data = new byte[16] { 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 };
+            const byte c1 = (byte)('A' - '0' - 10);
+            ReadOnlySpan<byte> shiftAdjustmentData = new byte[16] { c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1, c1 };
+
+            Vector128<sbyte> shift = ReadVector<byte, sbyte>(shiftData);
+            Vector128<sbyte> gt9 = Sse2.CompareGreaterThan(indices, ReadVector<byte, sbyte>(gt9Data));
+            Vector128<sbyte> shiftAdjustment = Sse2.And(gt9, ReadVector<byte, sbyte>(shiftAdjustmentData));
             shift = Sse2.Add(shift, shiftAdjustment);
 
             Vector128<sbyte> res = Sse2.Add(indices, shift);
@@ -218,6 +269,15 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
 
             short s = c1.AsInt16().GetElement(4);   // 4 = (Vector128<sbyte>.Count - sizeof(long)) / sizeof(short)
             Unsafe.WriteUnaligned(ref b, s);
+        }
+        //---------------------------------------------------------------------
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static Vector128<TVector> ReadVector<T, TVector>(ReadOnlySpan<T> span)
+            where T : unmanaged
+            where TVector : unmanaged
+        {
+            ref T r = ref MemoryMarshal.GetReference(span);
+            return Unsafe.As<T, Vector128<TVector>>(ref r);
         }
     }
 }

@@ -23,5 +23,11 @@ namespace CorrelationIdGenerator_Benchmarks
         //---------------------------------------------------------------------
         [Benchmark]
         public string Simd() => CorrelationIdGenerator5.GetNextId();
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public string Simd_StaticInit() => CorrelationIdGenerator6.GetNextId();
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public string Simd_ROSTrick() => CorrelationIdGenerator7.GetNextId();
     }
 }
