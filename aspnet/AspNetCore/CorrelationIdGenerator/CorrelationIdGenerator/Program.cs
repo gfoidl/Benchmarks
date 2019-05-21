@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure;
+using System.Diagnostics;
+using System.Runtime.Intrinsics.X86;
 
 #if !DEBUG
 using BenchmarkDotNet.Running;
@@ -11,6 +13,8 @@ namespace CorrelationIdGenerator_Benchmarks
     {
         static void Main(string[] args)
         {
+            Debug.Assert(Ssse3.IsSupported);
+
             //long lastId = DateTime.UtcNow.Ticks;
             //long lastId = 0x_00_00_00_00_00_00_00_FF - 1;
             //long lastId = 0x_00_00_00_00_00_00_FF_FF - 1;
@@ -76,7 +80,8 @@ namespace CorrelationIdGenerator_Benchmarks
 
             if (id1 != id2 || id1 != id3 || id1 != id4 || id1 != id5 || id1 != id6 || id1 != id7 || id1 != id8) Environment.Exit(1);
 #if !DEBUG
-            BenchmarkRunner.Run<GetNextIdBenchmark>();
+            //BenchmarkRunner.Run<GetNextIdBenchmark>();
+            BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
 #endif
         }
     }
