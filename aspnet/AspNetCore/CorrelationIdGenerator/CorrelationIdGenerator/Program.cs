@@ -31,26 +31,35 @@ namespace CorrelationIdGenerator_Benchmarks
             CorrelationIdGenerator5.LastId = lastId;
             CorrelationIdGenerator6.LastId = lastId;
             CorrelationIdGenerator7.LastId = lastId;
+            CorrelationIdGenerator8.LastId = lastId;
+            CorrelationIdGenerator9.LastId = lastId;
 
-            string id1 = CorrelationIdGenerator.GetNextId();
-            string id2 = CorrelationIdGenerator1.GetNextId();
-            string id3 = CorrelationIdGenerator2.GetNextId();
-            string id4 = CorrelationIdGenerator3.GetNextId();
-            string id5 = CorrelationIdGenerator4.GetNextId();
-            string id6 = CorrelationIdGenerator5.GetNextId();
-            string id7 = CorrelationIdGenerator6.GetNextId();
-            string id8 = CorrelationIdGenerator7.GetNextId();
+            gfoidl.Tools.Intrinsics.Printer.EnablePrint = false;
+            string id0 = CorrelationIdGenerator.GetNextId();
+            string id1 = CorrelationIdGenerator1.GetNextId();
+            string id2 = CorrelationIdGenerator2.GetNextId();
+            string id3 = CorrelationIdGenerator3.GetNextId();
+            string id4 = CorrelationIdGenerator4.GetNextId();
+            string id5 = CorrelationIdGenerator5.GetNextId();
+            string id6 = CorrelationIdGenerator6.GetNextId();
+            string id7 = CorrelationIdGenerator7.GetNextId();
+            gfoidl.Tools.Intrinsics.Printer.EnablePrint = true;
+            string id8 = CorrelationIdGenerator8.GetNextId();
+            Console.WriteLine();
+            string id9 = CorrelationIdGenerator9.GetNextId();
 
             Console.WriteLine();
             Console.WriteLine("value: 0x{0:x2}", lastId + 1);
-            Console.WriteLine(id1);
+            Console.WriteLine(id0);
+            //Console.WriteLine(id1);
             //Console.WriteLine(id2);
             //Console.WriteLine(id3);
             //Console.WriteLine(id4);
             //Console.WriteLine(id5);
-            Console.WriteLine(id6);
-            Console.WriteLine(id7);
-            Console.WriteLine(id8);
+            //Console.WriteLine(id6);
+            //Console.WriteLine(id7);
+            //Console.WriteLine(id8);
+            Console.WriteLine(id9);
 
             Console.WriteLine();
             Console.WriteLine(CorrelationIdGenerator.GetNextId());
@@ -59,26 +68,15 @@ namespace CorrelationIdGenerator_Benchmarks
 
             Console.WriteLine();
             gfoidl.Tools.Intrinsics.Printer.EnablePrint = false;
-            Console.WriteLine(CorrelationIdGenerator5.GetNextId());
-            Console.WriteLine(CorrelationIdGenerator5.GetNextId());
-            Console.WriteLine(CorrelationIdGenerator5.GetNextId());
+            Console.WriteLine(CorrelationIdGenerator9.GetNextId());
+            Console.WriteLine(CorrelationIdGenerator9.GetNextId());
+            Console.WriteLine(CorrelationIdGenerator9.GetNextId());
             gfoidl.Tools.Intrinsics.Printer.EnablePrint = true;
 
-            Console.WriteLine();
-            gfoidl.Tools.Intrinsics.Printer.EnablePrint = false;
-            Console.WriteLine(CorrelationIdGenerator6.GetNextId());
-            Console.WriteLine(CorrelationIdGenerator6.GetNextId());
-            Console.WriteLine(CorrelationIdGenerator6.GetNextId());
-            gfoidl.Tools.Intrinsics.Printer.EnablePrint = true;
 
-            Console.WriteLine();
-            gfoidl.Tools.Intrinsics.Printer.EnablePrint = false;
-            Console.WriteLine(CorrelationIdGenerator7.GetNextId());
-            Console.WriteLine(CorrelationIdGenerator7.GetNextId());
-            Console.WriteLine(CorrelationIdGenerator7.GetNextId());
-            gfoidl.Tools.Intrinsics.Printer.EnablePrint = true;
 
-            if (id1 != id2 || id1 != id3 || id1 != id4 || id1 != id5 || id1 != id6 || id1 != id7 || id1 != id8) Environment.Exit(1);
+            if (id0 != id1 || id0 != id2 || id0 != id3 || id0 != id4 || id0 != id5 || id0 != id6 || id0 != id7 || id0 != id8 || id0 != id9)
+                Environment.Exit(1);
 #if !DEBUG
             //BenchmarkRunner.Run<GetNextIdBenchmark>();
             BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);

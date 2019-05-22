@@ -54,6 +54,20 @@ namespace CorrelationIdGenerator_Benchmarks
             return CorrelationIdGenerator7.GetNextId();
         }
         //---------------------------------------------------------------------
+        [Benchmark]
+        public string Simd_ROSTrick_ReuseMask()
+        {
+            this.UseCache();
+            return CorrelationIdGenerator8.GetNextId();
+        }
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public string Simd_NoStaticData()
+        {
+            this.UseCache();
+            return CorrelationIdGenerator9.GetNextId();
+        }
+        //---------------------------------------------------------------------
         private unsafe void UseCache()
         {
             Unsafe.InitBlockUnaligned(_data.ToPointer(), 0, NoOfBytesForData);
