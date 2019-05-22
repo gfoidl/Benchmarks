@@ -194,10 +194,11 @@ namespace Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure
 
             // 26 - 16 = 10 bytes remain
 
-            // sizeof(l) = 8
-            long l = c1.AsInt64().ToScalar();
-            Unsafe.WriteUnaligned(ref b, l);
-            b = ref Unsafe.Add(ref b, sizeof(long));
+            // double has better code-gen than long -- https://github.com/dotnet/coreclr/issues/24710
+            // sizeof(d) = 8
+            double d = c1.AsDouble().ToScalar();
+            Unsafe.WriteUnaligned(ref b, d);
+            b = ref Unsafe.Add(ref b, sizeof(double));
 
             // 10 - 8 = 2 bytes remain
 
