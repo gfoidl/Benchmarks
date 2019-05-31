@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TieredCompilation>false</TieredCompilation>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <DefineConstants>$(DefineConstants);BIT64</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+    </ItemGroup>
+
+</Project>
