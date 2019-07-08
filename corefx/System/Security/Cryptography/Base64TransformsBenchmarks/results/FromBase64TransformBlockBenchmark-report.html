@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Base64TransformsBenchmarks.Benchmarks.FromBase64TransformBlockBenchmark-20190621-091858</title>
+<title>Base64TransformsBenchmarks.Benchmarks.FromBase64TransformBlockBenchmark-20190709-115850</title>
 
 <style type="text/css">
     table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -15,17 +15,36 @@
 <pre><code>
 BenchmarkDotNet=v0.11.5, OS=ubuntu 18.10
 Intel Xeon CPU 2.00GHz, 1 CPU, 2 logical cores and 1 physical core
-.NET Core SDK=3.0.100-preview7-012550
-  [Host]     : .NET Core 3.0.0-preview7-27821-04 (CoreCLR 4.700.19.32101, CoreFX 4.700.19.32001), 64bit RyuJIT
-  DefaultJob : .NET Core 3.0.0-preview7-27821-04 (CoreCLR 4.700.19.32101, CoreFX 4.700.19.32001), 64bit RyuJIT
+.NET Core SDK=3.0.100-preview8-012950
+  [Host]     : .NET Core 3.0.0-preview8-27908-08 (CoreCLR 4.700.19.35801, CoreFX 4.700.19.35806), 64bit RyuJIT
+  DefaultJob : .NET Core 3.0.0-preview8-27908-08 (CoreCLR 4.700.19.35801, CoreFX 4.700.19.35806), 64bit RyuJIT
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
+<thead><tr><th>Method</th><th>InputCount</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>Original</td><td>197.2 ns</td><td>0.7589 ns</td><td>0.6728 ns</td><td>1.00</td><td>0.0043</td><td>-</td><td>-</td><td>128 B</td>
-</tr><tr><td>PR</td><td>156.2 ns</td><td>0.7158 ns</td><td>0.6695 ns</td><td>0.79</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</thead><tbody><tr><td>Original</td><td>1</td><td>81.06 ns</td><td>0.7673 ns</td><td>0.6802 ns</td><td>1.00</td><td>0.0019</td><td>-</td><td>-</td><td>56 B</td>
+</tr><tr><td>PR</td><td>1</td><td>38.93 ns</td><td>0.2439 ns</td><td>0.2162 ns</td><td>0.48</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_4</td><td>1</td><td>38.96 ns</td><td>0.2304 ns</td><td>0.2042 ns</td><td>0.48</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_32</td><td>1</td><td>38.37 ns</td><td>0.1922 ns</td><td>0.1704 ns</td><td>0.47</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_64</td><td>1</td><td>40.19 ns</td><td>0.4558 ns</td><td>0.4264 ns</td><td>0.50</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_128</td><td>1</td><td>41.50 ns</td><td>0.2317 ns</td><td>0.2167 ns</td><td>0.51</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_4_128</td><td>1</td><td>38.30 ns</td><td>0.1482 ns</td><td>0.1314 ns</td><td>0.47</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>Original</td><td>4</td><td>208.24 ns</td><td>1.0169 ns</td><td>0.9015 ns</td><td>1.00</td><td>0.0043</td><td>-</td><td>-</td><td>128 B</td>
+</tr><tr><td>PR</td><td>4</td><td>159.00 ns</td><td>0.5854 ns</td><td>0.5476 ns</td><td>0.76</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_4</td><td>4</td><td>85.67 ns</td><td>0.3031 ns</td><td>0.2687 ns</td><td>0.41</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_32</td><td>4</td><td>85.02 ns</td><td>0.4771 ns</td><td>0.4229 ns</td><td>0.41</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_64</td><td>4</td><td>88.21 ns</td><td>0.5386 ns</td><td>0.5039 ns</td><td>0.42</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_128</td><td>4</td><td>89.92 ns</td><td>1.0729 ns</td><td>1.0036 ns</td><td>0.43</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_4_128</td><td>4</td><td>87.16 ns</td><td>0.8847 ns</td><td>0.7842 ns</td><td>0.42</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>Original</td><td>10</td><td>289.04 ns</td><td>2.6551 ns</td><td>2.4836 ns</td><td>1.00</td><td>0.0052</td><td>-</td><td>-</td><td>160 B</td>
+</tr><tr><td>PR</td><td>10</td><td>347.27 ns</td><td>1.4561 ns</td><td>1.3620 ns</td><td>1.20</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_4</td><td>10</td><td>370.51 ns</td><td>2.0081 ns</td><td>1.7801 ns</td><td>1.28</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_32</td><td>10</td><td>164.76 ns</td><td>1.0349 ns</td><td>0.9680 ns</td><td>0.57</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_64</td><td>10</td><td>169.20 ns</td><td>1.1115 ns</td><td>0.9853 ns</td><td>0.59</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_128</td><td>10</td><td>174.45 ns</td><td>1.1734 ns</td><td>1.0976 ns</td><td>0.60</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</tr><tr><td>PR_4_128</td><td>10</td><td>171.95 ns</td><td>0.8995 ns</td><td>0.8414 ns</td><td>0.59</td><td>-</td><td>-</td><td>-</td><td>-</td>
 </tr></tbody></table>
 </body>
 </html>

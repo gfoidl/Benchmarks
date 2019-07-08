@@ -12,110 +12,14 @@ using System.Runtime.CompilerServices;
 
 namespace System.Security.Cryptography
 {
-    public enum FromBase64TransformMode
-    {
-        IgnoreWhiteSpaces = 0,
-        DoNotIgnoreWhiteSpaces = 1,
-    }
-
-    public class ToBase64Transform : ICryptoTransform
-    {
-        // converting to Base64 takes 3 bytes input and generates 4 bytes output
-        public int InputBlockSize => 3;
-        public int OutputBlockSize => 4;
-        public bool CanTransformMultipleBlocks => false;
-        public virtual bool CanReuseTransform => true;
-
-        public int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
-        {
-            // inputCount < InputBlockSize is not allowed
-            ThrowHelper.ValidateTransformBlock(inputBuffer, inputOffset, inputCount, InputBlockSize);
-
-            if (outputBuffer == null)
-                ThrowHelper.ThrowArgumentNull(ThrowHelper.ExceptionArgument.outputBuffer);
-
-            // For now, only convert 3 bytes to 4
-            Span<byte> input = inputBuffer.AsSpan(inputOffset, InputBlockSize);
-            Span<byte> output = outputBuffer.AsSpan(outputOffset, OutputBlockSize);
-
-            OperationStatus status = Base64.EncodeToUtf8(input, output, out int consumed, out int written, isFinalBlock: false);
-
-            if (written != OutputBlockSize)
-            {
-                ThrowHelper.ThrowCryptographicException();
-            }
-
-            Debug.Assert(status == OperationStatus.NeedMoreData);
-            Debug.Assert(consumed == InputBlockSize);
-
-            return written;
-        }
-
-        public byte[] TransformFinalBlock(byte[] inputBuffer, int inputOffset, int inputCount)
-        {
-            // inputCount <= InputBlockSize is allowed
-            ThrowHelper.ValidateTransformBlock(inputBuffer, inputOffset, inputCount);
-
-            // Convert.ToBase64CharArray already does padding, so all we have to check is that
-            // the inputCount wasn't 0
-            if (inputCount == 0)
-            {
-                return Array.Empty<byte>();
-            }
-            else if (inputCount > InputBlockSize)
-            {
-                ThrowHelper.ThrowArgumentOutOfRange(ThrowHelper.ExceptionArgument.inputCount);
-            }
-
-            // Again, for now only a block at a time
-            Span<byte> input = inputBuffer.AsSpan(inputOffset, inputCount);
-            byte[] output = new byte[OutputBlockSize];
-
-            OperationStatus status = Base64.EncodeToUtf8(input, output, out int consumed, out int written, isFinalBlock: true);
-
-            if (written != OutputBlockSize)
-            {
-                ThrowHelper.ThrowCryptographicException();
-            }
-
-            Debug.Assert(status == OperationStatus.Done);
-            Debug.Assert(consumed == inputCount);
-
-            return output;
-        }
-
-        // Must implement IDisposable, but in this case there's nothing to do.
-
-        public void Dispose()
-        {
-            Clear();
-        }
-
-        public void Clear()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing) { }
-
-        ~ToBase64Transform()
-        {
-            // A finalizer is not necessary here, however since we shipped a finalizer that called
-            // Dispose(false) in desktop v2.0, we need to keep it in case any existing code had subclassed
-            // this transform and expects to have a base class finalizer call its dispose method.
-            Dispose(false);
-        }
-    }
-
-    public class FromBase64Transform : ICryptoTransform
+    public class FromBase64Transform_64 : ICryptoTransform
     {
         private byte[] _inputBuffer = new byte[4];
         private int _inputIndex;
         private readonly FromBase64TransformMode _whitespaces;
 
-        public FromBase64Transform() : this(FromBase64TransformMode.IgnoreWhiteSpaces) { }
-        public FromBase64Transform(FromBase64TransformMode whitespaces)
+        public FromBase64Transform_64() : this(FromBase64TransformMode.IgnoreWhiteSpaces) { }
+        public FromBase64Transform_64(FromBase64TransformMode whitespaces)
         {
             _whitespaces = whitespaces;
         }
@@ -140,8 +44,8 @@ namespace System.Security.Cryptography
 
             // The common case is inputCount = InputBlockSize
             byte[] tmpBufferArray = null;
-            Span<byte> tmpBuffer = stackalloc byte[InputBlockSize];
-            if (inputCount > InputBlockSize)
+            Span<byte> tmpBuffer = stackalloc byte[64];
+            if (inputCount > tmpBuffer.Length)
             {
                 tmpBuffer = tmpBufferArray = CryptoPool.Rent(inputCount);
             }
@@ -365,51 +269,9 @@ namespace System.Security.Cryptography
             }
         }
 
-        ~FromBase64Transform()
+        ~FromBase64Transform_64()
         {
             Dispose(false);
-        }
-    }
-
-    internal class ThrowHelper
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ValidateTransformBlock(byte[] inputBuffer, int inputOffset, int inputCount)
-        {
-            if (inputBuffer == null)
-                ThrowArgumentNull(ExceptionArgument.inputBuffer);
-
-            if ((uint)inputCount > inputBuffer.Length)
-                ThrowArgumentOutOfRange(ExceptionArgument.inputCount);
-
-            if (inputOffset < 0)
-                ThrowArgumentOutOfRange(ExceptionArgument.inputOffset);
-
-            if ((inputBuffer.Length - inputCount) < inputOffset)
-                ThrowInvalidOffLen();
-        }
-
-        public static void ValidateTransformBlock(byte[] inputBuffer, int inputOffset, int inputCount, int inputBlockSize)
-        {
-            ValidateTransformBlock(inputBuffer, inputOffset, inputCount);
-
-            if (inputCount < inputBlockSize)
-                ThrowArgumentOutOfRange(ExceptionArgument.inputCount);
-        }
-
-        public static void ThrowArgumentNull(ExceptionArgument argument) => throw new ArgumentNullException(argument.ToString());
-        public static void ThrowArgumentOutOfRange(ExceptionArgument argument) => throw new ArgumentOutOfRangeException(argument.ToString(), SR.ArgumentOutOfRange_NeedNonNegNum);
-        public static void ThrowInvalidOffLen() => throw new ArgumentException(SR.Argument_InvalidOffLen);
-        public static void ThrowObjectDisposed() => throw new ObjectDisposedException(null, SR.ObjectDisposed_Generic);
-        public static void ThrowCryptographicException() => throw new CryptographicException(SR.Cryptography_SSE_InvalidDataSize);
-        public static void ThrowBase64FormatException() => throw new FormatException();
-
-        public enum ExceptionArgument
-        {
-            inputBuffer,
-            outputBuffer,
-            inputOffset,
-            inputCount
         }
     }
 }
