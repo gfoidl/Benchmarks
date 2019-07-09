@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Base64TransformsBenchmarks.Benchmarks.FromBase64TransformBlockBenchmark-20190621-091858</title>
+<title>Base64TransformsBenchmarks.Benchmarks.FromBase64TransformBlockBenchmark-20190709-121722</title>
 
 <style type="text/css">
     table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -15,17 +15,17 @@
 <pre><code>
 BenchmarkDotNet=v0.11.5, OS=ubuntu 18.10
 Intel Xeon CPU 2.00GHz, 1 CPU, 2 logical cores and 1 physical core
-.NET Core SDK=3.0.100-preview7-012550
-  [Host]     : .NET Core 3.0.0-preview7-27821-04 (CoreCLR 4.700.19.32101, CoreFX 4.700.19.32001), 64bit RyuJIT
-  DefaultJob : .NET Core 3.0.0-preview7-27821-04 (CoreCLR 4.700.19.32101, CoreFX 4.700.19.32001), 64bit RyuJIT
+.NET Core SDK=3.0.100-preview8-012950
+  [Host]     : .NET Core 3.0.0-preview8-27908-08 (CoreCLR 4.700.19.35801, CoreFX 4.700.19.35806), 64bit RyuJIT
+  DefaultJob : .NET Core 3.0.0-preview8-27908-08 (CoreCLR 4.700.19.35801, CoreFX 4.700.19.35806), 64bit RyuJIT
 </code></pre>
 <pre><code></code></pre>
 
 <table>
 <thead><tr><th>Method</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>Original</td><td>197.2 ns</td><td>0.7589 ns</td><td>0.6728 ns</td><td>1.00</td><td>0.0043</td><td>-</td><td>-</td><td>128 B</td>
-</tr><tr><td>PR</td><td>156.2 ns</td><td>0.7158 ns</td><td>0.6695 ns</td><td>0.79</td><td>-</td><td>-</td><td>-</td><td>-</td>
+</thead><tbody><tr><td>Original</td><td>204.66 ns</td><td>1.0553 ns</td><td>0.9355 ns</td><td>1.00</td><td>0.0043</td><td>-</td><td>-</td><td>128 B</td>
+</tr><tr><td>PR</td><td>85.59 ns</td><td>0.4166 ns</td><td>0.3693 ns</td><td>0.42</td><td>-</td><td>-</td><td>-</td><td>-</td>
 </tr></tbody></table>
 </body>
 </html>

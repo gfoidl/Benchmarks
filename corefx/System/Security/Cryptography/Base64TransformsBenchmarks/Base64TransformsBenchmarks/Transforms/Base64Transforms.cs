@@ -122,6 +122,8 @@ namespace System.Security.Cryptography
 
         // Converting from Base64 generates 3 bytes output from each 4 bytes input block
         private const int Base64InputBlockSize = 4;
+        // A buffer with size 32 is stack allocated, to cover common cases and benefit from JIT's optimizations.
+        private const int StackAllocSize = 32;
         public int InputBlockSize => 1;
         public int OutputBlockSize => 3;
         public bool CanTransformMultipleBlocks => false;
@@ -140,8 +142,8 @@ namespace System.Security.Cryptography
 
             // The common case is inputCount = InputBlockSize
             byte[] tmpBufferArray = null;
-            Span<byte> tmpBuffer = stackalloc byte[InputBlockSize];
-            if (inputCount > InputBlockSize)
+            Span<byte> tmpBuffer = stackalloc byte[StackAllocSize];
+            if (inputCount > StackAllocSize)
             {
                 tmpBuffer = tmpBufferArray = CryptoPool.Rent(inputCount);
             }
@@ -149,7 +151,7 @@ namespace System.Security.Cryptography
             tmpBuffer = GetTempBuffer(inputBuffer.AsSpan(inputOffset, inputCount), tmpBuffer);
             int bytesToTransform = _inputIndex + tmpBuffer.Length;
 
-            // To little data to decode: save data to _inputBuffer, so it can be transformed later
+            // Too little data to decode: save data to _inputBuffer, so it can be transformed later
             if (bytesToTransform < Base64InputBlockSize)
             {
                 tmpBuffer.CopyTo(_inputBuffer.AsSpan(_inputIndex));
@@ -161,8 +163,7 @@ namespace System.Security.Cryptography
                 return 0;
             }
 
-            ConvertFromBase64(tmpBuffer, outputBuffer.AsSpan(outputOffset), out int consumed, out int written);
-            Debug.Assert(consumed == bytesToTransform);
+            ConvertFromBase64(tmpBuffer, outputBuffer.AsSpan(outputOffset), out _, out int written);
 
             ReturnToCryptoPool(tmpBufferArray, tmpBuffer.Length);
 
@@ -175,7 +176,9 @@ namespace System.Security.Cryptography
             ThrowHelper.ValidateTransformBlock(inputBuffer, inputOffset, inputCount);
 
             if (_inputBuffer == null)
+            {
                 ThrowHelper.ThrowObjectDisposed();
+            }
 
             if (inputCount == 0)
             {
@@ -184,8 +187,8 @@ namespace System.Security.Cryptography
 
             // The common case is inputCount <= Base64InputBlockSize
             byte[] tmpBufferArray = null;
-            Span<byte> tmpBuffer = stackalloc byte[Base64InputBlockSize];
-            if (inputCount > Base64InputBlockSize)
+            Span<byte> tmpBuffer = stackalloc byte[StackAllocSize];
+            if (inputCount > StackAllocSize)
             {
                 tmpBuffer = tmpBufferArray = CryptoPool.Rent(inputCount);
             }
@@ -193,7 +196,7 @@ namespace System.Security.Cryptography
             tmpBuffer = GetTempBuffer(inputBuffer.AsSpan(inputOffset, inputCount), tmpBuffer);
             int bytesToTransform = _inputIndex + tmpBuffer.Length;
 
-            // To little data to decode
+            // Too little data to decode
             if (bytesToTransform < Base64InputBlockSize)
             {
                 // reinitialize the transform
@@ -208,7 +211,6 @@ namespace System.Security.Cryptography
             byte[] output = new byte[outputSize];
 
             ConvertFromBase64(tmpBuffer, output, out int consumed, out int written);
-            Debug.Assert(consumed == bytesToTransform);
             Debug.Assert(written == outputSize);
 
             ReturnToCryptoPool(tmpBufferArray, tmpBuffer.Length);
@@ -247,18 +249,17 @@ namespace System.Security.Cryptography
 
         private static bool IsWhitespace(byte value)
         {
-            // We assume ASCII encoded data. If there is any non-ASCII char, so it is invalid
+            // We assume ASCII encoded data. If there is any non-ASCII char, it is invalid
             // Base64 and will be caught during decoding.
 
             // SPACE        32
             // TAB           9
             // LF           10
-            // VTAB         11
+            // VTAB         11 
             // FORM FEED    12
             // CR           13
 
-            // RyuJIT produces better code with the ternary. This JIT-bug is tracked in https://github.com/dotnet/coreclr/issues/914
-            return value == 32 || ((uint)value - 9 <= (13 - 9)) ? true : false;
+            return value == 32 || ((uint)value - 9 <= (13 - 9));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -287,16 +288,14 @@ namespace System.Security.Cryptography
         private void ConvertFromBase64(Span<byte> tmpBuffer, Span<byte> outputBuffer, out int consumed, out int written)
         {
             int bytesToTransform = _inputIndex + tmpBuffer.Length;
+            Debug.Assert(bytesToTransform >= 4);
 
-            // Common case for bytesToTransform = 4
             byte[] transformBufferArray = null;
-            Span<byte> transformBuffer = stackalloc byte[4];
-            if (bytesToTransform > 4)
+            Span<byte> transformBuffer = stackalloc byte[StackAllocSize];
+            if (bytesToTransform > StackAllocSize)
             {
                 transformBuffer = transformBufferArray = CryptoPool.Rent(bytesToTransform);
             }
-
-            transformBuffer = transformBuffer.Slice(0, bytesToTransform);
 
             // Copy _inputBuffer to transformBuffer and append tmpBuffer
             Debug.Assert(_inputIndex < _inputBuffer.Length);
@@ -305,12 +304,18 @@ namespace System.Security.Cryptography
 
             // Save data that won't be transformed to _inputBuffer, so it can be transformed later
             _inputIndex = bytesToTransform & 3;     // bit hack for % 4
+            bytesToTransform -= _inputIndex;        // only transform up to the next multiple of 4
             Debug.Assert(_inputIndex < _inputBuffer.Length);
             tmpBuffer.Slice(tmpBuffer.Length - _inputIndex).CopyTo(_inputBuffer);
 
+            transformBuffer = transformBuffer.Slice(0, bytesToTransform);
             OperationStatus status = Base64.DecodeFromUtf8(transformBuffer, outputBuffer, out consumed, out written);
 
-            if (status != OperationStatus.Done)
+            if (status == OperationStatus.Done)
+            {
+                Debug.Assert(consumed == bytesToTransform);
+            }
+            else
             {
                 Debug.Assert(status == OperationStatus.InvalidData);
                 ThrowHelper.ThrowBase64FormatException();
@@ -385,7 +390,6 @@ namespace System.Security.Cryptography
                 ThrowInvalidOffLen();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ValidateTransformBlock(byte[] inputBuffer, int inputOffset, int inputCount, int inputBlockSize)
         {
             ValidateTransformBlock(inputBuffer, inputOffset, inputCount);
@@ -399,7 +403,7 @@ namespace System.Security.Cryptography
         public static void ThrowInvalidOffLen() => throw new ArgumentException(SR.Argument_InvalidOffLen);
         public static void ThrowObjectDisposed() => throw new ObjectDisposedException(null, SR.ObjectDisposed_Generic);
         public static void ThrowCryptographicException() => throw new CryptographicException(SR.Cryptography_SSE_InvalidDataSize);
-        internal static void ThrowBase64FormatException() => throw new FormatException();
+        public static void ThrowBase64FormatException() => throw new FormatException();
 
         public enum ExceptionArgument
         {
