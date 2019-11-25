@@ -98,6 +98,7 @@ namespace Span_reverse
     [GenericTypeArguments(typeof(byte))]
     [GenericTypeArguments(typeof(short))]
     [GenericTypeArguments(typeof(int))]
+    [GenericTypeArguments(typeof(long))]
     [GenericTypeArguments(typeof(Size16))]
     [GenericTypeArguments(typeof(Size32))]
     [GenericTypeArguments(typeof(string))]
