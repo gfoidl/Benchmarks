@@ -78,18 +78,14 @@ namespace Reduction_sum
         [MethodImpl(MethodImplOptions.NoInlining)]
         public double Intrinsics()
         {
-            Vector256<double> a = Unsafe.As<Vector<double>, Vector256<double>>(ref _vec);
-            Vector256<double> tmp = Avx.HorizontalAdd(a, a);
-            Vector128<double> hi128 = Avx.ExtractVector128(tmp, 1);
-
-            // TODO: check bad codegen (stack shuffle)
-            // https://github.com/dotnet/coreclr/issues/17207
-            //Vector128<double> lo128 = Unsafe.As<Vector256<double>, Vector128<double>>(ref tmp);
-            Vector128<double> lo128 = Avx.GetLowerHalf<double>(tmp);
+            Vector256<double> a     = Unsafe.As<Vector<double>, Vector256<double>>(ref _vec);
+            Vector256<double> tmp   = Avx.HorizontalAdd(a, a);
+            Vector128<double> lo128 = tmp.GetLower();
+            Vector128<double> hi128 = tmp.GetUpper();
 
             Vector128<double> s = Sse2.Add(lo128, hi128);
 
-            return Sse2.ConvertToDouble(s);
+            return s.ToScalar();
         }
     }
 }
