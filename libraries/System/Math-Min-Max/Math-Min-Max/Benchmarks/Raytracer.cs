@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using Math_Min_Max.Benchmarks;
 
 namespace Math_Min_Max.Benchmarks
 {
@@ -10,52 +9,13 @@ namespace Math_Min_Max.Benchmarks
     {
         public void Run()
         {
-            var defaultTracer          = new PostcardSizedRaytracerDotNet.Program<DefaultMath>(new DefaultMath());
-            var inlinedOptimizedTracer = new PostcardSizedRaytracerDotNet.Program<InlinedOptimizedMath>(new InlinedOptimizedMath());
-            var vectorizedTracer       = new PostcardSizedRaytracerDotNet.Program<VectorizedMath>(new VectorizedMath());
-
             var stopwatch = new Stopwatch();
 
             stopwatch.Restart();
-            defaultTracer.Run();
+            PostcardSizedRaytracerDotNet.Program.Run();
             stopwatch.Stop();
-            long elapsedDefault = stopwatch.ElapsedMilliseconds;
-
-            stopwatch.Restart();
-            inlinedOptimizedTracer.Run();
-            stopwatch.Stop();
-            long elapsedInlinedOptimized = stopwatch.ElapsedMilliseconds;
-
-            stopwatch.Restart();
-            vectorizedTracer.Run();
-            stopwatch.Stop();
-            long elapsedVectorized = stopwatch.ElapsedMilliseconds;
-
-            Console.WriteLine();
-            Console.WriteLine($"Default:            {elapsedDefault} ms");
-            Console.WriteLine($"InlinedOptimized:   {elapsedInlinedOptimized} ms");
-            Console.WriteLine($"Vectorized:         {elapsedVectorized} ms");
+            Console.WriteLine($"\nTime: {stopwatch.ElapsedMilliseconds} ms");
         }
-
-        private struct DefaultMath : IMath
-        {
-            public float Min(float a, float b) => Variants.Default.Min(a, b);
-        }
-
-        private struct InlinedOptimizedMath : IMath
-        {
-            public float Min(float a, float b) => Variants.InlinedOptimized.Min(a, b);
-        }
-
-        private struct VectorizedMath : IMath
-        {
-            public float Min(float a, float b) => Variants.Vectorized.Min(a, b);
-        }
-    }
-
-    internal interface IMath
-    {
-        float Min(float a, float b);
     }
 }
 
@@ -100,19 +60,17 @@ namespace PostcardSizedRaytracerDotNet
         }
     }
 
-    class Program<TMath> where TMath : IMath
+    static class Program
     {
-        private readonly TMath _math;
-
-        public Program(TMath math) => _math = math;
-
         // Helper method to make porting easier, we can just write 'Vec(...)' instead of 'new Vec(..)'
         public static Vec Vec(float a, float b, float c = 0)
         {
             return new Vec(a, b, c);
         }
 
-        private float min(float l, float r) => _math.Min(l, r);
+        //private static float min(float l, float r) => Math_Min_Max.Variants.Default.Min(l, r);
+        //private static float min(float l, float r) => Math_Min_Max.Variants.InlinedOptimized.Min(l, r);
+        private static float min(float l, float r) => Math_Min_Max.Variants.Vectorized.Min(l, r);
 
         private static Random random = new Random();
 
@@ -178,7 +136,7 @@ namespace PostcardSizedRaytracerDotNet
         // space carved by
         // lowerLeft vertex and opposite rectangle vertex upperRight.    
         //[MethodImpl(MethodImplOptions.AggressiveInlining)] // This causes .NET Core to be x3 slower!!
-        float BoxTest(Vec position, Vec lowerLeft, Vec upperRight)
+        static float BoxTest(Vec position, Vec lowerLeft, Vec upperRight)
         {
             lowerLeft = position + (lowerLeft * -1.0f);
             upperRight = upperRight + (position * -1.0f);
@@ -207,7 +165,7 @@ namespace PostcardSizedRaytracerDotNet
 
         // Sample the world using Signed Distance Fields.
         //[MethodImpl(MethodImplOptions.AggressiveInlining)] // This causes .NET Core to be *way* (x5) slower!!
-        float QueryDatabase(Vec position, ref int hitType)
+        static float QueryDatabase(Vec position, ref int hitType)
         {
             float distance = float.MaxValue; // 1e9;
             Vec f = position; // Flattened position (z=0)
@@ -270,7 +228,7 @@ namespace PostcardSizedRaytracerDotNet
 
         // Perform signed sphere marching
         // Returns hitType 0, 1, 2, or 3 and update hit position/normal
-        int RayMarching(Vec origin, Vec direction, ref Vec hitPos, ref Vec hitNorm)
+        static int RayMarching(Vec origin, Vec direction, ref Vec hitPos, ref Vec hitNorm)
         {
             int hitType = HIT_NONE;
             int noHitCount = 0;
@@ -290,7 +248,7 @@ namespace PostcardSizedRaytracerDotNet
             return 0;
         }
 
-        Vec Trace(Vec origin, Vec direction)
+        static Vec Trace(Vec origin, Vec direction)
         {
             Vec sampledPosition = 0, normal = 0, color = 0, attenuation = 1;
             Vec lightDirection = (!Vec(.6f, .6f, 1f)); // Directional light
@@ -340,7 +298,7 @@ namespace PostcardSizedRaytracerDotNet
 
         private static byte[] s_buffer = new byte[3];
 
-        public void Run()
+        public static void Run()
         {
             int w = 960, h = 540, samplesCount = 2;  //8; 
             Vec position = Vec(-22, 5, 25);
@@ -353,7 +311,7 @@ namespace PostcardSizedRaytracerDotNet
                 goal.z * left.x - goal.x * left.z,
                 goal.x * left.y - goal.y * left.x);
 
-            string fileName = $"output-{_math.GetType().Name}.ppm";
+            string fileName = $"output-{DateTime.Now.ToFileTimeUtc()}.ppm";
             Console.WriteLine($"Width = {w}, Height = {h}, Samples = {samplesCount}");
             Console.WriteLine($"Writing data to {fileName}", fileName);
 
