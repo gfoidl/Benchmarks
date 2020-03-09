@@ -1,4 +1,4 @@
-﻿//#define BENCH
+﻿#define BENCH
 
 using System.Runtime.CompilerServices;
 using Math_Min_Max.Variants;
@@ -14,6 +14,11 @@ namespace Math_Min_Max
 #if BENCH
         static void Main(string[] args)
         {
+#if DEBUG
+            var bench = new Benchmarks.MinNaN();
+            double res = bench.InlinedOptimized();
+#endif
+
             BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
 #else
         static int Main(string[] args)
