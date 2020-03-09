@@ -36,19 +36,7 @@ namespace GetHeaderName.Benchmarks
         }
 
         [Benchmark(Baseline = true)]
-        public unsafe bool Default()
-        {
-            fixed (byte* input = _bytes)
-            fixed (char* output = _output)
-            {
-                bool res = StringUtilities.TryGetAsciiStringDefault(input, output, this.BytesLen);
-                Debug.Assert(_expected.AsSpan().SequenceEqual(_output));
-                return res;
-            }
-        }
-
-        [Benchmark]
-        public unsafe bool ThisPR()
+        public unsafe bool Current_master()
         {
             fixed (byte* input = _bytes)
             fixed (char* output = _output)
@@ -60,12 +48,12 @@ namespace GetHeaderName.Benchmarks
         }
 
         [Benchmark]
-        public unsafe bool ThisPR_ExitEarly()
+        public unsafe bool This_PR()
         {
             fixed (byte* input = _bytes)
             fixed (char* output = _output)
             {
-                bool res = StringUtilities.TryGetAsciiStringExitEarly(input, output, this.BytesLen);
+                bool res = StringUtilitiesNoBMI2.TryGetAsciiString(input, output, this.BytesLen);
                 Debug.Assert(_expected.AsSpan().SequenceEqual(_output));
                 return res;
             }
