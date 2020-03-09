@@ -1,4 +1,5 @@
-﻿#define BENCH
+﻿//#define BENCH
+#define RAYTRACER
 
 using System.Runtime.CompilerServices;
 using Math_Min_Max.Variants;
@@ -20,6 +21,11 @@ namespace Math_Min_Max
 #endif
 
             BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
+#elif RAYTRACER
+        static void Main()
+        {
+            var raytracer = new Benchmarks.Raytracer();
+            raytracer.Run();
 #else
         static int Main(string[] args)
         {
