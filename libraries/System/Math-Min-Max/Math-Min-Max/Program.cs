@@ -1,5 +1,5 @@
-﻿//#define BENCH
-#define RAYTRACER
+﻿#define BENCH
+//#define RAYTRACER
 
 using System.Runtime.CompilerServices;
 using Math_Min_Max.Variants;
@@ -29,7 +29,7 @@ namespace Math_Min_Max
 #else
         static int Main(string[] args)
         {
-            double a = double.NaN;
+            double a = -1;
             double b = 1;
             var min = Do(a, b);
 
@@ -41,13 +41,13 @@ namespace Math_Min_Max
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static double Do(double a, double b)
         {
-            return Default.Min(a, b);
+            return DefaultReorderedVectorizedHotCold.Min(a, b);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static float Do(float a, float b)
         {
-            return Default.Min(a, b);
+            return DefaultReorderedVectorizedHotCold.Min(a, b);
         }
     }
 }

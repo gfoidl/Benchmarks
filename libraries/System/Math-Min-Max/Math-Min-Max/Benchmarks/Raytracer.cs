@@ -70,7 +70,9 @@ namespace PostcardSizedRaytracerDotNet
 
         //private static float min(float l, float r) => Math_Min_Max.Variants.Default.Min(l, r);
         //private static float min(float l, float r) => Math_Min_Max.Variants.InlinedOptimized.Min(l, r);
-        private static float min(float l, float r) => Math_Min_Max.Variants.Vectorized.Min(l, r);
+        //private static float min(float l, float r) => Math_Min_Max.Variants.Vectorized.Min(l, r);
+        //private static float min(float l, float r) => Math_Min_Max.Variants.DefaultReorderedVectorized.Min(l, r);
+        private static float min(float l, float r) => Math_Min_Max.Variants.DefaultReorderedVectorizedHotCold.Min(l, r);
 
         private static Random random = new Random();
 
