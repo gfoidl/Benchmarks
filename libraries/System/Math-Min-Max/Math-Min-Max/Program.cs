@@ -1,4 +1,4 @@
-﻿#define BENCH
+﻿//#define BENCH
 //#define RAYTRACER
 
 using System.Runtime.CompilerServices;
@@ -41,13 +41,13 @@ namespace Math_Min_Max
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static double Do(double a, double b)
         {
-            return DefaultReorderedVectorizedHotCold.Min(a, b);
+            return DefaultReordered.Min(a, b);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static float Do(float a, float b)
         {
-            return DefaultReorderedVectorizedHotCold.Min(a, b);
+            return DefaultReordered.Min(a, b);
         }
     }
 }
