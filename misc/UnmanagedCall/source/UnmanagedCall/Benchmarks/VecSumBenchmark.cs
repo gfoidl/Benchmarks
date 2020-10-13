@@ -1,27 +1,17 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using UnmanagedCall.DllImport;
+using UnmanagedCall.FunctionPointers;
 using UnmanagedCall.Load;
 
 namespace UnmanagedCall.Benchmarks
 {
+    [DisassemblyDiagnoser]
     public unsafe class VecSumBenchmark
     {
-        private readonly double _res;
-        private double*         _vec;
-        private int             _n = 1_000;
-        //---------------------------------------------------------------------
-        public VecSumBenchmark()
-        {
-            double* vec = stackalloc double[] { 1, 2, 3 };
-
-            // JIT static types
-            _res  = NativeDllImport.vec_sum(vec, 3);
-            _res += NativeDllImportWOSecurityCheck.vec_sum(vec, 3);
-            _res += NativeMethods.vec_sum(vec, 3);
-            _res += NativeMethodsWOSecurityCheck.vec_sum(vec, 3);
-        }
+        private double* _vec;
+        private int     _n = 1_000;
         //---------------------------------------------------------------------
         [GlobalSetup]
         public void GlobalSetup()
@@ -35,27 +25,30 @@ namespace UnmanagedCall.Benchmarks
         }
         //---------------------------------------------------------------------
         [GlobalCleanup]
-        public void GlobalCleanup()
-        {
-            Marshal.FreeHGlobal((IntPtr)_vec);
-        }
+        public void GlobalCleanup() => Marshal.FreeHGlobal((IntPtr)_vec);
         //---------------------------------------------------------------------
         [Benchmark(Baseline = true)]
         public double DllImport() => NativeDllImport.vec_sum(_vec, _n);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public double DllImportWOSecurityCheck() => NativeDllImportWOSecurityCheck.vec_sum(_vec, _n);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public double LoadLibrary() => NativeMethods.vec_sum(_vec, _n);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public double LoadLibraryWOSecurityCheck() => NativeMethodsWOSecurityCheck.vec_sum(_vec, _n);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public double CallI() => Calli.VecSum(_vec, _n);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public double CallITail() => CalliTail.VecSum(_vec, _n);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public double FunctionPointerDefault() => FunctionPointersDefault.VecSum(_vec, _n);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public double FunctionPointerCdecl() => FunctionPointersCdecl.VecSum(_vec, _n);
     }
 }

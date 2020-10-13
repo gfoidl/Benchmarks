@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace UnmanagedCall.Load
@@ -14,16 +14,16 @@ namespace UnmanagedCall.Load
              */
             private const string LIB = "libdl";
             //-----------------------------------------------------------------
-            [DllImport(LIB)]
+            [DllImport(LIB, CharSet = CharSet.Unicode)]
             public static extern IntPtr dlopen(string libraryPath, int flags);
             //-----------------------------------------------------------------
-            [DllImport(LIB)]
+            [DllImport(LIB, CharSet = CharSet.Unicode)]
             public static extern IntPtr dlsym(IntPtr handle, string symbol);
             //---------------------------------------------------------------------
             [DllImport(LIB)]
             public static extern void dlclose(IntPtr handle);
             //-----------------------------------------------------------------
-            [DllImport(LIB, CharSet = CharSet.Ansi)]
+            [DllImport(LIB, CharSet = CharSet.Unicode)]
             [return: MarshalAs(UnmanagedType.LPStr)]
             public static extern string dlerror();
         }

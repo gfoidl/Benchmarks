@@ -1,40 +1,38 @@
-﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes;
 using UnmanagedCall.DllImport;
+using UnmanagedCall.FunctionPointers;
 using UnmanagedCall.Load;
 
 namespace UnmanagedCall.Benchmarks
 {
+    [DisassemblyDiagnoser]
     public class AddIntegerBenchmark
     {
-        private readonly int _res;
-        private int          _a = 3;
-        private int          _b = 4;
-        //---------------------------------------------------------------------
-        public AddIntegerBenchmark()
-        {
-            // JIT static types
-            _res  = NativeDllImport.add_i(3, 4);
-            _res += NativeDllImportWOSecurityCheck.add_i(3, 4);
-            _res += NativeMethods.add_i(3, 4);
-            _res += NativeMethodsWOSecurityCheck.add_i(3, 4);
-        }
+        private int _a = 3;
+        private int _b = 4;
         //---------------------------------------------------------------------
         [Benchmark(Baseline = true)]
         public int DllImport() => NativeDllImport.add_i(_a, _b);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public int DllImportWOSecurityCheck() => NativeDllImportWOSecurityCheck.add_i(_a, _b);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public int LoadLibrary() => NativeMethods.add_i(_a, _b);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public int LoadLibraryWOSecurityCheck() => NativeMethodsWOSecurityCheck.add_i(_a, _b);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public int CallI() => Calli.Add(_a, _b);
         //---------------------------------------------------------------------
-        [Benchmark]
+        //[Benchmark]
         public int CallITail() => CalliTail.Add(_a, _b);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public int FunctionPointerDefault() => FunctionPointersDefault.Add(_a, _b);
+        //---------------------------------------------------------------------
+        [Benchmark]
+        public int FunctinoPointerCdecl() => FunctionPointersCdecl.Add(_a, _b);
     }
 }

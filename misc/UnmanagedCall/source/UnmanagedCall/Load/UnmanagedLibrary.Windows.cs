@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
@@ -8,10 +8,10 @@ namespace UnmanagedCall.Load
     {
         private static class Windows
         {
-            [DllImport("kernel32.dll", SetLastError = true)]
+            [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
             public static extern IntPtr LoadLibrary(string libraryPath);
             //-----------------------------------------------------------------
-            [DllImport("kernel32.dll")]
+            [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
             public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
             //---------------------------------------------------------------------
             [DllImport("kernel32.dll", EntryPoint = "FreeLibrary", SetLastError = true)]

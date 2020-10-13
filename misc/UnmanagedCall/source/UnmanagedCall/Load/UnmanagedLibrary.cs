@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -8,21 +8,21 @@ namespace UnmanagedCall.Load
     {
         private const string LibName = "NativeLib";
         //---------------------------------------------------------------------
-        private static readonly string _libraryName;
-        private static IntPtr _handle;
+        private static readonly string s_libraryName;
+        private static IntPtr          s_handle;
         //---------------------------------------------------------------------
         static UnmanagedLibrary()
         {
-            _libraryName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            s_libraryName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? $"{LibName}.dll"
-                : $"./lib{LibName}.so";     // Cf. http://man7.org/linux/man-pages/man3/dlopen.3.html for /
+                : $"./lib{LibName}.so";		// Cf. http://man7.org/linux/man-pages/man3/dlopen.3.html for /
 
-            _handle = LoadLibrary();
+            s_handle = LoadLibrary();
 
-            if (_handle == IntPtr.Zero)
+            if (s_handle == IntPtr.Zero)
             {
                 string error = GetError();
-                throw new IOException($"Error in loading library {_libraryName}: {error}");
+                throw new IOException($"Error in loading library {s_libraryName}: {error}");
             }
         }
         //---------------------------------------------------------------------
@@ -31,7 +31,7 @@ namespace UnmanagedCall.Load
             IntPtr ptr = LoadSymbol(methodName);
 
             if (ptr == IntPtr.Zero)
-                throw new MissingMethodException($"The native method '{methodName}' does not exist in '{_libraryName}'");
+                throw new MissingMethodException($"The native method '{methodName}' does not exist in '{s_libraryName}'");
 
             return Marshal.GetDelegateForFunctionPointer<T>(ptr);
         }
@@ -39,42 +39,40 @@ namespace UnmanagedCall.Load
         private static IntPtr LoadLibrary()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return Windows.LoadLibrary(Path.Combine(AppContext.BaseDirectory, _libraryName));
+            {
+                return Windows.LoadLibrary(Path.Combine(AppContext.BaseDirectory, s_libraryName));
+            }
             else
             {
                 const int RTLD_LAZY   = 1;
                 const int RTLD_GLOBAL = 8;
 
-                return Linux.dlopen(_libraryName, RTLD_GLOBAL + RTLD_LAZY);
+                return Linux.dlopen(s_libraryName, RTLD_GLOBAL + RTLD_LAZY);
             }
         }
         //---------------------------------------------------------------------
-        internal static IntPtr LoadSymbol(string symbolName)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return Windows.GetProcAddress(_handle, symbolName);
-            else
-                return Linux.dlsym(_handle, symbolName);
-        }
+        internal static IntPtr LoadSymbol(string symbolName) => RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? Windows.GetProcAddress(s_handle, symbolName)
+            : Linux.dlsym(s_handle, symbolName);
         //---------------------------------------------------------------------
         private static void FreeLibraray()
         {
-            if (_handle == IntPtr.Zero) return;
+            if (s_handle == IntPtr.Zero) return;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                Windows.FreeLibrary(_handle);
+            {
+                Windows.FreeLibrary(s_handle);
+            }
             else
-                Linux.dlclose(_handle);
+            {
+                Linux.dlclose(s_handle);
+            }
 
-            _handle = IntPtr.Zero;
+            s_handle = IntPtr.Zero;
         }
         //---------------------------------------------------------------------
-        private static string GetError()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return Windows.GetError();
-            else
-                return Linux.dlerror();
-        }
+        private static string GetError() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? Windows.GetError()
+            : Linux.dlerror();
     }
 }

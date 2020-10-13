@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using InlineIL;
 using static InlineIL.IL.Emit;
@@ -7,18 +7,10 @@ namespace UnmanagedCall.Load
 {
     internal static class Calli
     {
-        public static readonly IntPtr s_addIPtr;
-        public static readonly IntPtr s_addDPtr;
-        public static readonly IntPtr s_vecSumPtr;
-        public static readonly IntPtr s_emptyPtr;
-        //---------------------------------------------------------------------
-        static Calli()
-        {
-            s_addIPtr   = UnmanagedLibrary.LoadSymbol("add_i");
-            s_addDPtr   = UnmanagedLibrary.LoadSymbol("add_d");
-            s_vecSumPtr = UnmanagedLibrary.LoadSymbol("vec_sum");
-            s_emptyPtr  = UnmanagedLibrary.LoadSymbol("empty");
-        }
+        public static readonly IntPtr s_addIPtr   = UnmanagedLibrary.LoadSymbol("add_i");
+        public static readonly IntPtr s_addDPtr   = UnmanagedLibrary.LoadSymbol("add_d");
+        public static readonly IntPtr s_vecSumPtr = UnmanagedLibrary.LoadSymbol("vec_sum");
+        public static readonly IntPtr s_emptyPtr  = UnmanagedLibrary.LoadSymbol("empty");
         //---------------------------------------------------------------------
         public static int Add(int a, int b)
         {
