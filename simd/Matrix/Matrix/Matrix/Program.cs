@@ -23,6 +23,9 @@ foreach ((int Rows, int Cols) size in Bench.GetMatrixSizes())
     bench.ColumnMajor();
     double[] resColumnMajor = bench.Result.ToArray();
 
+    bench.ColumnMajorSimd();
+    double[] resColumnMajorSimd = bench.Result.ToArray();
+
     bench.RowMajor();
     double[] resRowMajor = bench.Result.ToArray();
 
@@ -31,6 +34,12 @@ foreach ((int Rows, int Cols) size in Bench.GetMatrixSizes())
         if (Math.Abs(resColumnMajor[i] - resRowMajor[i]) > 1e-6)
         {
             Console.WriteLine($"error by {size} at index {i}\nc: {resColumnMajor[i]}\nr: {resRowMajor[i]}");
+            Environment.Exit(1);
+        }
+
+        if (Math.Abs(resColumnMajorSimd[i] - resRowMajor[i]) > 1e-6)
+        {
+            Console.WriteLine($"error by {size} at index {i}\nc: {resColumnMajorSimd[i]}\nr: {resRowMajor[i]}");
             Environment.Exit(1);
         }
     }
@@ -49,19 +58,21 @@ VTune.Run();
 [HardwareCounters(HardwareCounter.CacheMisses, HardwareCounter.LlcMisses, HardwareCounter.LlcReference)]
 public class Bench
 {
-    private Matrix         _columnMajor;
-    private RowMajorMatrix _rowMajor;
-    private double[]       _vector;
-    private double[]       _result;
+    private Matrix            _columnMajorSimd;
+    private ColumnMajorMatrix _columnMajor;
+    private RowMajorMatrix    _rowMajor;
+    private double[]          _vector;
+    private double[]          _result;
 
     public static IEnumerable<(int Rows, int Cols)> GetMatrixSizes()
     {
-        //yield return (2, 2);
-        //yield return (3, 2);
-        //yield return (3, 3);
-        //yield return (4, 4);
-        //yield return (5, 5);
-        //yield return (6, 6);
+        yield return (10, 1600);
+        yield return (2, 2);
+        yield return (3, 2);
+        yield return (3, 3);
+        yield return (4, 4);
+        yield return (5, 5);
+        yield return (6, 6);
         yield return (  300,   200);
         yield return (  200,   300);
         yield return (  300,   300);
@@ -70,8 +81,8 @@ public class Bench
         yield return (3_000, 3_000);
     }
 
-    [ParamsSource(nameof(GetMatrixSizes))]
-    public (int Rows, int Columns) Size { get; set; } = (3, 3);
+    //[ParamsSource(nameof(GetMatrixSizes))]
+    public (int Rows, int Columns) Size { get; set; } = (1_000, 1_000);
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -80,18 +91,20 @@ public class Bench
 
         var (rows, cols) = this.Size;
 
-        _columnMajor = new Matrix(rows, cols);
-        _rowMajor    = new RowMajorMatrix(rows, cols);
-        _vector      = new double[cols];
-        _result      = new double[rows];
+        _columnMajorSimd = new Matrix(rows, cols, alignmentInBytes: 32, padColumnsForAlignment: true);
+        _columnMajor     = new ColumnMajorMatrix(rows, cols);
+        _rowMajor        = new RowMajorMatrix(rows, cols);
+        _vector          = new double[cols];
+        _result          = new double[rows];
 
         for (int i = 0; i < rows; ++i)
         {
             for (int j = 0; j < cols; ++j)
             {
-                double value       = rnd.NextDouble();
-                _columnMajor[i, j] = value;
-                _rowMajor   [i, j] = value;
+                double value           = rnd.NextDouble();
+                _columnMajorSimd[i, j] = value;
+                _columnMajor    [i, j] = value;
+                _rowMajor       [i, j] = value;
             }
         }
 
@@ -107,6 +120,9 @@ public class Bench
     public void ColumnMajor() => _columnMajor.Multiply(_vector, _result);
 
     [Benchmark]
+    public void ColumnMajorSimd() => _columnMajorSimd.Multiply(_vector, _result);
+
+    [Benchmark]
     public void RowMajor() => _rowMajor.Multiply(_vector, _result);
 }
 //-----------------------------------------------------------------------------
@@ -115,18 +131,19 @@ public static class VTune
     private const int Rows = 40_000;
     private const int Cols = 40_000;
 
-    private static readonly Matrix         s_matrix         = new Matrix(Rows, Cols);
-    private static readonly RowMajorMatrix s_rowMajorMatrix = new RowMajorMatrix(Rows, Cols);
-    private static readonly double[]       s_vector         = new double[Cols];
-    private static readonly double[]       s_result         = new double[Rows];
+    private static readonly Matrix            s_matrix            = new Matrix(Rows, Cols, alignmentInBytes: 32, padColumnsForAlignment: true);
+    private static readonly ColumnMajorMatrix s_columnMajorMatrix = new ColumnMajorMatrix(Rows, Cols);
+    private static readonly RowMajorMatrix    s_rowMajorMatrix    = new RowMajorMatrix(Rows, Cols);
+    private static readonly double[]          s_vector            = new double[Cols];
+    private static readonly double[]          s_result            = new double[Rows];
 
     public static void Run()
     {
         ReadOnlySpan<double> vector = s_vector;
-        Span<double> result = s_result;
+        Span<double> result         = s_result;
 
         Console.WriteLine("init...");
-        Random rnd = new();
+        Random rnd          = new();
         Stopwatch stopwatch = new();
 
 #if VTUNE_INIT
@@ -154,6 +171,7 @@ public static class VTune
             for (int i = 0; i < iters; ++i)
             {
                 s_matrix.Multiply(vector, result);
+                //s_columnMajorMatrix.Multiply(vector, result);
                 //s_rowMajorMatrix.Multiply(vector, result);
             }
         }

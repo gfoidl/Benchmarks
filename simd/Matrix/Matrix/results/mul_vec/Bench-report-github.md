@@ -1,13 +1,6 @@
-``` ini
+# Scalar version
 
-BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19041.572 (2004/?/20H1)
-Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
-.NET Core SDK=5.0.100-preview.7.20366.6
-  [Host]     : .NET Core 5.0.0 (CoreCLR 5.0.20.36411, CoreFX 5.0.20.36411), X64 RyuJIT
-  DefaultJob : .NET Core 5.0.0 (CoreCLR 5.0.20.36411, CoreFX 5.0.20.36411), X64 RyuJIT
-
-
-```
+## Bechmarks
 
 ```
 |      Method |         Size |         Mean |      Error |     StdDev | Ratio | RatioSD | CacheMisses/Op | LLCReference/Op | LLCMisses/Op |
@@ -52,3 +45,28 @@ Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical co
 #### Memory Access
 
 ![](img/vtune_row_major_memory.png)
+
+# Vectorized Version
+
+## Bechmarks
+
+```
+|          Method |       Mean |    Error |   StdDev | Ratio | RatioSD | CacheMisses/Op | LLCReference/Op | LLCMisses/Op |
+|---------------- |-----------:|---------:|---------:|------:|--------:|---------------:|----------------:|-------------:|
+|     ColumnMajor |   753.4 μs | 14.90 μs | 34.24 μs |  1.00 |    0.00 |         53,503 |         111,251 |       53,507 |
+| ColumnMajorSimd |   377.6 μs |  5.96 μs |  4.98 μs |  0.49 |    0.03 |         38,422 |         107,429 |       38,424 |
+|        RowMajor | 1,261.5 μs |  7.53 μs |  6.68 μs |  1.66 |    0.09 |         64,138 |         112,383 |       64,144 |
+```
+
+## Machine Info
+
+``` ini
+
+BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19041.572 (2004/?/20H1)
+Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
+.NET Core SDK=5.0.100-preview.7.20366.6
+  [Host]     : .NET Core 5.0.0 (CoreCLR 5.0.20.36411, CoreFX 5.0.20.36411), X64 RyuJIT
+  DefaultJob : .NET Core 5.0.0 (CoreCLR 5.0.20.36411, CoreFX 5.0.20.36411), X64 RyuJIT
+
+
+```
