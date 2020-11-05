@@ -63,7 +63,7 @@ namespace gfoidl.Numerics
             }
             else if (AdvSimd.Arm64.IsSupported)
             {
-                throw new NotImplementedException();
+                MultiplyCoreFirstColumnArm64(matrix, rows, vec, res);
             }
             else
             {
@@ -81,6 +81,10 @@ namespace gfoidl.Numerics
             else if (Sse2.IsSupported)
             {
                 MultiplyCoreSse(matrix, rows, cols, vec, res);
+            }
+            else if (AdvSimd.Arm64.IsSupported)
+            {
+                MultiplyCoreArm64(matrix, rows, cols, vec, res);
             }
             else
             {
@@ -245,6 +249,68 @@ namespace gfoidl.Numerics
                         Vector128<double> resVec = matrix.ReadVector128(res, i);
                         Vector128<double> prod   = Sse2.Multiply(colVec, x);
                         resVec                   = Sse2.Add(resVec, prod);
+
+                        matrix.StoreVector(res, i, resVec);
+
+                        i += Vector128<double>.Count;
+                    } while (i <= rows - Vector128<double>.Count);
+                }
+
+                // Max one left, otherwise another SSE2 iteration would be done
+                Debug.Assert(Vector128<double>.Count == 2);
+                if (i < rows)
+                {
+                    res[i] += colPtr[i] * x.ToScalar();
+                }
+            }
+        }
+        //---------------------------------------------------------------------
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void MultiplyCoreFirstColumnArm64(Matrix matrix, nint rows, double* vec, double* res)
+        {
+            nint i              = 0;
+            double* colPtr      = matrix.GetColumnPtr(0);
+            Vector128<double> x = Vector128.Create(vec[0]);
+
+            if (rows >= Vector128<double>.Count)
+            {
+                do
+                {
+                    Vector128<double> colVec = matrix.ReadVector128(colPtr, i);
+                    Vector128<double> resVec = AdvSimd.Arm64.Multiply(colVec, x);
+                    matrix.StoreVector(res, i, resVec);
+
+                    i += Vector128<double>.Count;
+                } while (i <= rows - Vector128<double>.Count);
+            }
+
+            // Max one left, otherwise another SSE2 iteration would be done
+            Debug.Assert(Vector128<double>.Count == 2);
+            if (i < rows)
+            {
+                res[i] = colPtr[i] * x.ToScalar();
+            }
+        }
+        //---------------------------------------------------------------------
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void MultiplyCoreArm64(Matrix matrix, nint rows, nint cols, double* vec, double* res)
+        {
+            for (nint j = 1; j < cols; ++j)
+            {
+                nint i = 0;
+                double* colPtr = matrix.GetColumnPtr(j);
+                Vector128<double> x = Vector128.Create(vec[j]);
+
+                if (rows >= Vector128<double>.Count)
+                {
+                    do
+                    {
+                        Vector128<double> colVec = matrix.ReadVector128(colPtr, i);
+                        Vector128<double> resVec = matrix.ReadVector128(res, i);
+
+                        //Vector128<double> prod = AdvSimd.Arm64.Multiply(colVec, x);
+                        //resVec                 = AdvSimd.Arm64.Add(resVec, prod);
+                        resVec = AdvSimd.Arm64.FusedMultiplyAdd(resVec, colVec, x);
 
                         matrix.StoreVector(res, i, resVec);
 
