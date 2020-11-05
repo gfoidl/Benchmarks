@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace gfoidl.Numerics
 {
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     partial class Matrix
     {
 #if DEBUG
@@ -57,5 +58,7 @@ namespace gfoidl.Numerics
                 }
             }
         }
+        //---------------------------------------------------------------------
+        private string GetDebuggerDisplay() => $"{this.Rows} x {this.Cols}";
     }
 }

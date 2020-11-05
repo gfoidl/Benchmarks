@@ -83,6 +83,7 @@ namespace gfoidl.Numerics
         }
         //---------------------------------------------------------------------
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         public Span<double> GetColumn(int col)
         {
             ref double colStart = ref this.GetColumnRef(col);
@@ -90,6 +91,7 @@ namespace gfoidl.Numerics
         }
         //---------------------------------------------------------------------
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         public ref double GetColumnRef(int col)
         {
             Debug.Assert(col >= 0);
@@ -99,6 +101,7 @@ namespace gfoidl.Numerics
         }
         //---------------------------------------------------------------------
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         public double* GetColumnPtr(nint col)
         {
             nint startIndex = this.GetIndex(0, col);
@@ -113,6 +116,7 @@ namespace gfoidl.Numerics
         public int Size => this.Rows * this.Cols;
         //---------------------------------------------------------------------
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         private nint GetIndex(nint row, nint col)
         {
             Debug.Assert(row < _rows);

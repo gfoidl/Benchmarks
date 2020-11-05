@@ -30,7 +30,7 @@ foreach ((int Rows, int Cols) size in Bench.GetMatrixSizes())
     {
         if (Math.Abs(resColumnMajor[i] - resRowMajor[i]) > 1e-6)
         {
-            Console.WriteLine($"error at index {i}\nc: {resColumnMajor[i]}\nr: {resRowMajor[i]}");
+            Console.WriteLine($"error by {size} at index {i}\nc: {resColumnMajor[i]}\nr: {resRowMajor[i]}");
             Environment.Exit(1);
         }
     }
@@ -56,9 +56,12 @@ public class Bench
 
     public static IEnumerable<(int Rows, int Cols)> GetMatrixSizes()
     {
-        //yield return (    2,     2);
-        //yield return (    3,     2);
-        //yield return (    3,     3);
+        //yield return (2, 2);
+        //yield return (3, 2);
+        //yield return (3, 3);
+        //yield return (4, 4);
+        //yield return (5, 5);
+        //yield return (6, 6);
         yield return (  300,   200);
         yield return (  200,   300);
         yield return (  300,   300);
