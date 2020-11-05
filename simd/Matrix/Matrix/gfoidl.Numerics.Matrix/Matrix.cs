@@ -11,9 +11,9 @@ namespace gfoidl.Numerics
         private readonly double*  _dataPtr;
         private readonly int      _rows;
         private readonly int      _cols;
-        private readonly int      _stride;
+        private readonly uint     _stride;
         //---------------------------------------------------------------------
-        public Matrix(int rows, int cols, int align = 0, bool padColumnsForAlignment = false)
+        public Matrix(int rows, int cols, int alignmentInBytes = 0, bool padColumnsForAlignment = false)
         {
             if (rows <= 0 || cols <= 0)
             {
@@ -28,18 +28,19 @@ namespace gfoidl.Numerics
             _rows = rows;
             _cols = cols;
 
-            if (align == 0 || !padColumnsForAlignment)
+            // With in the size could overflow (is check later)
+            ulong size;
+
+            if (alignmentInBytes <= 0 || !padColumnsForAlignment)
             {
-                _stride = rows;
+                _stride = (uint)rows;
+                size    = (ulong)(uint)rows * (ulong)(uint)cols;
             }
             else
             {
-                int padding = align - rows % align;
-                _stride     = rows + padding;
+                _stride = Helpers.GetStride((uint)rows, (uint)alignmentInBytes);
+                size    = (ulong)_stride * (ulong)(uint)cols + (ulong)(uint)alignmentInBytes / sizeof(double);
             }
-
-            // With int this could overflow
-            long size = (long)_stride * cols + align;
 
             if (size > int.MaxValue)    // actually Array.MaxSize for double
             {
@@ -48,27 +49,17 @@ namespace gfoidl.Numerics
             }
 
             _data    = GC.AllocateUninitializedArray<double>((int)size, pinned: true);
-            _dataPtr = (double*)Marshal.UnsafeAddrOfPinnedArrayElement(_data, 0);
 
-            if (align > 0)
+            // I'm not sure if this call inlines, at least in sharplab it doesn't.
+            //_dataPtr = (double*)Marshal.UnsafeAddrOfPinnedArrayElement(_data, 0);
+            _dataPtr = (double*)Unsafe.AsPointer(ref MemoryMarshal.GetArrayDataReference(_data));
+
+            if (alignmentInBytes > 0)
             {
-                _dataPtr = Align(_dataPtr, align);
+                _dataPtr = Helpers.AlignPointer(_dataPtr, (uint)alignmentInBytes);
             }
 
             this.MarkNonData();
-            //-----------------------------------------------------------------
-            static double* Align(double* ptr, int align)
-            {
-                nuint address         = (nuint)ptr;
-                nuint unalignedBytes  = address % (nuint)align;
-                nuint bytesToAlign    = ((nuint)align - unalignedBytes) % (nuint)align;
-                nuint elementsToAlign = bytesToAlign / sizeof(double);
-                ptr += elementsToAlign;
-
-                Debug.Assert((long)ptr % align == 0);
-
-                return ptr;
-            }
         }
         //---------------------------------------------------------------------
         public ref double this[int row, int col]

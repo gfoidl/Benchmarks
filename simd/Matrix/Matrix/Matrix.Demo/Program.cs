@@ -44,7 +44,7 @@ matrix.Print();
 
 #if DEBUG
 Console.WriteLine("\nmatrix = new Matrix(300, 300, align: 32, padColumnsForAlignment: true);");
-matrix = new Matrix(300, 300, align: 32, padColumnsForAlignment: true);
+matrix = new Matrix(300, 300, alignmentInBytes: 32, padColumnsForAlignment: true);
 Console.WriteLine($"size: {matrix.Size}, total padding: {matrix.TotalPadding} / {(double)matrix.TotalPadding / matrix.Size:P}");
 #endif
 
