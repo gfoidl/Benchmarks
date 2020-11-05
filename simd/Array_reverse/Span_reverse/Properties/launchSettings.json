@@ -1,0 +1,10 @@
+{
+    "profiles": {
+        "Span_reverse": {
+            "commandName": "Project",
+            "environmentVariables": {
+                "COMPlus_EnableSSE": "1"
+            }
+        }
+    }
+}

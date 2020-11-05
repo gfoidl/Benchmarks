@@ -75,7 +75,7 @@ namespace Array_reverse
         {
             _arr = new int[this.N];
 
-            for (int i = 0; i < N; ++i)
+            for (int i = 0; i < this.N; ++i)
                 _arr[i] = i;
         }
         //---------------------------------------------------------------------
