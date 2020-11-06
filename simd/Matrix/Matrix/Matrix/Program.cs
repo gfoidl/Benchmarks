@@ -26,6 +26,9 @@ foreach ((int Rows, int Cols) size in Bench.GetMatrixSizes())
     bench.ColumnMajorSimd();
     double[] resColumnMajorSimd = bench.Result.ToArray();
 
+    bench.ColumnMajorLatest();
+    double[] resColumnMajorLatest = bench.Result.ToArray();
+
     bench.RowMajor();
     double[] resRowMajor = bench.Result.ToArray();
 
@@ -42,6 +45,12 @@ foreach ((int Rows, int Cols) size in Bench.GetMatrixSizes())
             Console.WriteLine($"error by {size} at index {i}\nc: {resColumnMajorSimd[i]}\nr: {resRowMajor[i]}");
             Environment.Exit(1);
         }
+
+        if (Math.Abs(resColumnMajorLatest[i] - resRowMajor[i]) > 1e-6)
+        {
+            Console.WriteLine($"error by {size} at index {i}\nc: {resColumnMajorLatest[i]}\nr: {resRowMajor[i]}");
+            Environment.Exit(1);
+        }
     }
     Console.WriteLine($"validation for {size} OK");
 }
@@ -54,8 +63,8 @@ VTune.Run();
 #endif
 //-----------------------------------------------------------------------------
 //[ShortRunJob]
-//[DisassemblyDiagnoser]
-[HardwareCounters(HardwareCounter.CacheMisses, HardwareCounter.LlcMisses, HardwareCounter.LlcReference)]
+[DisassemblyDiagnoser]
+//[HardwareCounters(HardwareCounter.CacheMisses, HardwareCounter.LlcMisses, HardwareCounter.LlcReference)]
 public class Bench
 {
     private Matrix            _columnMajorSimd;
@@ -116,13 +125,16 @@ public class Bench
 
     public ReadOnlySpan<double> Result => _result;
 
-    [Benchmark(Baseline = true)]
+    //[Benchmark(Baseline = true)]
     public void ColumnMajor() => _columnMajor.Multiply(_vector, _result);
 
-    [Benchmark]
-    public void ColumnMajorSimd() => _columnMajorSimd.Multiply(_vector, _result);
+    [Benchmark(Baseline = true)]
+    public void ColumnMajorSimd() => _columnMajorSimd.MultiplySimd(_vector, _result);
 
     [Benchmark]
+    public void ColumnMajorLatest() => _columnMajorSimd.Multiply(_vector, _result);
+
+    //[Benchmark]
     public void RowMajor() => _rowMajor.Multiply(_vector, _result);
 }
 //-----------------------------------------------------------------------------

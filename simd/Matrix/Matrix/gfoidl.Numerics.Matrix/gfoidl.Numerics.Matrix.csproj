@@ -6,4 +6,8 @@
         <nullable>enable</nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Matrix" />
+    </ItemGroup>
+
 </Project>

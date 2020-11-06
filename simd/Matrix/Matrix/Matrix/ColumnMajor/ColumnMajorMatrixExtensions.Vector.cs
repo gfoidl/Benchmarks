@@ -39,22 +39,23 @@ namespace gfoidl.Numerics
                 nint rows = (nint)(uint)matrix.Rows;
                 nint cols = (nint)(uint)matrix.Cols;
 
-                double x = vec[0];
+                double x       = vec[0];
                 double* colPtr = matrix.GetColumnPtr(0);
 
-                for (nint row = 0; row < rows; ++row)
+                for (nint i = 0; i < rows; ++i)
                 {
-                    res[row] = colPtr[row] * x;
+                    res[i] = colPtr[i] * x;
                 }
 
-                for (nint col = 1; col < cols; ++col)
+                for (nint j = 1; j < cols; ++j)
                 {
-                    x = vec[col];
-                    colPtr = matrix.GetColumnPtr(col);
+                    x      = vec[j];
+                    colPtr = matrix.GetColumnPtr(j);
 
-                    for (nint row = 0; row < rows; ++row)
+                    for (nint i = 0; i < rows; ++i)
                     {
-                        res[row] += colPtr[row] * x;
+                        //res[i] += colPtr[i] * x;
+                        res[i] = Math.FusedMultiplyAdd(colPtr[i], x, res[i]);
                     }
                 }
             }

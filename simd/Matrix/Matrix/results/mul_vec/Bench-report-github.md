@@ -1,4 +1,20 @@
+<details>
+  <summary>machine info</summary>
+  
+``` ini
+
+BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19041.572 (2004/?/20H1)
+Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
+.NET Core SDK=5.0.100-preview.7.20366.6
+  [Host]     : .NET Core 5.0.0 (CoreCLR 5.0.20.36411, CoreFX 5.0.20.36411), X64 RyuJIT
+  DefaultJob : .NET Core 5.0.0 (CoreCLR 5.0.20.36411, CoreFX 5.0.20.36411), X64 RyuJIT
+
+```
+
+</details>
+
 # Scalar version
+
 
 ## Bechmarks
 
@@ -48,7 +64,7 @@
 
 # Vectorized Version
 
-## Bechmarks
+## Bechmarks for basic simd
 
 ```
 |          Method |       Mean |    Error |   StdDev | Ratio | RatioSD | CacheMisses/Op | LLCReference/Op | LLCMisses/Op |
@@ -58,15 +74,7 @@
 |        RowMajor | 1,261.5 μs |  7.53 μs |  6.68 μs |  1.66 |    0.09 |         64,138 |         112,383 |       64,144 |
 ```
 
-## Machine Info
+## Bechmarks for FMA vs basic
 
-``` ini
-
-BenchmarkDotNet=v0.12.1, OS=Windows 10.0.19041.572 (2004/?/20H1)
-Intel Core i7-7700HQ CPU 2.80GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
-.NET Core SDK=5.0.100-preview.7.20366.6
-  [Host]     : .NET Core 5.0.0 (CoreCLR 5.0.20.36411, CoreFX 5.0.20.36411), X64 RyuJIT
-  DefaultJob : .NET Core 5.0.0 (CoreCLR 5.0.20.36411, CoreFX 5.0.20.36411), X64 RyuJIT
-
-
-```
+Is very sensitive to code alignment (?), so the numbers are not trustworthy.
+[dasm](avx2-fma.asm) shows better code, so I assume the FMA version is better.

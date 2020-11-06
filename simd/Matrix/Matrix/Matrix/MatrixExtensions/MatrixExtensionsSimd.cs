@@ -9,10 +9,10 @@ using System.Runtime.Intrinsics.X86;
 
 namespace gfoidl.Numerics
 {
-    public static unsafe partial class MatrixExtensions
+    public static unsafe class MatrixExtensionsSimd
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Multiply(this Matrix matrix, ReadOnlySpan<double> vector, Span<double> result)
+        public static void MultiplySimd(this Matrix matrix, ReadOnlySpan<double> vector, Span<double> result)
         {
             if (matrix is null)
             {
@@ -95,8 +95,8 @@ namespace gfoidl.Numerics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void MultiplyCoreFirstColumnAvx(Matrix matrix, nint rows, double* vec, double* res)
         {
-            nint i                 = 0;
-            double* colPtr         = matrix.GetColumnPtr(0);
+            nint i = 0;
+            double* colPtr = matrix.GetColumnPtr(0);
             Vector256<double> x256 = Avx.BroadcastScalarToVector256(vec);
 
             // AVX loop 2x unrolled, then a SSE loop
@@ -146,8 +146,8 @@ namespace gfoidl.Numerics
         {
             for (nint j = 1; j < cols; ++j)
             {
-                nint i                 = 0;
-                double* colPtr         = matrix.GetColumnPtr(j);
+                nint i = 0;
+                double* colPtr = matrix.GetColumnPtr(j);
                 Vector256<double> x256 = Avx.BroadcastScalarToVector256(vec + j);
 
                 // AVX loop 2x unrolled, then a SSE loop
@@ -162,26 +162,14 @@ namespace gfoidl.Numerics
                         Vector256<double> resVec0 = matrix.ReadVector256(res, i);
                         Vector256<double> resVec1 = matrix.ReadVector256(res, i + Vector256<double>.Count);
 
-                        if (Fma.IsSupported)
-                        {
-                            // Perf: these locals breaks JIT's dependency on resVec{0,1}, so two movs can be avoided
-                            Vector256<double> tmp0 = Fma.MultiplyAdd(colVec0, x256, resVec0);
-                            Vector256<double> tmp1 = Fma.MultiplyAdd(colVec1, x256, resVec1);
+                        Vector256<double> prod0 = Avx.Multiply(colVec0, x256);
+                        Vector256<double> prod1 = Avx.Multiply(colVec1, x256);
 
-                            matrix.StoreVector(res, i + 0 * Vector256<double>.Count, tmp0);
-                            matrix.StoreVector(res, i + 1 * Vector256<double>.Count, tmp1);
-                        }
-                        else
-                        {
-                            Vector256<double> prod0 = Avx.Multiply(colVec0, x256);
-                            Vector256<double> prod1 = Avx.Multiply(colVec1, x256);
+                        resVec0 = Avx.Add(resVec0, prod0);
+                        resVec1 = Avx.Add(resVec1, prod1);
 
-                            resVec0 = Avx.Add(resVec0, prod0);
-                            resVec1 = Avx.Add(resVec1, prod1);
-
-                            matrix.StoreVector(res, i + 0 * Vector256<double>.Count, resVec0);
-                            matrix.StoreVector(res, i + 1 * Vector256<double>.Count, resVec1);
-                        }
+                        matrix.StoreVector(res, i + 0 * Vector256<double>.Count, resVec0);
+                        matrix.StoreVector(res, i + 1 * Vector256<double>.Count, resVec1);
 
                         i += 2 * Vector256<double>.Count;
                     } while (i <= rows - 2 * Vector256<double>.Count);
@@ -195,16 +183,8 @@ namespace gfoidl.Numerics
                     {
                         Vector128<double> colVec = matrix.ReadVector128(colPtr, i);
                         Vector128<double> resVec = matrix.ReadVector128(res, i);
-
-                        if (Fma.IsSupported)
-                        {
-                            resVec = Fma.MultiplyAdd(colVec, x128, resVec);
-                        }
-                        else
-                        {
-                            Vector128<double> prod = Sse2.Multiply(colVec, x128);
-                            resVec                 = Sse2.Add(resVec, prod);
-                        }
+                        Vector128<double> prod = Sse2.Multiply(colVec, x128);
+                        resVec = Sse2.Add(resVec, prod);
 
                         matrix.StoreVector(res, i, resVec);
 
@@ -216,8 +196,7 @@ namespace gfoidl.Numerics
                 Debug.Assert(Vector128<double>.Count == 2);
                 if (i < rows)
                 {
-                    //res[i] += colPtr[i] * x256.ToScalar();
-                    res[i] = Math.FusedMultiplyAdd(colPtr[i], x256.ToScalar(), res[i]);
+                    res[i] += colPtr[i] * x256.ToScalar();
                 }
             }
         }
@@ -225,8 +204,8 @@ namespace gfoidl.Numerics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void MultiplyCoreFirstColumnSse(Matrix matrix, nint rows, double* vec, double* res)
         {
-            nint i              = 0;
-            double* colPtr      = matrix.GetColumnPtr(0);
+            nint i = 0;
+            double* colPtr = matrix.GetColumnPtr(0);
             Vector128<double> x = Sse3.IsSupported
                 ? Sse3.LoadAndDuplicateToVector128(vec)
                 : Vector128.Create(vec[0]);
@@ -256,8 +235,8 @@ namespace gfoidl.Numerics
         {
             for (nint j = 1; j < cols; ++j)
             {
-                nint i              = 0;
-                double* colPtr      = matrix.GetColumnPtr(j);
+                nint i = 0;
+                double* colPtr = matrix.GetColumnPtr(j);
                 Vector128<double> x = Sse3.IsSupported
                     ? Sse3.LoadAndDuplicateToVector128(vec + j)
                     : Vector128.Create(vec[j]);
@@ -268,8 +247,8 @@ namespace gfoidl.Numerics
                     {
                         Vector128<double> colVec = matrix.ReadVector128(colPtr, i);
                         Vector128<double> resVec = matrix.ReadVector128(res, i);
-                        Vector128<double> prod   = Sse2.Multiply(colVec, x);
-                        resVec                   = Sse2.Add(resVec, prod);
+                        Vector128<double> prod = Sse2.Multiply(colVec, x);
+                        resVec = Sse2.Add(resVec, prod);
 
                         matrix.StoreVector(res, i, resVec);
 
@@ -281,8 +260,7 @@ namespace gfoidl.Numerics
                 Debug.Assert(Vector128<double>.Count == 2);
                 if (i < rows)
                 {
-                    //res[i] += colPtr[i] * x.ToScalar();
-                    res[i] = Math.FusedMultiplyAdd(colPtr[i], x.ToScalar(), res[i]);
+                    res[i] += colPtr[i] * x.ToScalar();
                 }
             }
         }
@@ -290,8 +268,8 @@ namespace gfoidl.Numerics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void MultiplyCoreFirstColumnArm64(Matrix matrix, nint rows, double* vec, double* res)
         {
-            nint i              = 0;
-            double* colPtr      = matrix.GetColumnPtr(0);
+            nint i = 0;
+            double* colPtr = matrix.GetColumnPtr(0);
             Vector128<double> x = Vector128.Create(vec[0]);
 
             if (rows >= Vector128<double>.Count)
@@ -344,8 +322,7 @@ namespace gfoidl.Numerics
                 Debug.Assert(Vector128<double>.Count == 2);
                 if (i < rows)
                 {
-                    //res[i] += colPtr[i] * x.ToScalar();
-                    res[i] = Math.FusedMultiplyAdd(colPtr[i], x.ToScalar(), res[i]);
+                    res[i] += colPtr[i] * x.ToScalar();
                 }
             }
         }
@@ -354,7 +331,7 @@ namespace gfoidl.Numerics
         private static void MultiplyCoreFirstColumnScalar(Matrix matrix, nint rows, double* vec, double* res)
         {
             double* colPtr = matrix.GetColumnPtr(0);
-            double x       = vec[0];
+            double x = vec[0];
 
             for (nint i = 0; i < rows; ++i)
             {
@@ -368,12 +345,11 @@ namespace gfoidl.Numerics
             for (nint j = 1; j < cols; ++j)
             {
                 double* colPtr = matrix.GetColumnPtr(j);
-                double x       = vec[j];
+                double x = vec[j];
 
                 for (nint i = 0; i < rows; ++i)
                 {
-                    //res[i] += colPtr[i] * x;
-                    res[i] = Math.FusedMultiplyAdd(colPtr[i], x, res[i]);
+                    res[i] += colPtr[i] * x;
                 }
             }
         }
