@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace HillClimbinComplex.Implementations
 {
@@ -19,6 +20,7 @@ namespace HillClimbinComplex.Implementations
 
         public static Complex operator /(Complex complex, double scalar) => new Complex(complex.Real / scalar, complex.Imaginary / scalar);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex operator -(Complex lhs, Complex rhs) => new Complex(lhs.Real - rhs.Real, lhs.Imaginary - rhs.Imaginary);
 
         public static Complex operator /(Complex lhs, Complex rhs)
