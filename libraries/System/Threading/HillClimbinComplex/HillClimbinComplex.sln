@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HillClimbinComplex", "HillClimbinComplex\HillClimbinComplex.csproj", "{8A07716D-4215-4FC0-86F5-C676B50CF8F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HillClimbinComplex.Tests", "HillClimbinComplex.Tests\HillClimbinComplex.Tests.csproj", "{EF3169DF-64B1-41DF-B93E-C3936237B78A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8A07716D-4215-4FC0-86F5-C676B50CF8F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A07716D-4215-4FC0-86F5-C676B50CF8F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A07716D-4215-4FC0-86F5-C676B50CF8F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A07716D-4215-4FC0-86F5-C676B50CF8F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF3169DF-64B1-41DF-B93E-C3936237B78A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF3169DF-64B1-41DF-B93E-C3936237B78A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF3169DF-64B1-41DF-B93E-C3936237B78A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF3169DF-64B1-41DF-B93E-C3936237B78A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FD92C4FF-B9CA-439C-8201-B466985F3339}
+	EndGlobalSection
+EndGlobal
