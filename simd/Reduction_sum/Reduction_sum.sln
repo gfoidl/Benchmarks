@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reduction_sum", "Reduction_sum\Reduction_sum.csproj", "{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reduction_sum", "Reduction_sum\Reduction_sum.csproj", "{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reduction_sum_Intrinsics", "Reduction_sum_Intrinsics\Reduction_sum_Intrinsics.csproj", "{B45B5860-8DF0-438E-9232-1A5B4A4B1889}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A37BB4C5-C3AF-4BD4-B91E-2EF61954D7F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B45B5860-8DF0-438E-9232-1A5B4A4B1889}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B45B5860-8DF0-438E-9232-1A5B4A4B1889}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B45B5860-8DF0-438E-9232-1A5B4A4B1889}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B45B5860-8DF0-438E-9232-1A5B4A4B1889}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
