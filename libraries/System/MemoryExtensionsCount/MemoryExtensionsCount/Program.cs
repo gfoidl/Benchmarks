@@ -49,7 +49,14 @@ public class Bench<T> where T : struct, INumberBase<T>
     private T[]? _source;
     private T _value;
 
+    [ParamsSource(nameof(ValuesForLength))]
     public int Length { get; set; } = 2 * Vector256<T>.Count - 1;
+
+    public static IEnumerable<int> ValuesForLength()
+    {
+        yield return 2 * Vector256<T>.Count - 1;
+        yield return Vector256<T>.Count + 1;
+    }
 
     [GlobalSetup]
     public void Setup()
@@ -147,48 +154,51 @@ public static class SpanHelpers
         int count = 0;
         ref T end = ref Unsafe.Add(ref current, length);
 
-        if (Vector256.IsHardwareAccelerated && length >= Vector256<T>.Count)
+        if (Vector128.IsHardwareAccelerated && length >= Vector128<T>.Count)
         {
-            Vector256<T> targetVector = Vector256.Create(value);
-            ref T oneVectorAwayFromEnd = ref Unsafe.Subtract(ref end, Vector256<T>.Count);
-            do
+            if (Vector256.IsHardwareAccelerated && length >= Vector256<T>.Count)
             {
-                count += BitOperations.PopCount(Vector256.Equals(Vector256.LoadUnsafe(ref current), targetVector).ExtractMostSignificantBits());
-                current = ref Unsafe.Add(ref current, Vector256<T>.Count);
+                Vector256<T> targetVector = Vector256.Create(value);
+                ref T oneVectorAwayFromEnd = ref Unsafe.Subtract(ref end, Vector256<T>.Count);
+                do
+                {
+                    count += BitOperations.PopCount(Vector256.Equals(Vector256.LoadUnsafe(ref current), targetVector).ExtractMostSignificantBits());
+                    current = ref Unsafe.Add(ref current, Vector256<T>.Count);
+                }
+                while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
+
+                nint remaining = Unsafe.ByteOffset(ref current, ref end) / Unsafe.SizeOf<T>();
+                if (remaining > 0)
+                {
+                    uint mask = Vector256.Equals(Vector256.LoadUnsafe(ref oneVectorAwayFromEnd), targetVector).ExtractMostSignificantBits();
+
+                    // The mask contains some elements that may be double-checked, so shift them away in order to get the correct pop-count.
+                    nint overlaps = Vector256<T>.Count - remaining;
+                    mask >>= (int)overlaps;
+                    count += BitOperations.PopCount(mask);
+                }
             }
-            while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
-
-            nint remaining = Unsafe.ByteOffset(ref current, ref end) / Unsafe.SizeOf<T>();
-            if (remaining > 0)
+            else
             {
-                uint mask = Vector256.Equals(Vector256.LoadUnsafe(ref oneVectorAwayFromEnd), targetVector).ExtractMostSignificantBits();
+                Vector128<T> targetVector = Vector128.Create(value);
+                ref T oneVectorAwayFromEnd = ref Unsafe.Subtract(ref end, Vector128<T>.Count);
+                do
+                {
+                    count += BitOperations.PopCount(Vector128.Equals(Vector128.LoadUnsafe(ref current), targetVector).ExtractMostSignificantBits());
+                    current = ref Unsafe.Add(ref current, Vector128<T>.Count);
+                }
+                while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
 
-                // The mask contains some elements that may be double-checked, so shift them away in order to get the correct pop-count.
-                nint overlaps = Vector256<T>.Count - remaining;
-                mask >>= (int)overlaps;
-                count += BitOperations.PopCount(mask);
-            }
-        }
-        else if (Vector128.IsHardwareAccelerated && length >= Vector128<T>.Count)
-        {
-            Vector128<T> targetVector = Vector128.Create(value);
-            ref T oneVectorAwayFromEnd = ref Unsafe.Subtract(ref end, Vector128<T>.Count);
-            do
-            {
-                count += BitOperations.PopCount(Vector128.Equals(Vector128.LoadUnsafe(ref current), targetVector).ExtractMostSignificantBits());
-                current = ref Unsafe.Add(ref current, Vector128<T>.Count);
-            }
-            while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
+                nint remaining = Unsafe.ByteOffset(ref current, ref end) / Unsafe.SizeOf<T>();
+                if (remaining > 0)
+                {
+                    uint mask = Vector128.Equals(Vector128.LoadUnsafe(ref oneVectorAwayFromEnd), targetVector).ExtractMostSignificantBits();
 
-            nint remaining = Unsafe.ByteOffset(ref current, ref end) / Unsafe.SizeOf<T>();
-            if (remaining > 0)
-            {
-                uint mask = Vector128.Equals(Vector128.LoadUnsafe(ref oneVectorAwayFromEnd), targetVector).ExtractMostSignificantBits();
-
-                // The mask contains some elements that may be double-checked, so shift them away in order to get the correct pop-count.
-                nint overlaps = Vector128<T>.Count - remaining;
-                mask >>= (int)overlaps;
-                count += BitOperations.PopCount(mask);
+                    // The mask contains some elements that may be double-checked, so shift them away in order to get the correct pop-count.
+                    nint overlaps = Vector128<T>.Count - remaining;
+                    mask >>= (int)overlaps;
+                    count += BitOperations.PopCount(mask);
+                }
             }
         }
         else
