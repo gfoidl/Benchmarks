@@ -45,9 +45,9 @@ BenchmarkDotNet.Running.BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly)
 
 //[ShortRunJob]
 //[DisassemblyDiagnoser]
-[GenericTypeArguments(typeof(byte))]
-[GenericTypeArguments(typeof(short))]
-[GenericTypeArguments(typeof(int))]
+//[GenericTypeArguments(typeof(byte))]
+//[GenericTypeArguments(typeof(short))]
+//[GenericTypeArguments(typeof(int))]
 [GenericTypeArguments(typeof(long))]
 public class Bench<T> where T : struct, INumberBase<T>, IMinMaxValue<T>
 {
@@ -122,11 +122,6 @@ public class Bench<T> where T : struct, INumberBase<T>, IMinMaxValue<T>
         Debug.Assert(_source is not null);
 
         ref T source = ref MemoryMarshal.GetArrayDataReference(_source);
-
-        if (typeof(T) == typeof(byte))
-        {
-            return SpanHelpers.CountValueType_PR_1(ref Unsafe.As<T, sbyte>(ref source), (sbyte)(byte)(object)_value, this.Length);
-        }
         return SpanHelpers.CountValueType_PR_1(ref source, _value, this.Length);
     }
 }
@@ -253,9 +248,9 @@ public static class SpanHelpers
         return count;
     }
 
-    public static int CountValueType_PR_1<T>(ref T current, T value, int length) where T : struct, IEquatable<T>?, INumberBase<T>, IMinMaxValue<T>
+    public static int CountValueType_PR_1<T>(ref T current, T value, int length) where T : struct, INumberBase<T>, IMinMaxValue<T>
     {
-        Debug.Assert(default(T) is sbyte or short or int or long);
+        Debug.Assert(default(T) is byte or short or int or long);
 
         int count = 0;
         ref T end = ref Unsafe.Add(ref current, length);
@@ -265,30 +260,56 @@ public static class SpanHelpers
             if (Vector256.IsHardwareAccelerated && length >= Vector256<T>.Count)
             {
                 Vector256<T> targetVector = Vector256.Create(value);
-                Vector256<T> accumulator = Vector256<T>.Zero;
-                int i = 0;
                 ref T oneVectorAwayFromEnd = ref Unsafe.Subtract(ref end, Vector256<T>.Count);
 
-                do
+                if (length <= 2 * Vector256<T>.Count)
                 {
-                    Vector256<T> vector = Vector256.LoadUnsafe(ref current);
-                    Vector256<T> equals = Vector256.Equals(vector, targetVector);
-                    accumulator -= equals;
-                    i++;
-                    current = ref Unsafe.Add(ref current, Vector256<T>.Count);
-
-                    // To avoid overflow in the accumulator for sbyte, short.
-                    if ((typeof(T) == typeof(sbyte) && i == (byte)(sbyte)(object)T.MaxValue)
-                     || (typeof(T) == typeof(short) && i == (ushort)(short)(object)T.MaxValue))
+                    do
                     {
-                        count += SumVector256(accumulator);
-                        accumulator = Vector256<T>.Zero;
-                        i = 0;
+                        count += BitOperations.PopCount(Vector256.Equals(Vector256.LoadUnsafe(ref current), targetVector).ExtractMostSignificantBits());
+                        current = ref Unsafe.Add(ref current, Vector256<T>.Count);
                     }
+                    while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
                 }
-                while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
+                else
+                {
+                    Vector256<T> accumulator = Vector256<T>.Zero;
+                    int i = 0;
 
-                count += SumVector256(accumulator);
+                    do
+                    {
+                        Vector256<T> equals = Vector256.Equals(Vector256.LoadUnsafe(ref current), targetVector);
+
+                        if (typeof(T) != typeof(byte))
+                        {
+                            accumulator -= equals;
+                        }
+                        else
+                        {
+                            // Subtract via sbyte, overflow is OK here, as we cast to unsigned later.
+                            accumulator = (accumulator.AsSByte() - equals.AsSByte()).As<sbyte, T>();
+                        }
+
+                        // JIT won't eleminate that instruction, so help it.
+                        if (typeof(T) == typeof(byte) || typeof(T) == typeof(short))
+                        {
+                            i++;
+                        }
+                        current = ref Unsafe.Add(ref current, Vector256<T>.Count);
+
+                        // To avoid overflow in the accumulator for sbyte, short.
+                        if ((typeof(T) == typeof(byte) && i == byte.MaxValue)
+                         || (typeof(T) == typeof(short) && i == short.MaxValue))
+                        {
+                            count += SumVector256(accumulator);
+                            accumulator = Vector256<T>.Zero;
+                            i = 0;
+                        }
+                    }
+                    while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
+
+                    count += SumVector256(accumulator);
+                }
 
                 uint remaining = (uint)Unsafe.ByteOffset(ref current, ref end) / (uint)Unsafe.SizeOf<T>();
                 if (remaining > Vector256<T>.Count / 2)
@@ -306,30 +327,48 @@ public static class SpanHelpers
             else
             {
                 Vector128<T> targetVector = Vector128.Create(value);
-                Vector128<T> accumulator = Vector128<T>.Zero;
-                int i = 0;
                 ref T oneVectorAwayFromEnd = ref Unsafe.Subtract(ref end, Vector128<T>.Count);
 
-                do
+                if (length <= 2 * Vector128<T>.Count)
                 {
-                    Vector128<T> vector = Vector128.LoadUnsafe(ref current);
-                    Vector128<T> equals = Vector128.Equals(vector, targetVector);
-                    accumulator -= equals;
-                    i++;
-                    current = ref Unsafe.Add(ref current, Vector128<T>.Count);
-
-                    // To avoid overflow in the accumulator for sbyte, short.
-                    if ((typeof(T) == typeof(sbyte) && i == (byte)(sbyte)(object)T.MaxValue)
-                     || (typeof(T) == typeof(short) && i == (ushort)(short)(object)T.MaxValue))
+                    do
                     {
-                        count += SumVector128(accumulator);
-                        accumulator = Vector128<T>.Zero;
-                        i = 0;
+                        count += BitOperations.PopCount(Vector128.Equals(Vector128.LoadUnsafe(ref current), targetVector).ExtractMostSignificantBits());
+                        current = ref Unsafe.Add(ref current, Vector128<T>.Count);
                     }
+                    while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
                 }
-                while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
+                else
+                {
+                    Vector128<T> accumulator = Vector128<T>.Zero;
+                    int i = 0;
 
-                count += SumVector128(accumulator);
+                    do
+                    {
+                        Vector128<T> equals = Vector128.Equals(Vector128.LoadUnsafe(ref current), targetVector);
+                        accumulator -= equals;
+
+                        // JIT won't eleminate that instruction, so help it.
+                        if (typeof(T) == typeof(sbyte) || typeof(T) == typeof(short))
+                        {
+                            i++;
+                        }
+
+                        current = ref Unsafe.Add(ref current, Vector128<T>.Count);
+
+                        // To avoid overflow in the accumulator for sbyte, short.
+                        if ((typeof(T) == typeof(sbyte) && i == (byte)(sbyte)(object)T.MaxValue)
+                         || (typeof(T) == typeof(short) && i == (ushort)(short)(object)T.MaxValue))
+                        {
+                            count += SumVector128(accumulator);
+                            accumulator = Vector128<T>.Zero;
+                            i = 0;
+                        }
+                    }
+                    while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
+
+                    count += SumVector128(accumulator);
+                }
 
                 uint remaining = (uint)Unsafe.ByteOffset(ref current, ref end) / (uint)Unsafe.SizeOf<T>();
                 if (remaining > Vector128<T>.Count / 2)
@@ -348,7 +387,7 @@ public static class SpanHelpers
 
         while (Unsafe.IsAddressLessThan(ref current, ref end))
         {
-            if (current.Equals(value))
+            if (current == value)
             {
                 count++;
             }
@@ -361,7 +400,7 @@ public static class SpanHelpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int SumVector256(Vector256<T> accumulator)
         {
-            if (typeof(T) == typeof(sbyte))
+            if (typeof(T) == typeof(byte))
             {
                 if (Avx2.IsSupported)
                 {
@@ -376,9 +415,9 @@ public static class SpanHelpers
                 {
                     int sum = 0;
 
-                    for (int i = 0; i < Vector256<sbyte>.Count; ++i)
+                    for (int i = 0; i < Vector256<byte>.Count; ++i)
                     {
-                        sum += (byte)(sbyte)(object)accumulator[i];
+                        sum += (byte)(byte)(object)accumulator[i];
                     }
 
                     return sum;
@@ -436,7 +475,7 @@ public static class SpanHelpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int SumVector128(Vector128<T> accumulator)
         {
-            if (typeof(T) == typeof(sbyte))
+            if (typeof(T) == typeof(byte))
             {
                 if (Sse2.IsSupported)
                 {
@@ -448,9 +487,9 @@ public static class SpanHelpers
                 {
                     int sum = 0;
 
-                    for (int i = 0; i < Vector128<sbyte>.Count; ++i)
+                    for (int i = 0; i < Vector128<byte>.Count; ++i)
                     {
-                        sum += (byte)(sbyte)(object)accumulator[i];
+                        sum += (byte)(byte)(object)accumulator[i];
                     }
 
                     return sum;
