@@ -46,9 +46,9 @@ BenchmarkDotNet.Running.BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly)
 //[ShortRunJob]
 //[DisassemblyDiagnoser]
 [GenericTypeArguments(typeof(byte))]
-[GenericTypeArguments(typeof(short))]
-[GenericTypeArguments(typeof(int))]
-[GenericTypeArguments(typeof(long))]
+//[GenericTypeArguments(typeof(short))]
+//[GenericTypeArguments(typeof(int))]
+//[GenericTypeArguments(typeof(long))]
 public class Bench<T> where T : struct, INumberBase<T>, IMinMaxValue<T>
 {
     private T[]? _source;
@@ -65,8 +65,23 @@ public class Bench<T> where T : struct, INumberBase<T>, IMinMaxValue<T>
         //yield return 2 * Vector256<T>.Count - 1;
         //yield return Vector256<T>.Count + 1;
 
-        yield return Vector128<T>.Count;
-        yield return Vector256<T>.Count;
+        if (typeof(T) == typeof(byte))
+        {
+            yield return 10 * Vector256<T>.Count;
+        }
+        else if (typeof(T) == typeof(short))
+        {
+            yield return 5 * Vector256<T>.Count;
+        }
+        else if (typeof(T) == typeof(int))
+        {
+            yield return 2 * Vector256<T>.Count;
+        }
+        else if (typeof(T) == typeof(long))
+        {
+            yield return 3 * Vector256<T>.Count;
+        }
+
         yield return 100;
         yield return 1_000;
     }
@@ -262,7 +277,27 @@ public static class SpanHelpers
                 Vector256<T> targetVector = Vector256.Create(value);
                 ref T oneVectorAwayFromEnd = ref Unsafe.Subtract(ref end, Vector256<T>.Count);
 
-                if (length <= 2 * Vector256<T>.Count || !Avx2.IsSupported)
+                int threshould = 0;
+
+                if (typeof(T) == typeof(byte))
+                {
+                    threshould = 10;
+                }
+                else if (typeof(T) == typeof(short))
+                {
+                    threshould = 5;
+                }
+                else if (typeof(T) == typeof(int))
+                {
+                    threshould = 2;
+                }
+                else if (typeof(T) == typeof(long))
+                {
+                    threshould = 3;
+                }
+
+                // The reduction of the accumulator has some cost, so a threshould is used (found by benchmarks).
+                if (length < threshould * Vector256<T>.Count || !Avx2.IsSupported)
                 {
                     do
                     {
@@ -273,71 +308,84 @@ public static class SpanHelpers
                 }
                 else
                 {
+                    // In this optimization we use an accumulator that can be sumed up, by re-interpreting the result
+                    // of equals (all or no bits set) as signed values (so -1 or 0) and by subtracting from the accumulator.
+                    //
+                    // This is only done for Vector256 when AVX2 is supported.
+                    // * for the reduction of the accumulator to an int there's no corresponding code for Arm
+                    // * for large enough length to hit this code-path on x86 there's no need to complicate the Vector128 code-path
+                    //   as on recent hardware AVX2 should be available then.
+
                     Vector256<T> accumulator = Vector256<T>.Zero;
-                    Vector256<T> tmpAccumulator = Vector256<T>.Zero;
-                    int i = 0;
 
-                    do
+                    // Need to special case byte and short to prevent overflow in the vector registers.
+                    if (typeof(T) == typeof(byte) || typeof(T) == typeof(short))
                     {
-                        Vector256<T> equals = Vector256.Equals(Vector256.LoadUnsafe(ref current), targetVector);
-
-                        if (typeof(T) != typeof(byte))
+                        while (true)
                         {
-                            accumulator -= equals;
-                        }
-                        else
-                        {
-                            // Subtract via sbyte, overflow is OK here, as we cast to unsigned later.
-                            accumulator = (accumulator.AsSByte() - equals.AsSByte()).As<sbyte, T>();
-                        }
+                            int maxValue = typeof(T) == typeof(byte) ? byte.MaxValue : short.MaxValue;
+                            ref T vectorEnd = ref Unsafe.Add(ref current, (maxValue - 1) * Vector256<T>.Count);
 
-                        // JIT won't eleminate that instruction, so help it.
-                        if (typeof(T) == typeof(byte) || typeof(T) == typeof(short))
-                        {
-                            i++;
-                        }
-
-                        current = ref Unsafe.Add(ref current, Vector256<T>.Count);
-
-                        // To avoid overflow in the accumulator for sbyte, short.
-                        if (typeof(T) == typeof(byte))
-                        {
-                            if (i % 0x40 == 0)  // 0x40 is the greatest power of 2 that is smaller than sbyte.MaxValue
+                            if (Unsafe.IsAddressGreaterThan(ref vectorEnd, ref oneVectorAwayFromEnd))
                             {
-                                Vector256<ushort> sad = Avx2.SumAbsoluteDifferences(accumulator.AsByte(), Vector256<byte>.Zero);
-                                accumulator = Vector256<T>.Zero;
-                                tmpAccumulator = (tmpAccumulator.AsUInt16() + sad).As<ushort, T>();
+                                break;
                             }
-                            else if (i == short.MaxValue / Vector256<short>.Count)
+
+                            do
                             {
-                                count += SumVector256(tmpAccumulator.AsInt16());
-                                tmpAccumulator = Vector256<T>.Zero;
-                                i = 0;
+                                Vector256<T> equals = Vector256.Equals(Vector256.LoadUnsafe(ref current), targetVector);
+
+                                if (typeof(T) == typeof(byte))
+                                {
+                                    // Subtract via sbyte, overflow is OK here, as we cast to unsigned later.
+                                    accumulator = (accumulator.AsSByte() - equals.AsSByte()).As<sbyte, T>();
+                                }
+                                else
+                                {
+                                    accumulator -= equals;
+                                }
+
+                                current = ref Unsafe.Add(ref current, Vector256<T>.Count);
                             }
-                        }
-                        else if (typeof(T) == typeof(short) && i == short.MaxValue)
-                        {
+                            while (!Unsafe.IsAddressGreaterThan(ref current, ref vectorEnd));
+
                             count += SumVector256(accumulator);
                             accumulator = Vector256<T>.Zero;
-                            i = 0;
                         }
-                    }
-                    while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
 
-                    if (typeof(T) != typeof(byte))
-                    {
+                        while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd))
+                        {
+                            Vector256<T> equals = Vector256.Equals(Vector256.LoadUnsafe(ref current), targetVector);
+                            if (typeof(T) == typeof(byte))
+                            {
+                                accumulator = (accumulator.AsSByte() - equals.AsSByte()).As<sbyte, T>();
+                            }
+                            else
+                            {
+                                accumulator -= equals;
+                            }
+                            current = ref Unsafe.Add(ref current, Vector256<T>.Count);
+                        }
+
                         count += SumVector256(accumulator);
                     }
                     else
                     {
-                        Vector256<ushort> sad = Avx2.SumAbsoluteDifferences(accumulator.AsByte(), Vector256<byte>.Zero);
-                        tmpAccumulator = (tmpAccumulator.AsUInt16() + sad).As<ushort, T>();
-                        count += SumVector256(tmpAccumulator.AsInt16());
+                        do
+                        {
+                            Vector256<T> equals = Vector256.Equals(Vector256.LoadUnsafe(ref current), targetVector);
+                            accumulator -= equals;
+
+                            current = ref Unsafe.Add(ref current, Vector256<T>.Count);
+                        }
+                        while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
+
+                        count += SumVector256(accumulator);
                     }
                 }
 
                 uint remaining = (uint)Unsafe.ByteOffset(ref current, ref end) / (uint)Unsafe.SizeOf<T>();
-                if (remaining > Vector256<T>.Count / 2)
+                if (remaining >= Vector256<T>.Count / 2)
                 {
                     uint mask = Vector256.Equals(Vector256.LoadUnsafe(ref oneVectorAwayFromEnd), targetVector).ExtractMostSignificantBits();
 
@@ -354,82 +402,15 @@ public static class SpanHelpers
                 Vector128<T> targetVector = Vector128.Create(value);
                 ref T oneVectorAwayFromEnd = ref Unsafe.Subtract(ref end, Vector128<T>.Count);
 
-                if (length <= 2 * Vector128<T>.Count || !Sse2.IsSupported)
+                do
                 {
-                    do
-                    {
-                        count += BitOperations.PopCount(Vector128.Equals(Vector128.LoadUnsafe(ref current), targetVector).ExtractMostSignificantBits());
-                        current = ref Unsafe.Add(ref current, Vector128<T>.Count);
-                    }
-                    while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
+                    count += BitOperations.PopCount(Vector128.Equals(Vector128.LoadUnsafe(ref current), targetVector).ExtractMostSignificantBits());
+                    current = ref Unsafe.Add(ref current, Vector128<T>.Count);
                 }
-                else
-                {
-                    Vector128<T> accumulator = Vector128<T>.Zero;
-                    Vector128<T> tmpAccumulator = Vector128<T>.Zero;
-                    int i = 0;
-
-                    do
-                    {
-                        Vector128<T> equals = Vector128.Equals(Vector128.LoadUnsafe(ref current), targetVector);
-
-                        if (typeof(T) != typeof(byte))
-                        {
-                            accumulator -= equals;
-                        }
-                        else
-                        {
-                            // Subtract via sbyte, overflow is OK here, as we cast to unsigned later.
-                            accumulator = (accumulator.AsSByte() - equals.AsSByte()).As<sbyte, T>();
-                        }
-
-                        // JIT won't eleminate that instruction, so help it.
-                        if (typeof(T) == typeof(sbyte) || typeof(T) == typeof(short))
-                        {
-                            i++;
-                        }
-
-                        current = ref Unsafe.Add(ref current, Vector128<T>.Count);
-
-                        // To avoid overflow in the accumulator for sbyte, short.
-                        if (typeof(T) == typeof(byte))
-                        {
-                            if (i % 0x40 == 0)  // 0x40 is the greatest power of 2 that is smaller than sbyte.MaxValue
-                            {
-                                Vector128<ushort> sad = Sse2.SumAbsoluteDifferences(accumulator.AsByte(), Vector128<byte>.Zero);
-                                accumulator = Vector128<T>.Zero;
-                                tmpAccumulator = (tmpAccumulator.AsUInt16() + sad).As<ushort, T>();
-                            }
-                            else if (i == short.MaxValue / Vector128<short>.Count)
-                            {
-                                count += SumVector128(tmpAccumulator.AsInt16());
-                                tmpAccumulator = Vector128<T>.Zero;
-                                i = 0;
-                            }
-                        }
-                        else if (typeof(T) == typeof(short) && i == short.MaxValue)
-                        {
-                            count += SumVector128(accumulator);
-                            accumulator = Vector128<T>.Zero;
-                            i = 0;
-                        }
-                    }
-                    while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
-
-                    if (typeof(T) != typeof(byte))
-                    {
-                        count += SumVector128(accumulator);
-                    }
-                    else
-                    {
-                        Vector128<ushort> sad = Sse2.SumAbsoluteDifferences(accumulator.AsByte(), Vector128<byte>.Zero);
-                        tmpAccumulator = (tmpAccumulator.AsUInt16() + sad).As<ushort, T>();
-                        count += SumVector128(tmpAccumulator.AsInt16());
-                    }
-                }
+                while (!Unsafe.IsAddressGreaterThan(ref current, ref oneVectorAwayFromEnd));
 
                 uint remaining = (uint)Unsafe.ByteOffset(ref current, ref end) / (uint)Unsafe.SizeOf<T>();
-                if (remaining > Vector128<T>.Count / 2)
+                if (remaining >= Vector128<T>.Count / 2)
                 {
                     uint mask = Vector128.Equals(Vector128.LoadUnsafe(ref oneVectorAwayFromEnd), targetVector).ExtractMostSignificantBits();
 
@@ -458,52 +439,26 @@ public static class SpanHelpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int SumVector256<TVector>(Vector256<TVector> accumulator) where TVector : struct
         {
+            Debug.Assert(Avx2.IsSupported);
+
             if (typeof(TVector) == typeof(byte))
             {
-                if (Avx2.IsSupported)
-                {
-                    Vector256<ushort> sad0 = Avx2.SumAbsoluteDifferences(accumulator.AsByte(), Vector256<byte>.Zero);
-                    Vector256<ushort> sad1 = Avx2.Shuffle(sad0.AsInt32(), 0x2).AsUInt16();
-                    Vector256<ushort> tmp = sad0 + sad1;
-                    Vector128<ushort> t1 = tmp.GetUpper();
+                Vector256<ushort> sad0 = Avx2.SumAbsoluteDifferences(accumulator.AsByte(), Vector256<byte>.Zero);
+                Vector256<ushort> sad1 = Avx2.Shuffle(sad0.AsInt32(), 0x2).AsUInt16();
+                Vector256<ushort> tmp = sad0 + sad1;
+                Vector128<ushort> t1 = tmp.GetUpper();
 
-                    return tmp.ToScalar() + t1.ToScalar();
-                }
-                else
-                {
-                    int sum = 0;
-
-                    for (int i = 0; i < Vector256<byte>.Count; ++i)
-                    {
-                        sum += (byte)(byte)(object)accumulator[i];
-                    }
-
-                    return sum;
-                }
+                return tmp.ToScalar() + t1.ToScalar();
             }
             else if (typeof(TVector) == typeof(short))
             {
-                if (Avx2.IsSupported)
-                {
-                    Vector256<short> vec = accumulator.AsInt16();
-                    Vector256<int> hadd = Avx2.MultiplyAddAdjacent(vec, Vector256<short>.One);
-                    Vector256<int> hadd1 = Avx2.HorizontalAdd(hadd, hadd);
-                    Vector256<int> hadd2 = Avx2.HorizontalAdd(hadd1, hadd1);
-                    Vector128<int> t1 = hadd2.GetUpper();
+                Vector256<short> vec = accumulator.AsInt16();
+                Vector256<int> hadd = Avx2.MultiplyAddAdjacent(vec, Vector256<short>.One);
+                Vector256<int> hadd1 = Avx2.HorizontalAdd(hadd, hadd);
+                Vector256<int> hadd2 = Avx2.HorizontalAdd(hadd1, hadd1);
+                Vector128<int> t1 = hadd2.GetUpper();
 
-                    return hadd2.ToScalar() + t1.ToScalar();
-                }
-                else
-                {
-                    int sum = 0;
-
-                    for (int i = 0; i < Vector256<short>.Count; ++i)
-                    {
-                        sum += (ushort)(short)(object)accumulator[i];
-                    }
-
-                    return sum;
-                }
+                return hadd2.ToScalar() + t1.ToScalar();
             }
             else if (typeof(TVector) == typeof(int))
             {
@@ -511,18 +466,15 @@ public static class SpanHelpers
             }
             else if (typeof(TVector) == typeof(long))
             {
-                if (Avx2.IsSupported)
-                {
-                    Vector256<long> v0 = accumulator.AsInt64();
-                    Vector256<long> v1 = Avx2.Permute4x64(v0, 0b_10_11_00_01);
-                    Vector256<long> s0 = v0 + v1;
-                    Vector256<long> s1 = Avx2.Permute4x64(s0, 0x2);
-                    Vector256<long> sum = s0 + s1;
+                // Vector256.Sum stores the vector on the stack, then reads from there the longs and sums them up.
+                // This approach avoids intermediate memory stores / loads.
+                Vector256<long> v0 = accumulator.AsInt64();
+                Vector256<long> v1 = Avx2.Permute4x64(v0, 0b_10_11_00_01);
+                Vector256<long> s0 = v0 + v1;
+                Vector256<long> s1 = Avx2.Permute4x64(s0, 0x2);
+                Vector256<long> sum = s0 + s1;
 
-                    return (int)sum.ToScalar();
-                }
-
-                return (int)(long)(object)Vector256.Sum(accumulator);
+                return (int)sum.ToScalar();
             }
             else
             {
